@@ -1,8 +1,8 @@
 # Qi
 
-[![Build Status](https://travis-ci.org/cyril/qi.svg?branch=master)][travis]
+[![Build Status](https://travis-ci.org/cyril/qi.rb.svg?branch=master)][travis]
 [![Gem Version](https://badge.fury.io/rb/qi.svg)][gem]
-[![Inline docs](http://inch-ci.org/github/cyril/qi.svg?branch=master)][inchpages]
+[![Inline docs](http://inch-ci.org/github/cyril/qi.rb.svg?branch=master)][inchpages]
 [![Documentation](http://img.shields.io/:yard-docs-38c800.svg)][rubydoc]
 
 > An ordered store of stuff to manage, for Ruby.
@@ -45,7 +45,7 @@ __Qi__ follows [Semantic Versioning 2.0](http://semver.org/).
 
 ## Contributing
 
-1. [Fork it](https://github.com/cyril/qi/fork)
+1. [Fork it](https://github.com/cyril/qi.rb/fork)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
@@ -56,6 +56,6 @@ __Qi__ follows [Semantic Versioning 2.0](http://semver.org/).
 See `LICENSE.md` file.
 
 [gem]: https://rubygems.org/gems/qi
-[travis]: https://travis-ci.org/cyril/qi
-[inchpages]: http://inch-ci.org/github/cyril/qi/
+[travis]: https://travis-ci.org/cyril/qi.rb
+[inchpages]: http://inch-ci.org/github/cyril/qi.rb/
 [rubydoc]: http://rubydoc.info/gems/qi/frames
