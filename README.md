@@ -1,6 +1,7 @@
 # Qi
 
 [![Build Status](https://travis-ci.org/cyril/qi.rb.svg?branch=master)][travis]
+[![Code Climate](https://codeclimate.com/github/cyril/qi.rb/badges/gpa.svg)][codeclimate]
 [![Gem Version](https://badge.fury.io/rb/qi.svg)][gem]
 [![Inline docs](http://inch-ci.org/github/cyril/qi.rb.svg?branch=master)][inchpages]
 [![Documentation](http://img.shields.io/:yard-docs-38c800.svg)][rubydoc]
@@ -57,5 +58,6 @@ See `LICENSE.md` file.
 
 [gem]: https://rubygems.org/gems/qi
 [travis]: https://travis-ci.org/cyril/qi.rb
-[inchpages]: http://inch-ci.org/github/cyril/qi.rb/
+[codeclimate]: https://codeclimate.com/github/cyril/qi.rb
+[inchpages]: http://inch-ci.org/github/cyril/qi.rb
 [rubydoc]: http://rubydoc.info/gems/qi/frames
