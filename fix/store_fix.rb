@@ -8,6 +8,14 @@ Fix.describe Qi::Store do
       it { MUST eql [nil, nil, nil, nil, nil, nil, nil, nil] }
     end
 
+    on :call, 44, 3, 'p' do
+      it { MUST raise_exception ArgumentError }
+    end
+
+    on :call, 2, 444, 'p' do
+      it { MUST raise_exception ArgumentError }
+    end
+
     on :captured do
       it { MUST be_nil }
     end
