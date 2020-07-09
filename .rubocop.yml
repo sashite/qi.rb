@@ -9,6 +9,8 @@ AllCops:
     - test.rb
     - test/**/*
 
+  TargetRubyVersion: 2.7
+
 Style/HashEachMethods:
   Enabled: true
 
