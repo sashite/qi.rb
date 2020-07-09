@@ -1,23 +1,27 @@
+# frozen_string_literal: true
+
 Gem::Specification.new do |spec|
-  spec.name          = 'qi'
-  spec.version       = File.read('VERSION.semver').chomp
-  spec.authors       = ['Cyril Kato']
-  spec.email         = ['contact@cyril.email']
+  spec.name         = 'qi'
+  spec.version      = File.read('VERSION.semver').chomp
+  spec.author       = 'Cyril Kato'
+  spec.email        = 'contact@cyril.email'
+  spec.summary      = 'Represent positions and play moves.'
+  spec.description  = "Instantiate PCN's positions and apply PMN's moves."
+  spec.homepage     = 'https://developer.sashite.com/specs/'
+  spec.license      = 'MIT'
+  spec.files        = Dir['LICENSE.md', 'README.md', 'lib/**/*']
 
-  spec.summary       = 'Store to manage ordered stuff.'
-  spec.description   = 'An ordered store of stuff to manage, for Ruby.'
-  spec.homepage      = 'https://github.com/cyril/qi.rb'
-  spec.license       = 'MIT'
+  spec.metadata = {
+    'bug_tracker_uri' => 'https://github.com/sashite/qi.rb/issues',
+    'documentation_uri' => 'https://rubydoc.info/gems/qi/index',
+    'source_code_uri' => 'https://github.com/sashite/qi.rb'
+  }
 
-  spec.files         =
-    `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^test/}) }
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
-  spec.require_paths = ['lib']
-
-  spec.add_development_dependency 'bundler',    '~> 1.15'
-  spec.add_development_dependency 'rake',       '~> 12.0'
-  spec.add_development_dependency 'yard',       '~> 0.9'
-  spec.add_development_dependency 'simplecov',  '~> 0.14'
-  spec.add_development_dependency 'rubocop',    '~> 0.49'
-  spec.add_development_dependency 'fix',        '~> 0.17'
+  spec.add_development_dependency 'brutal'
+  spec.add_development_dependency 'bundler'
+  spec.add_development_dependency 'rake'
+  spec.add_development_dependency 'rubocop-performance'
+  spec.add_development_dependency 'rubocop-thread_safety'
+  spec.add_development_dependency 'simplecov'
+  spec.add_development_dependency 'yard'
 end

@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
+# The Qi module.
 module Qi
 end
 
-require_relative File.join 'qi', 'store'
+require_relative 'qi/position'
