@@ -1,6 +1,6 @@
 # Qi.rb
 
-[![Build Status](https://travis-ci.org/sashite/qi.rb.svg?branch=master)](travis)
+[![Build Status](https://travis-ci.org/sashite/qi.rb.svg?branch=master)](https://travis-ci.org/sashite/qi.rb)
 [![Gem Version](https://badge.fury.io/rb/qi.svg)][gem]
 [![Inline docs](https://inch-ci.org/github/sashite/qi.rb.svg?branch=master)][inchpages]
 [![Documentation](https://img.shields.io/:yard-docs-38c800.svg)][rubydoc]
@@ -83,6 +83,5 @@ The `qi` gem is maintained by [Sashite](https://sashite.com/).
 With some [lines of code](https://github.com/sashite/), let's share the beauty of Chinese, Japanese and Western cultures through the game of chess!
 
 [gem]: https://rubygems.org/gems/qi
-[travis]: https://travis-ci.org/sashite/qi.rb
 [inchpages]: https://inch-ci.org/github/sashite/qi.rb
 [rubydoc]: https://rubydoc.info/gems/qi/frames
