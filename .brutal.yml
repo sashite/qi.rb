@@ -67,4 +67,5 @@ actuals:
   - "%{subject}.topside_in_hand_pieces"
   - "%{subject}.squares"
   - "%{subject}.bottomside_in_hand_pieces"
+  - "%{subject}.in_hand_pieces"
   - "%{subject}.turn_to_topside?"

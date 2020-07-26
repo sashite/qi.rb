@@ -20,7 +20,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'brutal'
   spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'rake'
-  spec.add_development_dependency 'rubocop', '0.86.0'
   spec.add_development_dependency 'rubocop-performance'
   spec.add_development_dependency 'rubocop-thread_safety'
   spec.add_development_dependency 'simplecov'
