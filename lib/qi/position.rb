@@ -53,6 +53,7 @@ module Qi
 
     # Apply a move in PMN (Portable Move Notation) format.
     #
+    # @param move [Array] The move to play.
     # @see https://developer.sashite.com/specs/portable-move-notation
     # @return [Position] The new position.
     def call(move)
