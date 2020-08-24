@@ -2,64 +2,64 @@
 header: |
   # frozen_string_literal: true
 
-  require 'simplecov'
+  require "simplecov"
 
-  ::SimpleCov.command_name 'Brutal test suite'
+  ::SimpleCov.command_name "Brutal test suite"
   ::SimpleCov.start
 
-  require './lib/qi'
+  require "./lib/qi"
 
 subject: |
   starting_position = Qi::Position.new(
-    'l', 'n', 's', 'g', 'k', 'g', 's', 'n', 'l',
-    nil, 'r', nil, nil, nil, nil, nil, 'b', nil,
-    'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p',
+    "l", "n", "s", "g", "k", "g", "s", "n", "l",
+    nil, "r", nil, nil, nil, nil, nil, "b", nil,
+    "p", "p", "p", "p", "p", "p", "p", "p", "p",
     nil, nil, nil, nil, nil, nil, nil, nil, nil,
     nil, nil, nil, nil, nil, nil, nil, nil, nil,
     nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P',
-    nil, 'B', nil, nil, nil, nil, nil, 'R', nil,
-    'L', 'N', 'S', 'G', 'K', 'G', 'S', 'N', 'L')
+    "P", "P", "P", "P", "P", "P", "P", "P", "P",
+    nil, "B", nil, nil, nil, nil, nil, "R", nil,
+    "L", "N", "S", "G", "K", "G", "S", "N", "L")
   %{moves}.reduce(starting_position) { |position, move| position.call(move) }
 
 contexts:
   moves:
     - []
     -
-      - [56, 47, 'P']
+      - [56, 47, "P"]
     -
-      - [56, 47, 'P']
-      - [3, 11, 'g']
+      - [56, 47, "P"]
+      - [3, 11, "g"]
     -
-      - [56, 47, 'P']
-      - [3, 11, 'g']
-      - [64, 24, '+B', 'P']
+      - [56, 47, "P"]
+      - [3, 11, "g"]
+      - [64, 24, "+B", "P"]
     -
-      - [56, 47, 'P']
-      - [3, 11, 'g']
-      - [64, 24, '+B', 'P']
-      - [5, 14, 'g']
+      - [56, 47, "P"]
+      - [3, 11, "g"]
+      - [64, 24, "+B", "P"]
+      - [5, 14, "g"]
     -
-      - [56, 47, 'P']
-      - [3, 11, 'g']
-      - [64, 24, '+B', 'P']
-      - [5, 14, 'g']
-      - [24, 14, '+B', 'G']
+      - [56, 47, "P"]
+      - [3, 11, "g"]
+      - [64, 24, "+B", "P"]
+      - [5, 14, "g"]
+      - [24, 14, "+B", "G"]
     -
-      - [56, 47, 'P']
-      - [3, 11, 'g']
-      - [64, 24, '+B', 'P']
-      - [5, 14, 'g']
-      - [24, 14, '+B', 'G']
-      - [4, 3, 'k']
+      - [56, 47, "P"]
+      - [3, 11, "g"]
+      - [64, 24, "+B", "P"]
+      - [5, 14, "g"]
+      - [24, 14, "+B", "G"]
+      - [4, 3, "k"]
     -
-      - [56, 47, 'P']
-      - [3, 11, 'g']
-      - [64, 24, '+B', 'P']
-      - [5, 14, 'g']
-      - [24, 14, '+B', 'G']
-      - [4, 3, 'k']
-      - [null, 13, 'G']
+      - [56, 47, "P"]
+      - [3, 11, "g"]
+      - [64, 24, "+B", "P"]
+      - [5, 14, "g"]
+      - [24, 14, "+B", "G"]
+      - [4, 3, "k"]
+      - [null, 13, "G"]
 
 actuals:
   - "%{subject}.topside_in_hand_pieces"

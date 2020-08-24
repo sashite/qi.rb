@@ -4,4 +4,4 @@
 module Qi
 end
 
-require_relative 'qi/position'
+require_relative "qi/position"
