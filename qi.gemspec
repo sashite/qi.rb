@@ -17,6 +17,8 @@ Gem::Specification.new do |spec|
     'source_code_uri' => 'https://github.com/sashite/qi.rb'
   }
 
+  spec.add_dependency 'feen'
+
   spec.add_development_dependency 'brutal'
   spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'rake'

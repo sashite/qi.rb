@@ -149,5 +149,46 @@ module Qi
     def turn_to_topside?
       @is_turn_to_topside
     end
+
+    # Forsyth–Edwards Expanded Notation.
+    #
+    # @see https://developer.sashite.com/specs/forsyth-edwards-expanded-notation
+    #
+    # @param indexes [Array] The shape of the board.
+    #
+    # @return [String] The FEEN representation of the position.
+    def feen(*indexes)
+      ::FEEN.dump(
+        active_side_id: active_side_id,
+        board: board,
+        indexes: indexes,
+        pieces_in_hand_grouped_by_sides: pieces_in_hand_grouped_by_sides
+      )
+    end
+
+    private
+
+    def board
+      squares
+        .each_with_index
+        .inject({}) do |h, (v, i)|
+          next h if v.nil?
+
+          h.merge(i.to_s.to_sym => v)
+        end
+    end
+
+    def active_side_id
+      turn_to_topside? ? 1 : 0
+    end
+
+    def pieces_in_hand_grouped_by_sides
+      [
+        bottomside_in_hand_pieces,
+        topside_in_hand_pieces
+      ]
+    end
   end
 end
+
+require 'feen'
