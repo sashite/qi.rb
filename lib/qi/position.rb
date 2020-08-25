@@ -177,26 +177,5 @@ module Qi
     def in_hand_pieces
       pieces_in_hand_grouped_by_sides.fetch(active_side_id)
     end
-
-    # Forsyth–Edwards Expanded Notation.
-    #
-    # @see https://developer.sashite.com/specs/forsyth-edwards-expanded-notation
-    #
-    # @param indexes [Array] The shape of the board.
-    #
-    # @example Generate the FEEN string of a Xiangqi position
-    #   feen(10, 9)
-    #
-    # @return [String] The FEEN representation of the position.
-    def feen(*indexes)
-      ::FEEN.dump(
-        active_side_id: active_side_id,
-        board: squares.each_with_index.inject({}) { |h, (v, i)| v.nil? ? h : h.merge(i.to_s.to_sym => v) },
-        indexes: indexes,
-        pieces_in_hand_grouped_by_sides: pieces_in_hand_grouped_by_sides
-      )
-    end
   end
 end
-
-require "feen"
