@@ -15,7 +15,7 @@ module Qi
     # The list of pieces in hand owned by players.
     #
     # @!attribute [r] pieces_in_hand_grouped_by_sides
-    #   @return [Array] The list of pieces in hand grouper by sides.
+    #   @return [Array] The list of pieces in hand for each side.
     attr_reader :pieces_in_hand_grouped_by_sides
 
     # The list of squares of on the board.
@@ -43,6 +43,30 @@ module Qi
     #     "♖", "♘", "♗", "♕", "♔", "♗", "♘", "♖"
     #   )
     #
+    # @example Four-player chess's starting position
+    #   Position.new(
+    #     nil , nil , nil , "yR", "yN", "yB", "yK", "yQ", "yB", "yN", "yR", nil , nil , nil ,
+    #     nil , nil , nil , "yP", "yP", "yP", "yP", "yP", "yP", "yP", "yP", nil , nil , nil ,
+    #     nil , nil , nil , nil , nil , nil , nil , nil , nil , nil , nil , nil , nil , nil ,
+    #     "bR", "bP", nil , nil , nil , nil , nil , nil , nil , nil , nil , nil , "gP", "gR",
+    #     "bN", "bP", nil , nil , nil , nil , nil , nil , nil , nil , nil , nil , "gP", "gN",
+    #     "bB", "bP", nil , nil , nil , nil , nil , nil , nil , nil , nil , nil , "gP", "gB",
+    #     "bK", "bP", nil , nil , nil , nil , nil , nil , nil , nil , nil , nil , "gP", "gQ",
+    #     "bQ", "bP", nil , nil , nil , nil , nil , nil , nil , nil , nil , nil , "gP", "gK",
+    #     "bB", "bP", nil , nil , nil , nil , nil , nil , nil , nil , nil , nil , "gP", "gB",
+    #     "bN", "bP", nil , nil , nil , nil , nil , nil , nil , nil , nil , nil , "gP", "gN",
+    #     "bR", "bP", nil , nil , nil , nil , nil , nil , nil , nil , nil , nil , "gP", "gR",
+    #     nil , nil , nil , nil , nil , nil , nil , nil , nil , nil , nil , nil , nil , nil ,
+    #     nil , nil , nil , "rP", "rP", "rP", "rP", "rP", "rP", "rP", "rP", nil , nil , nil ,
+    #     nil , nil , nil , "rR", "rN", "rB", "rQ", "rK", "rB", "rN", "rR", nil , nil , nil ,
+    #     pieces_in_hand_grouped_by_sides: [
+    #       [],
+    #       [],
+    #       [],
+    #       []
+    #     ]
+    #   )
+    #
     # @example Makruk's starting position
     #   Position.new(
     #     "♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜",
@@ -66,6 +90,23 @@ module Qi
     #     "P", "P", "P", "P", "P", "P", "P", "P", "P",
     #     nil, "B", nil, nil, nil, nil, nil, "R", nil,
     #     "L", "N", "S", "G", "K", "G", "S", "N", "L"
+    #   )
+    #
+    # @example A classic Tsume Shogi problem
+    #   Position.new(
+    #     nil, nil, nil, "s", "k", "s", nil, nil, nil,
+    #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+    #     nil, nil, nil, nil, "+P", nil, nil, nil, nil,
+    #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+    #     nil, nil, nil, nil, nil, nil, nil, "+B", nil,
+    #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+    #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+    #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+    #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+    #     pieces_in_hand_grouped_by_sides: [
+    #       ["S"],
+    #       ["b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s"]
+    #     ]
     #   )
     #
     # @example Xiangqi's starting position

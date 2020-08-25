@@ -104,6 +104,84 @@ last_position.feen(9, 9)
 # => "l,n,s,k,2,s,n,l/1,r,g,1,G,+B,1,b,1/p,p,p,p,p,p,1,p,p/9/9/2,P,6/P,P,1,P,P,P,P,P,P/7,R,1/L,N,S,G,K,G,S,N,L 1 P/"
 ```
 
+A classic [Tsume Shogi](https://en.wikipedia.org/wiki/Tsume_shogi) problem:
+
+```ruby
+require "qi"
+
+starting_position = Qi::Position.new(
+  nil, nil, nil, "s", "k", "s", nil, nil, nil,
+  nil, nil, nil, nil, nil, nil, nil, nil, nil,
+  nil, nil, nil, nil, "+P", nil, nil, nil, nil,
+  nil, nil, nil, nil, nil, nil, nil, nil, nil,
+  nil, nil, nil, nil, nil, nil, nil, "+B", nil,
+  nil, nil, nil, nil, nil, nil, nil, nil, nil,
+  nil, nil, nil, nil, nil, nil, nil, nil, nil,
+  nil, nil, nil, nil, nil, nil, nil, nil, nil,
+  nil, nil, nil, nil, nil, nil, nil, nil, nil,
+  pieces_in_hand_grouped_by_sides: [
+    ["S"],
+    ["b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s"]
+  ]
+)
+
+starting_position.in_hand_pieces
+# => ["S"]
+
+starting_position.squares
+# => [nil, nil, nil, "s", "k", "s", nil, nil, nil,
+#     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+#     nil, nil, nil, nil, "+P", nil, nil, nil, nil,
+#     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+#     nil, nil, nil, nil, nil, nil, nil, "+B", nil,
+#     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+#     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+#     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+#     nil, nil, nil, nil, nil, nil, nil, nil, nil]
+
+starting_position.pieces_in_hand_grouped_by_sides
+# => [["S"], ["b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s"]]
+
+starting_position.active_side_id
+# => 0
+
+starting_position.feen(9, 9)
+# => "3,s,k,s,3/9/4,+P,4/9/7,+B,1/9/9/9/9 0 S/b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s"
+
+# List of moves (see https://github.com/sashite/pmn.rb)
+moves = [
+  [  43, 13, "+B" ],  [ 5, 13, "s", "b" ],
+  [ nil, 14,  "S" ]
+]
+
+last_position = moves.reduce(starting_position) do |position, move|
+  position.call(move)
+end
+
+last_position.in_hand_pieces
+# => ["b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s", "b"]
+
+last_position.squares
+# => [nil, nil, nil, "s", "k", nil, nil, nil, nil,
+#     nil, nil, nil, nil, "s", "S", nil, nil, nil,
+#     nil, nil, nil, nil, "+P", nil, nil, nil, nil,
+#     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+#     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+#     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+#     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+#     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+#     nil, nil, nil, nil, nil, nil, nil, nil, nil]
+
+last_position.pieces_in_hand_grouped_by_sides
+# => [[], ["b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s", "b"]]
+
+last_position.active_side_id
+# => 1
+
+last_position.feen(9, 9)
+# => "3,s,k,4/4,s,S,3/4,+P,4/9/9/9/9/9/9 1 /b,b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s"
+```
+
 Another example with [Xiangqi](https://en.wikipedia.org/wiki/Xiangqi)'s Short Double Cannons Checkmate:
 
 ```ruby
@@ -143,8 +221,8 @@ starting_position.pieces_in_hand_grouped_by_sides
 starting_position.active_side_id
 # => 0
 
-starting_position.feen(9, 9)
-# => "車,馬,象,士,將,士,象,馬,車/9/1,砲,5,砲,1/卒,1,卒,1,卒,1,卒,1,卒/9/9/兵,1,兵,1,兵,1,兵,1,兵/1,炮,5,炮,1/9 0 /"
+starting_position.feen(10, 9)
+# => "車,馬,象,士,將,士,象,馬,車/9/1,砲,5,砲,1/卒,1,卒,1,卒,1,卒,1,卒/9/9/兵,1,兵,1,兵,1,兵,1,兵/1,炮,5,炮,1/9/俥,傌,相,仕,帥,仕,相,傌,俥 0 /"
 
 # List of moves (see https://github.com/sashite/pmn.rb)
 moves = [
@@ -182,8 +260,8 @@ last_position.pieces_in_hand_grouped_by_sides
 last_position.active_side_id
 # => 1
 
-last_position.feen(9, 9)
-# => "車,馬,象,士,將,士,象,馬,車/9/9/卒,1,卒,1,炮,1,卒,1,卒/9/4,炮,4/兵,砲,兵,1,砲,1,兵,1,兵/9/9 1 /"
+last_position.feen(10, 9)
+# => "車,馬,象,士,將,士,象,馬,車/9/9/卒,1,卒,1,炮,1,卒,1,卒/9/4,炮,4/兵,砲,兵,1,砲,1,兵,1,兵/9/9/俥,傌,相,仕,帥,仕,相,傌,俥 1 /"
 ```
 
 Let's do some moves on a [Four-player chess](https://en.wikipedia.org/wiki/Four-player_chess) board:
@@ -239,7 +317,7 @@ starting_position.pieces_in_hand_grouped_by_sides
 starting_position.active_side_id
 # => 0
 
-starting_position.feen(9, 9)
+starting_position.feen(14, 14)
 # => "3,yR,yN,yB,yK,yQ,yB,yN,yR,3/3,yP,yP,yP,yP,yP,yP,yP,yP,3/14/bR,bP,10,gP,gR/bN,bP,10,gP,gN/bB,bP,10,gP,gB/bK,bP,10,gP,gQ/bQ,bP,10,gP,gK/bB,bP,10,gP,gB/bN,bP,10,gP,gN/bR,bP,10,gP,gR/14/3,rP,rP,rP,rP,rP,rP,rP,rP,3/3,rR,rN,rB,rQ,rK,rB,rN,rR,3 0 ///"
 
 # List of moves (see https://github.com/sashite/pmn.rb)
