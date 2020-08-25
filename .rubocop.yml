@@ -8,6 +8,8 @@ AllCops:
   Exclude:
     - test.rb
 
+  TargetRubyVersion: 2.7
+
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 
