@@ -18,15 +18,15 @@ module Qi
     #   @return [Array] The list of pieces in hand for each side.
     attr_reader :pieces_in_hand_grouped_by_sides
 
-    # The list of squares of on the board.
+    # The list of squares on the board.
     #
     # @!attribute [r] squares
-    #   @return [Array] The list of squares.
+    #   @return [Array] The list of squares on the board.
     attr_reader :squares
 
     # Initialize a position.
     #
-    # @param squares [Array] The list of squares of on the board.
+    # @param squares [Array] The list of squares on the board.
     # @param active_side_id [Integer] The identifier of the player who must play.
     # @param pieces_in_hand_grouped_by_sides [Array] The list of pieces in hand
     #   grouped by players.
@@ -124,16 +124,18 @@ module Qi
     #   )
     def initialize(*squares, active_side_id: 0, pieces_in_hand_grouped_by_sides: [[], []])
       @squares = squares
-      @active_side_id = active_side_id % pieces_in_hand_grouped_by_sides.length
+      @active_side_id = active_side_id % pieces_in_hand_grouped_by_sides.size
       @pieces_in_hand_grouped_by_sides = pieces_in_hand_grouped_by_sides
 
       freeze
     end
 
-    # Apply a move in PMN (Portable Move Notation) format.
+    # Apply a move to the position.
     #
     # @param move [Array] The move to play.
     # @see https://developer.sashite.com/specs/portable-move-notation
+    # @see https://github.com/sashite/pmn.rb
+    #
     # @return [Position] The new position.
     def call(move)
       updated_squares = squares.dup
@@ -149,7 +151,7 @@ module Qi
 
         if src_square_id.nil?
           piece_in_hand_id = updated_in_hand_pieces.index(moved_piece_name)
-          updated_in_hand_pieces.delete_at(piece_in_hand_id)
+          updated_in_hand_pieces.delete_at(piece_in_hand_id) unless piece_in_hand_id.nil?
         else
           updated_squares[src_square_id] = nil
         end
@@ -165,15 +167,14 @@ module Qi
       updated_pieces_in_hand_grouped_by_sides[active_side_id] = updated_in_hand_pieces
 
       self.class.new(*updated_squares,
-        active_side_id: active_side_id.next,
+        active_side_id: active_side_id.succ,
         pieces_in_hand_grouped_by_sides: updated_pieces_in_hand_grouped_by_sides
       )
     end
 
     # The list of pieces in hand owned by the current player.
     #
-    # @return [Array] Topside's pieces in hand if turn to topside, bottomside's
-    #   ones otherwise.
+    # @return [Array] The list of pieces in hand of the active side.
     def in_hand_pieces
       pieces_in_hand_grouped_by_sides.fetch(active_side_id)
     end

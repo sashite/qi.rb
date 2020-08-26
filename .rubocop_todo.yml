@@ -32,7 +32,7 @@ Layout/MultilineMethodCallBraceLayout:
 # Offense count: 1
 # Configuration parameters: IgnoredMethods.
 Metrics/AbcSize:
-  Max: 29
+  Max: 30
 
 # Offense count: 1
 # Configuration parameters: CountComments, CountAsOne, ExcludedMethods.
@@ -44,3 +44,10 @@ Metrics/MethodLength:
 Style/IfUnlessModifier:
   Exclude:
     - 'lib/qi/position.rb'
+
+# Offense count: 1
+# Cop supports --auto-correct.
+# Configuration parameters: AutoCorrect, AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
+# URISchemes: http, https
+Layout/LineLength:
+  Max: 157
