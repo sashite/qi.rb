@@ -7,20 +7,22 @@ require "simplecov"
 
 require "./lib/qi"
 
+STARTING_POSITION = Qi::Position.new(
+  "l", "n", "s", "g", "k", "g", "s", "n", "l",
+  nil, "r", nil, nil, nil, nil, nil, "b", nil,
+  "p", "p", "p", "p", "p", "p", "p", "p", "p",
+  nil, nil, nil, nil, nil, nil, nil, nil, nil,
+  nil, nil, nil, nil, nil, nil, nil, nil, nil,
+  nil, nil, nil, nil, nil, nil, nil, nil, nil,
+  "P", "P", "P", "P", "P", "P", "P", "P", "P",
+  nil, "B", nil, nil, nil, nil, nil, "R", nil,
+  "L", "N", "S", "G", "K", "G", "S", "N", "L"
+)
+
 # ------------------------------------------------------------------------------
 
 actual = begin
-  starting_position = Qi::Position.new(
-    "l", "n", "s", "g", "k", "g", "s", "n", "l",
-    nil, "r", nil, nil, nil, nil, nil, "b", nil,
-    "p", "p", "p", "p", "p", "p", "p", "p", "p",
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    "P", "P", "P", "P", "P", "P", "P", "P", "P",
-    nil, "B", nil, nil, nil, nil, nil, "R", nil,
-    "L", "N", "S", "G", "K", "G", "S", "N", "L")
-  [].reduce(starting_position) { |position, move| position.call(move) }
+  [].reduce(STARTING_POSITION) { |position, move| position.call(move) }
 end
 
 raise if actual.in_hand_pieces != []
@@ -31,17 +33,7 @@ raise if actual.active_side_id != 0
 # ------------------------------------------------------------------------------
 
 actual = begin
-  starting_position = Qi::Position.new(
-    "l", "n", "s", "g", "k", "g", "s", "n", "l",
-    nil, "r", nil, nil, nil, nil, nil, "b", nil,
-    "p", "p", "p", "p", "p", "p", "p", "p", "p",
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    "P", "P", "P", "P", "P", "P", "P", "P", "P",
-    nil, "B", nil, nil, nil, nil, nil, "R", nil,
-    "L", "N", "S", "G", "K", "G", "S", "N", "L")
-  [[56, 47, "P"]].reduce(starting_position) { |position, move| position.call(move) }
+  [[56, 47, "P"]].reduce(STARTING_POSITION) { |position, move| position.call(move) }
 end
 
 raise if actual.in_hand_pieces != []
@@ -52,17 +44,7 @@ raise if actual.active_side_id != 1
 # ------------------------------------------------------------------------------
 
 actual = begin
-  starting_position = Qi::Position.new(
-    "l", "n", "s", "g", "k", "g", "s", "n", "l",
-    nil, "r", nil, nil, nil, nil, nil, "b", nil,
-    "p", "p", "p", "p", "p", "p", "p", "p", "p",
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    "P", "P", "P", "P", "P", "P", "P", "P", "P",
-    nil, "B", nil, nil, nil, nil, nil, "R", nil,
-    "L", "N", "S", "G", "K", "G", "S", "N", "L")
-  [[56, 47, "P"], [3, 11, "g"]].reduce(starting_position) { |position, move| position.call(move) }
+  [[56, 47, "P"], [3, 11, "g"]].reduce(STARTING_POSITION) { |position, move| position.call(move) }
 end
 
 raise if actual.in_hand_pieces != []
@@ -73,17 +55,7 @@ raise if actual.active_side_id != 0
 # ------------------------------------------------------------------------------
 
 actual = begin
-  starting_position = Qi::Position.new(
-    "l", "n", "s", "g", "k", "g", "s", "n", "l",
-    nil, "r", nil, nil, nil, nil, nil, "b", nil,
-    "p", "p", "p", "p", "p", "p", "p", "p", "p",
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    "P", "P", "P", "P", "P", "P", "P", "P", "P",
-    nil, "B", nil, nil, nil, nil, nil, "R", nil,
-    "L", "N", "S", "G", "K", "G", "S", "N", "L")
-  [[56, 47, "P"], [3, 11, "g"], [64, 24, "+B", "P"]].reduce(starting_position) { |position, move| position.call(move) }
+  [[56, 47, "P"], [3, 11, "g"], [64, 24, "+B", "P"]].reduce(STARTING_POSITION) { |position, move| position.call(move) }
 end
 
 raise if actual.in_hand_pieces != []
@@ -94,17 +66,7 @@ raise if actual.active_side_id != 1
 # ------------------------------------------------------------------------------
 
 actual = begin
-  starting_position = Qi::Position.new(
-    "l", "n", "s", "g", "k", "g", "s", "n", "l",
-    nil, "r", nil, nil, nil, nil, nil, "b", nil,
-    "p", "p", "p", "p", "p", "p", "p", "p", "p",
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    "P", "P", "P", "P", "P", "P", "P", "P", "P",
-    nil, "B", nil, nil, nil, nil, nil, "R", nil,
-    "L", "N", "S", "G", "K", "G", "S", "N", "L")
-  [[56, 47, "P"], [3, 11, "g"], [64, 24, "+B", "P"], [5, 14, "g"]].reduce(starting_position) { |position, move| position.call(move) }
+  [[56, 47, "P"], [3, 11, "g"], [64, 24, "+B", "P"], [5, 14, "g"]].reduce(STARTING_POSITION) { |position, move| position.call(move) }
 end
 
 raise if actual.in_hand_pieces != ["P"]
@@ -115,17 +77,7 @@ raise if actual.active_side_id != 0
 # ------------------------------------------------------------------------------
 
 actual = begin
-  starting_position = Qi::Position.new(
-    "l", "n", "s", "g", "k", "g", "s", "n", "l",
-    nil, "r", nil, nil, nil, nil, nil, "b", nil,
-    "p", "p", "p", "p", "p", "p", "p", "p", "p",
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    "P", "P", "P", "P", "P", "P", "P", "P", "P",
-    nil, "B", nil, nil, nil, nil, nil, "R", nil,
-    "L", "N", "S", "G", "K", "G", "S", "N", "L")
-  [[56, 47, "P"], [3, 11, "g"], [64, 24, "+B", "P"], [5, 14, "g"], [24, 14, "+B", "G"]].reduce(starting_position) { |position, move| position.call(move) }
+  [[56, 47, "P"], [3, 11, "g"], [64, 24, "+B", "P"], [5, 14, "g"], [24, 14, "+B", "G"]].reduce(STARTING_POSITION) { |position, move| position.call(move) }
 end
 
 raise if actual.in_hand_pieces != []
@@ -136,17 +88,7 @@ raise if actual.active_side_id != 1
 # ------------------------------------------------------------------------------
 
 actual = begin
-  starting_position = Qi::Position.new(
-    "l", "n", "s", "g", "k", "g", "s", "n", "l",
-    nil, "r", nil, nil, nil, nil, nil, "b", nil,
-    "p", "p", "p", "p", "p", "p", "p", "p", "p",
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    "P", "P", "P", "P", "P", "P", "P", "P", "P",
-    nil, "B", nil, nil, nil, nil, nil, "R", nil,
-    "L", "N", "S", "G", "K", "G", "S", "N", "L")
-  [[56, 47, "P"], [3, 11, "g"], [64, 24, "+B", "P"], [5, 14, "g"], [24, 14, "+B", "G"], [4, 3, "k"]].reduce(starting_position) { |position, move| position.call(move) }
+  [[56, 47, "P"], [3, 11, "g"], [64, 24, "+B", "P"], [5, 14, "g"], [24, 14, "+B", "G"], [4, 3, "k"]].reduce(STARTING_POSITION) { |position, move| position.call(move) }
 end
 
 raise if actual.in_hand_pieces != ["P", "G"]
@@ -157,17 +99,7 @@ raise if actual.active_side_id != 0
 # ------------------------------------------------------------------------------
 
 actual = begin
-  starting_position = Qi::Position.new(
-    "l", "n", "s", "g", "k", "g", "s", "n", "l",
-    nil, "r", nil, nil, nil, nil, nil, "b", nil,
-    "p", "p", "p", "p", "p", "p", "p", "p", "p",
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    "P", "P", "P", "P", "P", "P", "P", "P", "P",
-    nil, "B", nil, nil, nil, nil, nil, "R", nil,
-    "L", "N", "S", "G", "K", "G", "S", "N", "L")
-  [[56, 47, "P"], [3, 11, "g"], [64, 24, "+B", "P"], [5, 14, "g"], [24, 14, "+B", "G"], [4, 3, "k"], [nil, 13, "G"]].reduce(starting_position) { |position, move| position.call(move) }
+  [[56, 47, "P"], [3, 11, "g"], [64, 24, "+B", "P"], [5, 14, "g"], [24, 14, "+B", "G"], [4, 3, "k"], [nil, 13, "G"]].reduce(STARTING_POSITION) { |position, move| position.call(move) }
 end
 
 raise if actual.in_hand_pieces != []

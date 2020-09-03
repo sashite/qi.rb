@@ -9,8 +9,7 @@ header: |
 
   require "./lib/qi"
 
-subject: |
-  starting_position = Qi::Position.new(
+  STARTING_POSITION = Qi::Position.new(
     "l", "n", "s", "g", "k", "g", "s", "n", "l",
     nil, "r", nil, nil, nil, nil, nil, "b", nil,
     "p", "p", "p", "p", "p", "p", "p", "p", "p",
@@ -19,8 +18,11 @@ subject: |
     nil, nil, nil, nil, nil, nil, nil, nil, nil,
     "P", "P", "P", "P", "P", "P", "P", "P", "P",
     nil, "B", nil, nil, nil, nil, nil, "R", nil,
-    "L", "N", "S", "G", "K", "G", "S", "N", "L")
-  %{moves}.reduce(starting_position) { |position, move| position.call(move) }
+    "L", "N", "S", "G", "K", "G", "S", "N", "L"
+  )
+
+subject: |
+  %{moves}.reduce(STARTING_POSITION) { |position, move| position.call(move) }
 
 contexts:
   moves:
