@@ -9,20 +9,55 @@ header: |
 
   require "./lib/qi"
 
-  STARTING_POSITION = Qi::Position.new(
-    "l", "n", "s", "g", "k", "g", "s", "n", "l",
-    nil, "r", nil, nil, nil, nil, nil, "b", nil,
-    "p", "p", "p", "p", "p", "p", "p", "p", "p",
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    "P", "P", "P", "P", "P", "P", "P", "P", "P",
-    nil, "B", nil, nil, nil, nil, nil, "R", nil,
-    "L", "N", "S", "G", "K", "G", "S", "N", "L"
-  )
+  STARTING_POSITION = {
+    side_id: 0,
+    board: {
+       0 => "l",
+       1 => "n",
+       2 => "s",
+       3 => "g",
+       4 => "k",
+       5 => "g",
+       6 => "s",
+       7 => "n",
+       8 => "l",
+      10 => "r",
+      16 => "b",
+      18 => "p",
+      19 => "p",
+      20 => "p",
+      21 => "p",
+      22 => "p",
+      23 => "p",
+      24 => "p",
+      25 => "p",
+      26 => "p",
+      54 => "P",
+      55 => "P",
+      56 => "P",
+      57 => "P",
+      58 => "P",
+      59 => "P",
+      60 => "P",
+      61 => "P",
+      62 => "P",
+      64 => "B",
+      70 => "R",
+      72 => "L",
+      73 => "N",
+      74 => "S",
+      75 => "G",
+      76 => "K",
+      77 => "G",
+      78 => "S",
+      79 => "N",
+      80 => "L"
+    },
+    hands: [[], []]
+  }
 
 subject: |
-  %{moves}.reduce(STARTING_POSITION) { |position, move| position.call(move) }
+  %{moves}.reduce(STARTING_POSITION) { |position, move| Qi.call(move, **position) }
 
 contexts:
   moves:
@@ -64,7 +99,4 @@ contexts:
       - [null, 13, "G"]
 
 actuals:
-  - "%{subject}.in_hand_pieces"
-  - "%{subject}.squares"
-  - "%{subject}.pieces_in_hand_grouped_by_sides"
-  - "%{subject}.active_side_id"
+  - "%{subject}.itself"

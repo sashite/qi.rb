@@ -5,7 +5,7 @@ Gem::Specification.new do |spec|
   spec.version      = File.read("VERSION.semver").chomp
   spec.author       = "Cyril Kato"
   spec.email        = "contact@cyril.email"
-  spec.summary      = "Represent positions and play moves."
+  spec.summary      = "Update positions with a move."
   spec.description  = "Instantiate PCN's positions and apply PMN's moves."
   spec.homepage     = "https://developer.sashite.com/specs/"
   spec.license      = "MIT"
@@ -16,6 +16,8 @@ Gem::Specification.new do |spec|
     "documentation_uri" => "https://rubydoc.info/gems/qi/index",
     "source_code_uri" => "https://github.com/sashite/qi.rb"
   }
+
+  spec.required_ruby_version = ">= 2.7.0"
 
   spec.add_development_dependency "brutal"
   spec.add_development_dependency "bundler"
