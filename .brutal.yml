@@ -10,8 +10,8 @@ header: |
   require "./lib/qi"
 
   STARTING_POSITION = {
-    side_id: 0,
-    board: {
+    in_hand: [],
+    square: {
        0 => "l",
        1 => "n",
        2 => "s",
@@ -52,12 +52,13 @@ header: |
       78 => "S",
       79 => "N",
       80 => "L"
-    },
-    hands: [[], []]
+    }
   }
 
 subject: |
-  %{moves}.reduce(STARTING_POSITION) { |position, move| Qi.call(move, **position) }
+  %{moves}.reduce(STARTING_POSITION) do |position, move|
+    Qi.call(move, *position.fetch(:in_hand), **position.fetch(:square))
+  end
 
 contexts:
   moves:
