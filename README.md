@@ -12,7 +12,7 @@
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "qi"
+gem "qi", ">= 9.0.0.beta1"
 ```
 
 And then execute:
@@ -21,7 +21,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install qi
+    $ gem install qi --pre
 
 ## Examples
 
