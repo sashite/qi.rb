@@ -7,7 +7,7 @@ require "simplecov"
 
 require "./lib/qi"
 
-STARTING_POSITION = {
+STARTING_POSITION_PIECE_SET = {
   in_hand: [],
   square: {
      0 => "l",
@@ -56,8 +56,8 @@ STARTING_POSITION = {
 # ------------------------------------------------------------------------------
 
 actual = begin
-  [].reduce(STARTING_POSITION) do |position, move|
-    Qi.call(move, *position.fetch(:in_hand), **position.fetch(:square))
+  [].reduce(STARTING_POSITION_PIECE_SET) do |piece_set, move|
+    Qi.call(move, **piece_set)
   end
 end
 
@@ -66,8 +66,8 @@ raise if actual.itself != {:in_hand=>[], :square=>{0=>"l", 1=>"n", 2=>"s", 3=>"g
 # ------------------------------------------------------------------------------
 
 actual = begin
-  [[56, 47, "P"]].reduce(STARTING_POSITION) do |position, move|
-    Qi.call(move, *position.fetch(:in_hand), **position.fetch(:square))
+  [[56, 47, "P"]].reduce(STARTING_POSITION_PIECE_SET) do |piece_set, move|
+    Qi.call(move, **piece_set)
   end
 end
 
@@ -76,8 +76,8 @@ raise if actual.itself != {:in_hand=>[], :square=>{0=>"l", 1=>"n", 2=>"s", 3=>"g
 # ------------------------------------------------------------------------------
 
 actual = begin
-  [[56, 47, "P"], [3, 11, "g"]].reduce(STARTING_POSITION) do |position, move|
-    Qi.call(move, *position.fetch(:in_hand), **position.fetch(:square))
+  [[56, 47, "P"], [3, 11, "g"]].reduce(STARTING_POSITION_PIECE_SET) do |piece_set, move|
+    Qi.call(move, **piece_set)
   end
 end
 
@@ -86,8 +86,8 @@ raise if actual.itself != {:in_hand=>[], :square=>{0=>"l", 1=>"n", 2=>"s", 4=>"k
 # ------------------------------------------------------------------------------
 
 actual = begin
-  [[56, 47, "P"], [3, 11, "g"], [64, 24, "+B", "P"]].reduce(STARTING_POSITION) do |position, move|
-    Qi.call(move, *position.fetch(:in_hand), **position.fetch(:square))
+  [[56, 47, "P"], [3, 11, "g"], [64, 24, "+B", "P"]].reduce(STARTING_POSITION_PIECE_SET) do |piece_set, move|
+    Qi.call(move, **piece_set)
   end
 end
 
@@ -96,8 +96,8 @@ raise if actual.itself != {:in_hand=>["P"], :square=>{0=>"l", 1=>"n", 2=>"s", 4=
 # ------------------------------------------------------------------------------
 
 actual = begin
-  [[56, 47, "P"], [3, 11, "g"], [64, 24, "+B", "P"], [5, 14, "g"]].reduce(STARTING_POSITION) do |position, move|
-    Qi.call(move, *position.fetch(:in_hand), **position.fetch(:square))
+  [[56, 47, "P"], [3, 11, "g"], [64, 24, "+B", "P"], [5, 14, "g"]].reduce(STARTING_POSITION_PIECE_SET) do |piece_set, move|
+    Qi.call(move, **piece_set)
   end
 end
 
@@ -106,8 +106,8 @@ raise if actual.itself != {:in_hand=>["P"], :square=>{0=>"l", 1=>"n", 2=>"s", 4=
 # ------------------------------------------------------------------------------
 
 actual = begin
-  [[56, 47, "P"], [3, 11, "g"], [64, 24, "+B", "P"], [5, 14, "g"], [24, 14, "+B", "G"]].reduce(STARTING_POSITION) do |position, move|
-    Qi.call(move, *position.fetch(:in_hand), **position.fetch(:square))
+  [[56, 47, "P"], [3, 11, "g"], [64, 24, "+B", "P"], [5, 14, "g"], [24, 14, "+B", "G"]].reduce(STARTING_POSITION_PIECE_SET) do |piece_set, move|
+    Qi.call(move, **piece_set)
   end
 end
 
@@ -116,8 +116,8 @@ raise if actual.itself != {:in_hand=>["P", "G"], :square=>{0=>"l", 1=>"n", 2=>"s
 # ------------------------------------------------------------------------------
 
 actual = begin
-  [[56, 47, "P"], [3, 11, "g"], [64, 24, "+B", "P"], [5, 14, "g"], [24, 14, "+B", "G"], [4, 3, "k"]].reduce(STARTING_POSITION) do |position, move|
-    Qi.call(move, *position.fetch(:in_hand), **position.fetch(:square))
+  [[56, 47, "P"], [3, 11, "g"], [64, 24, "+B", "P"], [5, 14, "g"], [24, 14, "+B", "G"], [4, 3, "k"]].reduce(STARTING_POSITION_PIECE_SET) do |piece_set, move|
+    Qi.call(move, **piece_set)
   end
 end
 
@@ -126,8 +126,8 @@ raise if actual.itself != {:in_hand=>["P", "G"], :square=>{0=>"l", 1=>"n", 2=>"s
 # ------------------------------------------------------------------------------
 
 actual = begin
-  [[56, 47, "P"], [3, 11, "g"], [64, 24, "+B", "P"], [5, 14, "g"], [24, 14, "+B", "G"], [4, 3, "k"], [nil, 13, "G"]].reduce(STARTING_POSITION) do |position, move|
-    Qi.call(move, *position.fetch(:in_hand), **position.fetch(:square))
+  [[56, 47, "P"], [3, 11, "g"], [64, 24, "+B", "P"], [5, 14, "g"], [24, 14, "+B", "G"], [4, 3, "k"], [nil, 13, "G"]].reduce(STARTING_POSITION_PIECE_SET) do |piece_set, move|
+    Qi.call(move, **piece_set)
   end
 end
 
