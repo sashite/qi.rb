@@ -2,11 +2,11 @@
 
 # The Qi abstraction.
 #
-# @example
+# @example A classic Shogi problem
 #   Qi.call(
 #     [43, 13, "+B"],
-#     "in_hand": %w[S r r b g g g g s n n n n p p p p p p p p p p p p p p p p p],
-#     "square": {
+#     *%w[S r r b g g g g s n n n n p p p p p p p p p p p p p p p p p],
+#     **{
 #        3 => "s",
 #        4 => "k",
 #        5 => "s",
