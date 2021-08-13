@@ -2,6 +2,8 @@ inherit_from: .rubocop_todo.yml
 
 require:
   - rubocop-performance
+  - rubocop-md
+  - rubocop-rake
   - rubocop-thread_safety
 
 AllCops:
@@ -10,7 +12,11 @@ AllCops:
   Exclude:
     - test.rb
 
-  TargetRubyVersion: 2.7
+  TargetRubyVersion: 3.0
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes
+
+# We do not need to support Ruby 1.9, so this is good to use.
+Style/SymbolArray:
+  Enabled: true
