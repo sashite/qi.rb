@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    qi (9.0.0.beta2)
+    qi (9.0.0)
 
 GEM
   remote: https://rubygems.org/
@@ -64,4 +64,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   2.2.25
+   2.2.28
