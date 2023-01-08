@@ -6,14 +6,29 @@ require "rubocop/rake_task"
 require "yard"
 
 Rake::TestTask.new do |t|
-  t.pattern = "test.rb"
+  # t.pattern = "test.rb"
+  # t.test_files = ::Rake::FileList["brutal/**/*_brutal.rb"]
   t.verbose = true
   t.warning = true
 end
 
-RuboCop::RakeTask.new
+RuboCop::RakeTask.new do |task|
+  task.requires << "rubocop-gitlab-security"
+  task.requires << "rubocop-md"
+  task.requires << "rubocop-performance"
+  task.requires << "rubocop-rake"
+  task.requires << "rubocop-thread_safety"
+end
+
 YARD::Rake::YardocTask.new
 
 Dir["tasks/**/*.rake"].each { |t| load t }
 
-task default: %i[scaffold! yard rubocop:auto_correct test]
+task default: %i[
+  generate_rubocop_yaml
+  yard
+  test
+  brutal_test_generation
+  brutal_test_execution
+  rubocop:autocorrect
+]
