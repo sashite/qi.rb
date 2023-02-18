@@ -6,8 +6,6 @@ require "rubocop/rake_task"
 require "yard"
 
 Rake::TestTask.new do |t|
-  # t.pattern = "test.rb"
-  # t.test_files = ::Rake::FileList["brutal/**/*_brutal.rb"]
   t.verbose = true
   t.warning = true
 end
