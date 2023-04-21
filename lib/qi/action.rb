@@ -16,20 +16,19 @@ module Qi
     #
     # @return [Array] An action to change the position.
     def call(**diffs)
-      capture = diffs.delete(CAPTURE_CHAR)
-      drop    = diffs.delete(DROP_CHAR)
+      captures = @captures + Array(diffs.delete(CAPTURE_CHAR))
+      drop     = diffs.delete(DROP_CHAR)
 
-      change(*@captures, capture:, drop:, **diffs)
-    end
+      unless drop.nil?
+        index = captures.rindex(drop)
+        raise ::IndexError, "Piece #{drop.inspect} not captured!" if index.nil?
 
-    private
+        captures.delete_at(index)
+      end
 
-    def change(*captures, capture: nil, drop: nil, **squares)
-      captures.unshift(capture) unless capture.nil?
-      captures.delete(drop) { |key| raise ::IndexError, "Capture #{key.inspect} not found!" } unless drop.nil?
-      squares = @squares.merge(squares).compact
+      squares = @squares.merge(diffs).compact
 
-      [captures, squares]
+      [captures.sort, squares]
     end
   end
 end

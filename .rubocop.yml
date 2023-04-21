@@ -6,6 +6,8 @@ AllCops:
   
     - .rubocop-https---raw-githubusercontent-com-sashite-sashite-rubocop-rb-v1-0-3-config-rubocop-rake-yml
   
+    - .rubocop-https---raw-githubusercontent-com-sashite-sashite-rubocop-rb-v1-0-3-config-rubocop-rspec-yml
+  
     - .rubocop-https---raw-githubusercontent-com-sashite-sashite-rubocop-rb-v1-0-3-config-rubocop-thread-safety-yml
   
     - .rubocop-https---raw-githubusercontent-com-sashite-sashite-rubocop-rb-v1-0-3-config-rubocop-yml
@@ -17,6 +19,8 @@ AllCops:
     - coverage/
   
     - doc/
+  
+    - pkg/
   
     - test.rb
     - config/**/*
