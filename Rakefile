@@ -6,6 +6,7 @@ require "rubocop/rake_task"
 require "yard"
 
 Rake::TestTask.new do |t|
+  t.pattern = "spec/**/*_spec.rb"
   t.verbose = true
   t.warning = true
 end
@@ -15,6 +16,7 @@ RuboCop::RakeTask.new do |task|
   task.requires << "rubocop-md"
   task.requires << "rubocop-performance"
   task.requires << "rubocop-rake"
+  task.requires << "rubocop-rspec"
   task.requires << "rubocop-thread_safety"
 end
 

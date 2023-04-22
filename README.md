@@ -13,7 +13,7 @@
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "qi", ">= 10.0.0.beta2"
+gem "qi", ">= 10.0.0.beta3"
 ```
 
 And then execute:
