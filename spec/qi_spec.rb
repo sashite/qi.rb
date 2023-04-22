@@ -3,31 +3,75 @@
 require_relative "spec_helper"
 
 RSpec.describe Qi do
-  let(:action) { Qi("a", "b", "b", x: 1, y: 2, z: 3) }
+  let(:qi) { Qi.new(is_north_turn, %i[rook bishop], %i[rook pawn knight], { a1: :king, b2: :queen }) }
 
-  describe "#call" do
-    it "returns an array of captures and squares" do
-      expect(action.call).to eq([%w[a b b], { x: 1, y: 2, z: 3 }])
-    end
+  describe "#commit" do
+    context "when a piece is in hand" do
+      let(:in_hand) { :rook }
 
-    it "adds a capture to the captures array" do
-      expect(action.call("&" => "d")).to eq([%w[a b b d], { x: 1, y: 2, z: 3 }])
-    end
+      context "when it is a drop" do
+        let(:is_drop) { true }
 
-    it "removes a drop from the captures array" do
-      expect(action.call("*" => "b")).to eq([%w[a b], { x: 1, y: 2, z: 3 }])
-    end
+        context "when it is north turn" do
+          let(:is_north_turn) { true }
 
-    it "raises an error if the drop is not in the captures array" do
-      expect { action.call("*" => "d") }.to raise_exception(IndexError)
-    end
+          it "returns a new qi with the piece removed from north captures and added to squares" do
+            new_qi = qi.commit({ c3: in_hand }, in_hand, is_drop)
+            expect(new_qi.north_turn?).to be false
+            expect(new_qi.north_captures).to eq [:bishop]
+            expect(new_qi.south_captures).to eq qi.south_captures
+            expect(new_qi.squares).to eq({ a1: :king, b2: :queen, c3: :rook })
+          end
 
-    it "updates the squares hash with new values" do
-      expect(action.call(x: 4, w: 5)).to eq([%w[a b b], { x: 4, y: 2, z: 3, w: 5 }])
-    end
+          it "raises an error if the piece is not in north captures" do
+            expect { qi.commit({ c3: in_hand }, :knight, is_drop) }.to raise_exception(IndexError)
+          end
+        end
 
-    it "removes the squares with nil values" do
-      expect(action.call(y: nil)).to eq([%w[a b b], { x: 1, z: 3 }])
+        context "when it is south turn" do
+          let(:is_north_turn) { false }
+
+          it "returns a new qi with the piece removed from south captures and added to squares" do
+            new_qi = qi.commit({ c3: in_hand }, in_hand, is_drop)
+            expect(new_qi.north_turn?).to be true
+            expect(new_qi.north_captures).to eq qi.north_captures
+            expect(new_qi.south_captures).to eq %i[knight pawn]
+            expect(new_qi.squares).to eq({ a1: :king, b2: :queen, c3: :rook })
+          end
+
+          it "raises an error if the piece is not in south captures" do
+            expect { qi.commit({ c3: in_hand }, :bishop, is_drop) }.to raise_exception(IndexError)
+          end
+        end
+      end
+
+      context "when it is a capture" do
+        let(:is_drop) { false }
+
+        context "when it is north turn" do
+          let(:is_north_turn) { true }
+
+          it "returns a new qi with the piece added to north captures and removed from squares" do
+            new_qi = qi.commit({ b2: nil }, in_hand, is_drop)
+            expect(new_qi.north_turn?).to be false
+            expect(new_qi.north_captures).to eq %i[bishop rook rook]
+            expect(new_qi.south_captures).to eq qi.south_captures
+            expect(new_qi.squares).to eq({ a1: :king })
+          end
+        end
+
+        context "when it is south turn" do
+          let(:is_north_turn) { false }
+
+          it "returns a new qi with the piece added to south captures and removed from squares" do
+            new_qi = qi.commit({ a1: nil }, in_hand, is_drop)
+            expect(new_qi.north_turn?).to be true
+            expect(new_qi.north_captures).to eq qi.north_captures
+            expect(new_qi.south_captures).to eq %i[knight pawn rook rook]
+            expect(new_qi.squares).to eq({ b2: :queen })
+          end
+        end
+      end
     end
   end
 end

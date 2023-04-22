@@ -13,7 +13,7 @@
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "qi", ">= 10.0.0.beta3"
+gem "qi", ">= 10.0.0.beta5"
 ```
 
 And then execute:
@@ -33,13 +33,68 @@ gem install qi --pre
 ```ruby
 require "qi"
 
-captures  = %w[S r r b g g g g s n n n n p p p p p p p p p p p p p p p p p]
-squares   = { "3": "s", "4": "k", "5": "s", "22": "+P", "43": "+B" }
+is_north_turn   = false
+north_captures  = %w[r r b g g g g s n n n n p p p p p p p p p p p p p p p p p]
+south_captures  = %w[S]
+squares         = { 3 => "s", 4 => "k", 5 => "s", 22 => "+P", 43 => "+B" }
 
-captures, squares = Qi(*captures, **squares).call("43": nil, "13": "+B")
+qi0 = Qi.new(is_north_turn, north_captures, south_captures, squares)
 
-captures  # => ["S", "r", "r", "b", "g", "g", "g", "g", "s", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p"]
-squares   # => {:"3"=>"s", :"4"=>"k", :"5"=>"s", :"22"=>"+P", :"13"=>"+B"}
+qi0.north_captures  # => ["b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s"]
+qi0.south_captures  # => ["S"]
+qi0.squares         # => {3=>"s", 4=>"k", 5=>"s", 22=>"+P", 43=>"+B"}
+qi0.north_turn?     # => false
+qi0.south_turn?     # => true
+qi0.inspect         # => "<Qi south-turn S,b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s 3:s,4:k,5:s,22:+P,43:+B>"
+
+qi0.to_a
+# [false,
+#  ["b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s"],
+#  ["S"],
+#  {3=>"s", 4=>"k", 5=>"s", 22=>"+P", 43=>"+B"}]
+
+qi0.display(81, 9)
+# [["b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s"],
+#  [[". ", ". ", ". ", "s ", "k ", "s ", ". ", ". ", ". "],
+#   [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "],
+#   [". ", ". ", ". ", ". ", "+P", ". ", ". ", ". ", ". "],
+#   [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "],
+#   [". ", ". ", ". ", ". ", ". ", ". ", ". ", "+B", ". "],
+#   [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "],
+#   [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "],
+#   [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "],
+#   [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "]],
+#  ["S"],
+#  "Turn to south"]
+
+qi1 = qi0.commit({ 43 => nil, 13 => "+B" })
+
+qi1.north_captures  # => ["b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s"]
+qi1.south_captures  # => ["S"]
+qi1.squares         # => {3=>"s", 4=>"k", 5=>"s", 22=>"+P", 13=>"+B"}
+qi1.north_turn?     # => true
+qi1.south_turn?     # => false
+qi1.inspect         # => "<Qi north-turn S,b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s 3:s,4:k,5:s,22:+P,13:+B>"
+
+qi1.to_a
+# [true,
+#  ["b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s"],
+#  ["S"],
+#  {3=>"s", 4=>"k", 5=>"s", 22=>"+P", 13=>"+B"}]
+
+qi1.display(81, 9)
+# [["b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s"],
+#  [[". ", ". ", ". ", "s ", "k ", "s ", ". ", ". ", ". "],
+#   [". ", ". ", ". ", ". ", "+B", ". ", ". ", ". ", ". "],
+#   [". ", ". ", ". ", ". ", "+P", ". ", ". ", ". ", ". "],
+#   [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "],
+#   [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "],
+#   [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "],
+#   [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "],
+#   [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "],
+#   [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "]],
+#  ["S"],
+#  "Turn to north"]
 ```
 
 ## License

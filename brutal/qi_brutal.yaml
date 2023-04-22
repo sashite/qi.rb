@@ -14,94 +14,105 @@ header: |
   end
 
   STARTING_POSITION_CONTEXT = [
+    false,
+    [],
     [],
     {
-       "0": "l",
-       "1": "n",
-       "2": "s",
-       "3": "g",
-       "4": "k",
-       "5": "g",
-       "6": "s",
-       "7": "n",
-       "8": "l",
-      "10": "r",
-      "16": "b",
-      "18": "p",
-      "19": "p",
-      "20": "p",
-      "21": "p",
-      "22": "p",
-      "23": "p",
-      "24": "p",
-      "25": "p",
-      "26": "p",
-      "54": "P",
-      "55": "P",
-      "56": "P",
-      "57": "P",
-      "58": "P",
-      "59": "P",
-      "60": "P",
-      "61": "P",
-      "62": "P",
-      "64": "B",
-      "70": "R",
-      "72": "L",
-      "73": "N",
-      "74": "S",
-      "75": "G",
-      "76": "K",
-      "77": "G",
-      "78": "S",
-      "79": "N",
-      "80": "L"
+       0 => "l",
+       1 => "n",
+       2 => "s",
+       3 => "g",
+       4 => "k",
+       5 => "g",
+       6 => "s",
+       7 => "n",
+       8 => "l",
+      10 => "r",
+      16 => "b",
+      18 => "p",
+      19 => "p",
+      20 => "p",
+      21 => "p",
+      22 => "p",
+      23 => "p",
+      24 => "p",
+      25 => "p",
+      26 => "p",
+      54 => "P",
+      55 => "P",
+      56 => "P",
+      57 => "P",
+      58 => "P",
+      59 => "P",
+      60 => "P",
+      61 => "P",
+      62 => "P",
+      64 => "B",
+      70 => "R",
+      72 => "L",
+      73 => "N",
+      74 => "S",
+      75 => "G",
+      76 => "K",
+      77 => "G",
+      78 => "S",
+      79 => "N",
+      80 => "L"
     }
   ].freeze
 
 subject: |
-  %{moves}.reduce(STARTING_POSITION_CONTEXT) do |context, diffs|
-    Qi(*context.fetch(0), **context.fetch(1)).call(**diffs)
+  starting_position = Qi.new(*STARTING_POSITION_CONTEXT)
+
+  %{moves}.reduce(starting_position) do |position, args|
+    position.commit(*args)
   end
 
 contexts:
   moves:
     - []
     -
-      - {56: null, 47: "P"}
+      - [{56: null, 47: "P"}]
     -
-      - {56: null, 47: "P"}
-      - {3: null, 11: "g"}
+      - [{56: null, 47: "P"}]
+      - [{3: null, 11: "g"}]
     -
-      - {56: null, 47: "P"}
-      - {3: null, 11: "g"}
-      - {64: null, 24: "+B", "&": "P"}
+      - [{56: null, 47: "P"}]
+      - [{3: null, 11: "g"}]
+      - [{64: null, 24: "+B"}, "P"]
     -
-      - {56: null, 47: "P"}
-      - {3: null, 11: "g"}
-      - {64: null, 24: "+B", "&": "P"}
-      - {5: null, 14: "g"}
+      - [{56: null, 47: "P"}]
+      - [{3: null, 11: "g"}]
+      - [{64: null, 24: "+B"}, "P"]
+      - [{5: null, 14: "g"}]
     -
-      - {56: null, 47: "P"}
-      - {3: null, 11: "g"}
-      - {64: null, 24: "+B", "&": "P"}
-      - {5: null, 14: "g"}
-      - {24: null, 14: "+B", "&": "G"}
+      - [{56: null, 47: "P"}]
+      - [{3: null, 11: "g"}]
+      - [{64: null, 24: "+B"}, "P"]
+      - [{5: null, 14: "g"}]
+      - [{24: null, 14: "+B"}, "G"]
     -
-      - {56: null, 47: "P"}
-      - {3: null, 11: "g"}
-      - {64: null, 24: "+B", "&": "P"}
-      - {5: null, 14: "g"}
-      - {24: null, 14: "+B", "&": "G"}
-      - {4: null, 3: "k"}
+      - [{56: null, 47: "P"}]
+      - [{3: null, 11: "g"}]
+      - [{64: null, 24: "+B"}, "P"]
+      - [{5: null, 14: "g"}]
+      - [{24: null, 14: "+B"}, "G"]
+      - [{4: null, 3: "k"}]
     -
-      - {56: null, 47: "P"}
-      - {3: null, 11: "g"}
-      - {64: null, 24: "+B", "&": "P"}
-      - {5: null, 14: "g"}
-      - {24: null, 14: "+B", "&": "G"}
-      - {4: null, 3: "k"}
-      - {"*": "G", 13: "G"}
+      - [{56: null, 47: "P"}]
+      - [{3: null, 11: "g"}]
+      - [{64: null, 24: "+B"}, "P"]
+      - [{5: null, 14: "g"}]
+      - [{24: null, 14: "+B"}, "G"]
+      - [{4: null, 3: "k"}]
+      - [{13: "G"}, "G", true]
 
 actuals:
-  - "%{subject}.itself"
+  - "%{subject}.north_captures"
+  - "%{subject}.south_captures"
+  - "%{subject}.squares"
+  - "%{subject}.north_turn?"
+  - "%{subject}.south_turn?"
+  - "%{subject}.to_a"
+  - "%{subject}.inspect"
+  - "%{subject}.display(81, 9)"
