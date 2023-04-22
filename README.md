@@ -13,7 +13,7 @@
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "qi", ">= 9.0.0.beta2"
+gem "qi"
 ```
 
 And then execute:
@@ -25,16 +25,16 @@ bundle
 Or install it yourself as:
 
 ```sh
-gem install qi --pre
+gem install qi
 ```
 
-## Examples
+## Example
 
 ```ruby
 require "qi"
 
 Qi.call(
-  [43, 13, "+B"],
+  43, 13, "+B",
   in_hand: %w[S r r b g g g g s n n n n p p p p p p p p p p p p p p p p p],
   square: {
     3 => "s",
@@ -44,7 +44,7 @@ Qi.call(
     43 => "+B"
   }
 )
-# => {:square=>{3=>"s", 4=>"k", 5=>"s", 22=>"+P", 13=>"+B"}, :in_hand=>["S", "r", "r", "b", "g", "g", "g", "g", "s", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p"]}
+# => {:in_hand=>["S", "r", "r", "b", "g", "g", "g", "g", "s", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p"], :square=>{3=>"s", 4=>"k", 5=>"s", 22=>"+P", 13=>"+B"}}
 ```
 
 ## License

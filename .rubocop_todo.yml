@@ -11,7 +11,12 @@
 Metrics/MethodLength:
   Max: 11
 
-# Offense count: 3
+# Offense count: 1
+# Configuration parameters: CountKeywordArgs, MaxOptionalParameters.
+Metrics/ParameterLists:
+  Max: 6
+
+# Offense count: 2
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect, AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
 # URISchemes: http, https

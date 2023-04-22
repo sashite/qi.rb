@@ -56,8 +56,8 @@ header: |
   }
 
 subject: |
-  %{moves}.reduce(STARTING_POSITION_PIECE_SET) do |piece_set, move|
-    Qi.call(move, **piece_set)
+  %{moves}.reduce(STARTING_POSITION_PIECE_SET) do |piece_set, action_items|
+    Qi.call(*action_items, **piece_set)
   end
 
 contexts:
