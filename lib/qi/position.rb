@@ -5,30 +5,31 @@ module Qi
   #
   # @see https://developer.sashite.com/specs/portable-chess-notation
   class Position
+    # Players are identified by a number according to the order in which they
+    #   traditionally play from the starting position.
+    #
+    # @!attribute [r] active_side_id
+    #   @return [Integer] The identifier of the player who must play.
+    attr_reader :active_side_id
+
+    # The list of pieces in hand owned by players.
+    #
+    # @!attribute [r] pieces_in_hand_grouped_by_sides
+    #   @return [Array] The list of pieces in hand grouper by sides.
+    attr_reader :pieces_in_hand_grouped_by_sides
+
     # The list of squares of on the board.
     #
     # @!attribute [r] squares
     #   @return [Array] The list of squares.
     attr_reader :squares
 
-    # The list of pieces in hand owned by the bottomside player.
-    #
-    # @!attribute [r] bottomside_in_hand_pieces
-    #   @return [Array] The list of bottomside's pieces in hand.
-    attr_reader :bottomside_in_hand_pieces
-
-    # The list of pieces in hand owned by the topside player.
-    #
-    # @!attribute [r] topside_in_hand_pieces
-    #   @return [Array] The list of topside's pieces in hand.
-    attr_reader :topside_in_hand_pieces
-
     # Initialize a position.
     #
     # @param squares [Array] The list of squares of on the board.
-    # @param is_turn_to_topside [Boolean] The player who must play.
-    # @param bottomside_in_hand_pieces [Array] The list of bottom-side's pieces in hand.
-    # @param topside_in_hand_pieces [Array] The list of top-side's pieces in hand.
+    # @param active_side_id [Integer] The identifier of the player who must play.
+    # @param pieces_in_hand_grouped_by_sides [Array] The list of pieces in hand
+    #   grouped by players.
     #
     # @example Chess's starting position
     #   Position.new(
@@ -80,11 +81,10 @@ module Qi
     #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
     #     "俥", "傌", "相", "仕", "帥", "仕", "相", "傌", "俥"
     #   )
-    def initialize(*squares, is_turn_to_topside: false, bottomside_in_hand_pieces: [], topside_in_hand_pieces: [])
-      @squares                    = squares
-      @is_turn_to_topside         = is_turn_to_topside
-      @bottomside_in_hand_pieces  = bottomside_in_hand_pieces
-      @topside_in_hand_pieces     = topside_in_hand_pieces
+    def initialize(*squares, active_side_id: 0, pieces_in_hand_grouped_by_sides: [[], []])
+      @squares = squares
+      @active_side_id = active_side_id % pieces_in_hand_grouped_by_sides.length
+      @pieces_in_hand_grouped_by_sides = pieces_in_hand_grouped_by_sides
 
       freeze
     end
@@ -96,8 +96,7 @@ module Qi
     # @return [Position] The new position.
     def call(move)
       updated_squares = squares.dup
-      updated_bottomside_in_hand_pieces = bottomside_in_hand_pieces.dup
-      updated_topside_in_hand_pieces = topside_in_hand_pieces.dup
+      updated_in_hand_pieces = in_hand_pieces.dup
 
       actions = move.each_slice(4)
 
@@ -108,13 +107,8 @@ module Qi
         captured_piece_name = action.fetch(3, nil)
 
         if src_square_id.nil?
-          if turn_to_topside?
-            piece_in_hand_id = updated_topside_in_hand_pieces.index(moved_piece_name)
-            updated_topside_in_hand_pieces.delete_at(piece_in_hand_id)
-          else
-            piece_in_hand_id = updated_bottomside_in_hand_pieces.index(moved_piece_name)
-            updated_bottomside_in_hand_pieces.delete_at(piece_in_hand_id)
-          end
+          piece_in_hand_id = updated_in_hand_pieces.index(moved_piece_name)
+          updated_in_hand_pieces.delete_at(piece_in_hand_id)
         else
           updated_squares[src_square_id] = nil
         end
@@ -122,17 +116,17 @@ module Qi
         updated_squares[dst_square_id] = moved_piece_name
 
         unless captured_piece_name.nil?
-          if turn_to_topside?
-            updated_topside_in_hand_pieces.push(captured_piece_name)
-          else
-            updated_bottomside_in_hand_pieces.push(captured_piece_name)
-          end
+          updated_in_hand_pieces.push(captured_piece_name)
         end
       end
 
-      self.class.new(*updated_squares, is_turn_to_topside: !turn_to_topside?,
-                                       bottomside_in_hand_pieces: updated_bottomside_in_hand_pieces,
-                                       topside_in_hand_pieces: updated_topside_in_hand_pieces)
+      updated_pieces_in_hand_grouped_by_sides = pieces_in_hand_grouped_by_sides.dup
+      updated_pieces_in_hand_grouped_by_sides[active_side_id] = updated_in_hand_pieces
+
+      self.class.new(*updated_squares,
+        active_side_id: active_side_id.next,
+        pieces_in_hand_grouped_by_sides: updated_pieces_in_hand_grouped_by_sides
+      )
     end
 
     # The list of pieces in hand owned by the current player.
@@ -140,14 +134,7 @@ module Qi
     # @return [Array] Topside's pieces in hand if turn to topside, bottomside's
     #   ones otherwise.
     def in_hand_pieces
-      turn_to_topside? ? topside_in_hand_pieces : bottomside_in_hand_pieces
-    end
-
-    # The side who must play.
-    #
-    # @return [Boolean] True if it is turn to topside, false otherwise.
-    def turn_to_topside?
-      @is_turn_to_topside
+      pieces_in_hand_grouped_by_sides.fetch(active_side_id)
     end
 
     # Forsyth–Edwards Expanded Notation.
@@ -156,37 +143,17 @@ module Qi
     #
     # @param indexes [Array] The shape of the board.
     #
+    # @example Generate the FEEN string of a Xiangqi position
+    #   feen(10, 9)
+    #
     # @return [String] The FEEN representation of the position.
     def feen(*indexes)
       ::FEEN.dump(
         active_side_id: active_side_id,
-        board: board,
+        board: squares.each_with_index.inject({}) { |h, (v, i)| v.nil? ? h : h.merge(i.to_s.to_sym => v) },
         indexes: indexes,
         pieces_in_hand_grouped_by_sides: pieces_in_hand_grouped_by_sides
       )
-    end
-
-    private
-
-    def board
-      squares
-        .each_with_index
-        .inject({}) do |h, (v, i)|
-          next h if v.nil?
-
-          h.merge(i.to_s.to_sym => v)
-        end
-    end
-
-    def active_side_id
-      turn_to_topside? ? 1 : 0
-    end
-
-    def pieces_in_hand_grouped_by_sides
-      [
-        bottomside_in_hand_pieces,
-        topside_in_hand_pieces
-      ]
     end
   end
 end

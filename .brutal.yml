@@ -62,9 +62,8 @@ contexts:
       - [null, 13, "G"]
 
 actuals:
-  - "%{subject}.topside_in_hand_pieces"
-  - "%{subject}.squares"
-  - "%{subject}.bottomside_in_hand_pieces"
   - "%{subject}.in_hand_pieces"
-  - "%{subject}.turn_to_topside?"
+  - "%{subject}.squares"
+  - "%{subject}.pieces_in_hand_grouped_by_sides"
+  - "%{subject}.active_side_id"
   - "%{subject}.feen(9, 9)"
