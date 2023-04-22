@@ -30,8 +30,8 @@ require "qi"
 
 Qi.call(
   [43, 13, "+B"],
-  *%w[S r r b g g g g s n n n n p p p p p p p p p p p p p p p p p],
-  **{
+  in_hand: %w[S r r b g g g g s n n n n p p p p p p p p p p p p p p p p p],
+  square: {
      3 => "s",
      4 => "k",
      5 => "s",
