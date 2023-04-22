@@ -1,4 +1,3 @@
-# Namespace for the library.
 module Qi
 end
 
