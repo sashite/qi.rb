@@ -32,53 +32,53 @@ module Qi
     #
     # @example Chess's starting position
     #   Position.new(
-    #     '♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜',
-    #     '♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟',
+    #     "♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜",
+    #     "♟", "♟", "♟", "♟", "♟", "♟", "♟", "♟",
     #     nil, nil, nil, nil, nil, nil, nil, nil,
     #     nil, nil, nil, nil, nil, nil, nil, nil,
     #     nil, nil, nil, nil, nil, nil, nil, nil,
     #     nil, nil, nil, nil, nil, nil, nil, nil,
-    #     '♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙',
-    #     '♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖'
+    #     "♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙",
+    #     "♖", "♘", "♗", "♕", "♔", "♗", "♘", "♖"
     #   )
     #
     # @example Makruk's starting position
     #   Position.new(
-    #     '♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜',
+    #     "♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜",
     #     nil, nil, nil, nil, nil, nil, nil, nil,
-    #     '♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟',
+    #     "♟", "♟", "♟", "♟", "♟", "♟", "♟", "♟",
     #     nil, nil, nil, nil, nil, nil, nil, nil,
     #     nil, nil, nil, nil, nil, nil, nil, nil,
-    #     '♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙',
+    #     "♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙",
     #     nil, nil, nil, nil, nil, nil, nil, nil,
-    #     '♖', '♘', '♗', '♔', '♕', '♗', '♘', '♖'
+    #     "♖", "♘", "♗", "♔", "♕", "♗", "♘", "♖"
     #   )
     #
     # @example Shogi's starting position
     #   Position.new(
-    #     'l', 'n', 's', 'g', 'k', 'g', 's', 'n', 'l',
-    #     nil, 'r', nil, nil, nil, nil, nil, 'b', nil,
-    #     'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p',
+    #     "l", "n", "s", "g", "k", "g", "s", "n", "l",
+    #     nil, "r", nil, nil, nil, nil, nil, "b", nil,
+    #     "p", "p", "p", "p", "p", "p", "p", "p", "p",
     #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
     #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
     #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    #     'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P',
-    #     nil, 'B', nil, nil, nil, nil, nil, 'R', nil,
-    #     'L', 'N', 'S', 'G', 'K', 'G', 'S', 'N', 'L'
+    #     "P", "P", "P", "P", "P", "P", "P", "P", "P",
+    #     nil, "B", nil, nil, nil, nil, nil, "R", nil,
+    #     "L", "N", "S", "G", "K", "G", "S", "N", "L"
     #   )
     #
     # @example Xiangqi's starting position
     #   Position.new(
-    #     '車', '馬', '象', '士', '將', '士', '象', '馬', '車',
+    #     "車", "馬", "象", "士", "將", "士", "象", "馬", "車",
     #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    #     nil, '砲', nil, nil, nil, nil, nil, '砲', nil,
-    #     '卒', nil, '卒', nil, '卒', nil, '卒', nil, '卒',
+    #     nil, "砲", nil, nil, nil, nil, nil, "砲", nil,
+    #     "卒", nil, "卒", nil, "卒", nil, "卒", nil, "卒",
     #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
     #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    #     '兵', nil, '兵', nil, '兵', nil, '兵', nil, '兵',
-    #     nil, '炮', nil, nil, nil, nil, nil, '炮', nil,
+    #     "兵", nil, "兵", nil, "兵", nil, "兵", nil, "兵",
+    #     nil, "炮", nil, nil, nil, nil, nil, "炮", nil,
     #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
-    #     '俥', '傌', '相', '仕', '帥', '仕', '相', '傌', '俥'
+    #     "俥", "傌", "相", "仕", "帥", "仕", "相", "傌", "俥"
     #   )
     def initialize(*squares, is_turn_to_topside: false, bottomside_in_hand_pieces: [], topside_in_hand_pieces: [])
       @squares                    = squares
@@ -191,4 +191,4 @@ module Qi
   end
 end
 
-require 'feen'
+require "feen"

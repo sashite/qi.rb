@@ -12,7 +12,7 @@
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'qi'
+gem "qi"
 ```
 
 And then execute:
@@ -28,18 +28,18 @@ Or install it yourself as:
 Let's replay [The Shortest Possible Game of Shogi](https://userpages.monmouth.com/~colonel/shortshogi.html):
 
 ```ruby
-require 'qi'
+require "qi"
 
 starting_position = Qi::Position.new(
-  'l', 'n', 's', 'g', 'k', 'g', 's', 'n', 'l',
-  nil, 'r', nil, nil, nil, nil, nil, 'b', nil,
-  'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p',
+  "l", "n", "s", "g", "k", "g", "s", "n", "l",
+  nil, "r", nil, nil, nil, nil, nil, "b", nil,
+  "p", "p", "p", "p", "p", "p", "p", "p", "p",
   nil, nil, nil, nil, nil, nil, nil, nil, nil,
   nil, nil, nil, nil, nil, nil, nil, nil, nil,
   nil, nil, nil, nil, nil, nil, nil, nil, nil,
-  'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P',
-  nil, 'B', nil, nil, nil, nil, nil, 'R', nil,
-  'L', 'N', 'S', 'G', 'K', 'G', 'S', 'N', 'L'
+  "P", "P", "P", "P", "P", "P", "P", "P", "P",
+  nil, "B", nil, nil, nil, nil, nil, "R", nil,
+  "L", "N", "S", "G", "K", "G", "S", "N", "L"
 )
 
 starting_position.topside_in_hand_pieces # => []
@@ -58,13 +58,13 @@ starting_position.turn_to_topside? # => false
 
 # List of moves in Portable Move Notation (https://developer.sashite.com/specs/portable-move-notation) format.
 moves = [
-  [ 56, 47, 'P' ],
-  [ 3, 11, 'g' ],
-  [ 64, 24, '+B', 'P' ],
-  [ 5, 14, 'g' ],
-  [ 24, 14, '+B', 'G' ],
-  [ 4, 3, 'k' ],
-  [ nil, 13, 'G' ]
+  [ 56, 47, "P" ],
+  [ 3, 11, "g" ],
+  [ 64, 24, "+B", "P" ],
+  [ 5, 14, "g" ],
+  [ 24, 14, "+B", "G" ],
+  [ 4, 3, "k" ],
+  [ nil, 13, "G" ]
 ]
 
 last_position = moves.reduce(starting_position) do |position, move|
@@ -89,19 +89,19 @@ last_position.turn_to_topside? # => true
 Another example with Xiangqi's Short Double Cannons Checkmate:
 
 ```ruby
-require 'qi'
+require "qi"
 
 starting_position = Qi::Position.new(
-  '車', '馬', '象', '士', '將', '士', '象', '馬', '車',
+  "車", "馬", "象", "士", "將", "士", "象", "馬", "車",
   nil, nil, nil, nil, nil, nil, nil, nil, nil,
-  nil, '砲', nil, nil, nil, nil, nil, '砲', nil,
-  '卒', nil, '卒', nil, '卒', nil, '卒', nil, '卒',
+  nil, "砲", nil, nil, nil, nil, nil, "砲", nil,
+  "卒", nil, "卒", nil, "卒", nil, "卒", nil, "卒",
   nil, nil, nil, nil, nil, nil, nil, nil, nil,
   nil, nil, nil, nil, nil, nil, nil, nil, nil,
-  '兵', nil, '兵', nil, '兵', nil, '兵', nil, '兵',
-  nil, '炮', nil, nil, nil, nil, nil, '炮', nil,
+  "兵", nil, "兵", nil, "兵", nil, "兵", nil, "兵",
+  nil, "炮", nil, nil, nil, nil, nil, "炮", nil,
   nil, nil, nil, nil, nil, nil, nil, nil, nil,
-  '俥', '傌', '相', '仕', '帥', '仕', '相', '傌', '俥'
+  "俥", "傌", "相", "仕", "帥", "仕", "相", "傌", "俥"
 )
 
 starting_position.topside_in_hand_pieces # => []
@@ -120,13 +120,13 @@ starting_position.in_hand_pieces # => []
 starting_position.turn_to_topside? # => false
 
 moves = [
-  [ 64, 67, '炮' ],
-  [ 25, 22, '砲' ],
-  [ 70, 52, '炮' ],
-  [ 19, 55, '砲' ],
-  [ 67, 31, '炮' ],
-  [ 22, 58, '砲' ],
-  [ 52, 49, '炮' ]
+  [ 64, 67, "炮" ],
+  [ 25, 22, "砲" ],
+  [ 70, 52, "炮" ],
+  [ 19, 55, "砲" ],
+  [ 67, 31, "炮" ],
+  [ 22, 58, "砲" ],
+  [ 52, 49, "炮" ]
 ]
 
 last_position = moves.reduce(starting_position) do |position, move|
