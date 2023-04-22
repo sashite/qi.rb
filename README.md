@@ -64,13 +64,10 @@ starting_position.active_side_id
 
 # List of moves (see https://github.com/sashite/pmn.rb)
 moves = [
-  [ 56, 47, "P" ],
-  [ 3, 11, "g" ],
-  [ 64, 24, "+B", "P" ],
-  [ 5, 14, "g" ],
-  [ 24, 14, "+B", "G" ],
-  [ 4, 3, "k" ],
-  [ nil, 13, "G" ]
+  [  56, 47, "P"       ], [ 3, 11, "g" ],
+  [  64, 24, "+B", "P" ], [ 5, 14, "g" ],
+  [  24, 14, "+B", "G" ], [ 4,  3, "k" ],
+  [ nil, 13, "G"       ]
 ]
 
 last_position = moves.reduce(starting_position) do |position, move|
@@ -211,12 +208,9 @@ starting_position.active_side_id
 
 # List of moves (see https://github.com/sashite/pmn.rb)
 moves = [
-  [ 64, 67, "炮" ],
-  [ 25, 22, "砲" ],
-  [ 70, 52, "炮" ],
-  [ 19, 55, "砲" ],
-  [ 67, 31, "炮" ],
-  [ 22, 58, "砲" ],
+  [ 64, 67, "炮" ],  [ 25, 22, "砲" ],
+  [ 70, 52, "炮" ],  [ 19, 55, "砲" ],
+  [ 67, 31, "炮" ],  [ 22, 58, "砲" ],
   [ 52, 49, "炮" ]
 ]
 
@@ -301,10 +295,7 @@ starting_position.active_side_id
 
 # List of moves (see https://github.com/sashite/pmn.rb)
 moves = [
-  [ 175, 147, "rP" ],
-  [ 85, 87, "bP" ],
-  [ 20, 48, "yP" ],
-  [ 110, 108, "gP" ],
+  [ 175, 147, "rP" ],  [ 85, 87, "bP" ],  [ 20, 48, "yP" ],  [ 110, 108, "gP" ],
   [ 191, 162, "rN" ]
 ]
 
