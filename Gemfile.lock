@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    qi (6.2.0)
+    qi (2.7.1)
       feen
 
 GEM
