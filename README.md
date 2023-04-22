@@ -1,4 +1,4 @@
-# 棋.rb
+# <span lang="zh"><ruby>棋<rt>Qi</rt></ruby></span>.rb
 
 [![Build Status](https://travis-ci.org/sashite/qi.rb.svg?branch=master)](https://travis-ci.org/sashite/qi.rb)
 [![Gem Version](https://badge.fury.io/rb/qi.svg)][gem]
@@ -23,7 +23,7 @@ Or install it yourself as:
 
     $ gem install qi
 
-## Example
+## Examples
 
 Let's replay [The Shortest Possible Game of Shogi](https://userpages.monmouth.com/~colonel/shortshogi.html):
 
@@ -42,6 +42,20 @@ starting_position = Qi::Position.new(
   'L', 'N', 'S', 'G', 'K', 'G', 'S', 'N', 'L'
 )
 
+starting_position.topside_in_hand_pieces # => []
+starting_position.squares # => ["l", "n", "s", "g", "k", "g", "s", "n", "l",
+                          #     nil, "r", nil, nil, nil, nil, nil, "b", nil,
+                          #     "p", "p", "p", "p", "p", "p", "p", "p", "p",
+                          #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+                          #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+                          #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+                          #     "P", "P", "P", "P", "P", "P", "P", "P", "P",
+                          #     nil, "B", nil, nil, nil, nil, nil, "R", nil,
+                          #     "L", "N", "S", "G", "K", "G", "S", "N", "L"]
+starting_position.bottomside_in_hand_pieces # => []
+starting_position.in_hand_pieces # => []
+starting_position.turn_to_topside? # => false
+
 moves = [
   [ 56, 47, 'P' ],
   [ 3, 11, 'g' ],
@@ -57,7 +71,6 @@ last_position = moves.reduce(starting_position) do |position, move|
 end
 
 last_position.topside_in_hand_pieces # => []
-
 last_position.squares # => ["l", "n", "s", "k", nil, nil, "s", "n", "l",
                       #     nil, "r", "g", nil, "G", "+B", nil, "b", nil,
                       #     "p", "p", "p", "p", "p", "p", nil, "p", "p",
@@ -67,8 +80,71 @@ last_position.squares # => ["l", "n", "s", "k", nil, nil, "s", "n", "l",
                       #     "P", "P", nil, "P", "P", "P", "P", "P", "P",
                       #     nil, nil, nil, nil, nil, nil, nil, "R", nil,
                       #     "L", "N", "S", "G", "K", "G", "S", "N", "L"]
-
 last_position.bottomside_in_hand_pieces # => ["P"]
+last_position.in_hand_pieces # => []
+last_position.turn_to_topside? # => true
+```
+
+Another example with Xiangqi's Short Double Cannons Checkmate:
+
+```ruby
+require 'qi'
+
+starting_position = Qi::Position.new(
+  '車', '馬', '象', '士', '將', '士', '象', '馬', '車',
+  nil, nil, nil, nil, nil, nil, nil, nil, nil,
+  nil, '砲', nil, nil, nil, nil, nil, '砲', nil,
+  '卒', nil, '卒', nil, '卒', nil, '卒', nil, '卒',
+  nil, nil, nil, nil, nil, nil, nil, nil, nil,
+  nil, nil, nil, nil, nil, nil, nil, nil, nil,
+  '兵', nil, '兵', nil, '兵', nil, '兵', nil, '兵',
+  nil, '炮', nil, nil, nil, nil, nil, '炮', nil,
+  nil, nil, nil, nil, nil, nil, nil, nil, nil,
+  '俥', '傌', '相', '仕', '帥', '仕', '相', '傌', '俥'
+)
+
+starting_position.topside_in_hand_pieces # => []
+starting_position.squares # => ["車", "馬", "象", "士", "將", "士", "象", "馬", "車",
+                          #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+                          #     nil, "砲", nil, nil, nil, nil, nil, "砲", nil,
+                          #     "卒", nil, "卒", nil, "卒", nil, "卒", nil, "卒",
+                          #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+                          #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+                          #     "兵", nil, "兵", nil, "兵", nil, "兵", nil, "兵",
+                          #     nil, "炮", nil, nil, nil, nil, nil, "炮", nil,
+                          #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+                          #     "俥", "傌", "相", "仕", "帥", "仕", "相", "傌", "俥"]
+starting_position.bottomside_in_hand_pieces # => []
+starting_position.in_hand_pieces # => []
+starting_position.turn_to_topside? # => false
+
+moves = [
+  [ 64, 67, '炮' ],
+  [ 25, 22, '砲' ],
+  [ 70, 52, '炮' ],
+  [ 19, 55, '砲' ],
+  [ 67, 31, '炮' ],
+  [ 22, 58, '砲' ],
+  [ 52, 49, '炮' ]
+]
+
+last_position = moves.reduce(starting_position) do |position, move|
+  position.call(move)
+end
+
+last_position.topside_in_hand_pieces # => []
+last_position.squares # => ["車", "馬", "象", "士", "將", "士", "象", "馬", "車",
+                      #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+                      #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+                      #     "卒", nil, "卒", nil, "炮", nil, "卒", nil, "卒",
+                      #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+                      #     nil, nil, nil, nil, "炮", nil, nil, nil, nil,
+                      #     "兵", "砲", "兵", nil, "砲", nil, "兵", nil, "兵",
+                      #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+                      #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+                      #     "俥", "傌", "相", "仕", "帥", "仕", "相", "傌", "俥"]
+last_position.bottomside_in_hand_pieces # => []
+last_position.in_hand_pieces # => []
 last_position.turn_to_topside? # => true
 ```
 

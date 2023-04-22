@@ -5,10 +5,27 @@ module Qi
   #
   # @see https://developer.sashite.com/specs/portable-chess-notation
   class Position
-    attr_reader :squares, :bottomside_in_hand_pieces, :topside_in_hand_pieces
+    # The list of squares of on the board.
+    #
+    # @!attribute [r] squares
+    #   @return [Array] The list of squares.
+    attr_reader :squares
+
+    # The list of pieces in hand owned by the bottomside player.
+    #
+    # @!attribute [r] bottomside_in_hand_pieces
+    #   @return [Array] The list of bottomside's pieces in hand.
+    attr_reader :bottomside_in_hand_pieces
+
+    # The list of pieces in hand owned by the topside player.
+    #
+    # @!attribute [r] topside_in_hand_pieces
+    #   @return [Array] The list of topside's pieces in hand.
+    attr_reader :topside_in_hand_pieces
 
     # Initialize a position.
     #
+    # @param squares [Array] The list of squares of on the board.
     # @param is_turn_to_topside [Boolean] The player who must play.
     # @param bottomside_in_hand_pieces [Array] The list of bottom-side's pieces in hand.
     # @param topside_in_hand_pieces [Array] The list of top-side's pieces in hand.
@@ -79,7 +96,15 @@ module Qi
                                        topside_in_hand_pieces: updated_topside_in_hand_pieces)
     end
 
-    # The player who must play.
+    # The list of pieces in hand owned by the current player.
+    #
+    # @return [Array] Topside's pieces in hand if turn to topside, bottomside's
+    #   ones otherwise.
+    def in_hand_pieces
+      turn_to_topside? ? topside_in_hand_pieces : bottomside_in_hand_pieces
+    end
+
+    # The side who must play.
     #
     # @return [Boolean] True if it is turn to topside, false otherwise.
     def turn_to_topside?
