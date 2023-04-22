@@ -34,12 +34,24 @@ module Qi
     #   Position.new(
     #     '♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜',
     #     '♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟',
-    #     null, null, null, null, null, null, null, null,
-    #     null, null, null, null, null, null, null, null,
-    #     null, null, null, null, null, null, null, null,
-    #     null, null, null, null, null, null, null, null,
+    #     nil, nil, nil, nil, nil, nil, nil, nil,
+    #     nil, nil, nil, nil, nil, nil, nil, nil,
+    #     nil, nil, nil, nil, nil, nil, nil, nil,
+    #     nil, nil, nil, nil, nil, nil, nil, nil,
     #     '♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙',
     #     '♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖'
+    #   )
+    #
+    # @example Makruk's starting position
+    #   Position.new(
+    #     '♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜',
+    #     nil, nil, nil, nil, nil, nil, nil, nil,
+    #     '♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟',
+    #     nil, nil, nil, nil, nil, nil, nil, nil,
+    #     nil, nil, nil, nil, nil, nil, nil, nil,
+    #     '♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙',
+    #     nil, nil, nil, nil, nil, nil, nil, nil,
+    #     '♖', '♘', '♗', '♔', '♕', '♗', '♘', '♖'
     #   )
     #
     # @example Shogi's starting position
