@@ -4,7 +4,7 @@ module Qi
   # The Action abstraction.
   class Action
     CAPTURE_CHAR = "&"
-    DROP_CHAR = "*"
+    DROP_CHAR    = "*"
 
     # Action initializer.
     def initialize(*captures, **squares)
@@ -40,7 +40,8 @@ module Qi
     end
 
     def drop(item, *items)
-      items.delete_at(items.index(item))
+      item_id = items.index(item) || raise(::IndexError, "Piece #{item.inspect} not found!")
+      items.delete_at(item_id)
       items
     end
   end

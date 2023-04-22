@@ -13,7 +13,7 @@
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "qi", ">= 10.0.0.beta1"
+gem "qi", ">= 10.0.0.beta2"
 ```
 
 And then execute:
@@ -46,8 +46,8 @@ squares   # => {:"3"=>"s", :"4"=>"k", :"5"=>"s", :"22"=>"+P", :"13"=>"+B"}
 
 The code is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
-## About Sashite
+## About Sashité
 
-This [gem](https://rubygems.org/gems/qi) is maintained by [Sashite](https://sashite.com/).
+This [gem](https://rubygems.org/gems/qi) is maintained by [Sashité](https://sashite.com/).
 
 With some [lines of code](https://github.com/sashite/), let's share the beauty of Chinese, Japanese and Western cultures through the game of chess!
