@@ -1,4 +1,4 @@
-# Qi
+# Qi.rb
 
 [![Build Status](https://api.travis-ci.org/sashite/qi.rb.svg?branch=master)][travis]
 [![Gem Version](https://badge.fury.io/rb/qi.svg)][gem]
