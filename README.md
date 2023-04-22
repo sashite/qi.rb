@@ -1,6 +1,6 @@
 # Qi.rb
 
-[![Build Status](https://api.travis-ci.org/sashite/qi.rb.svg?branch=master)][travis]
+[![Build Status](https://travis-ci.org/sashite/qi.rb.svg?branch=master)](travis)
 [![Gem Version](https://badge.fury.io/rb/qi.svg)][gem]
 [![Inline docs](https://inch-ci.org/github/sashite/qi.rb.svg?branch=master)][inchpages]
 [![Documentation](https://img.shields.io/:yard-docs-38c800.svg)][rubydoc]
