@@ -1,11 +1,11 @@
-# <span lang="zh"><ruby>棋<rt>Qi</rt></ruby></span>.rb
+# Qi.rb
 
 [![Build Status](https://travis-ci.org/sashite/qi.rb.svg?branch=master)](https://travis-ci.org/sashite/qi.rb)
 [![Gem Version](https://badge.fury.io/rb/qi.svg)][gem]
 [![Inline docs](https://inch-ci.org/github/sashite/qi.rb.svg?branch=master)][inchpages]
 [![Documentation](https://img.shields.io/:yard-docs-38c800.svg)][rubydoc]
 
-> Instantiate [Portable Chess Notation](https://developer.sashite.com/specs/portable-chess-notation)'s positions and apply [Portable Move Notation](https://developer.sashite.com/specs/portable-move-notation)'s moves.
+> `Qi` (棋) is an abstraction for initializing and updating positions of chess variants (including Chess, Janggi, Markruk, Shogi, Xiangqi).
 
 ## Installation
 
@@ -56,6 +56,7 @@ starting_position.bottomside_in_hand_pieces # => []
 starting_position.in_hand_pieces # => []
 starting_position.turn_to_topside? # => false
 
+# List of moves in Portable Move Notation (https://developer.sashite.com/specs/portable-move-notation) format.
 moves = [
   [ 56, 47, 'P' ],
   [ 3, 11, 'g' ],
@@ -150,11 +151,11 @@ last_position.turn_to_topside? # => true
 
 ## License
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+The code is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
 ## About Sashite
 
-The `qi` gem is maintained by [Sashite](https://sashite.com/).
+This [gem](https://rubygems.org/gems/qi) is maintained by [Sashite](https://sashite.com/).
 
 With some [lines of code](https://github.com/sashite/), let's share the beauty of Chinese, Japanese and Western cultures through the game of chess!
 
