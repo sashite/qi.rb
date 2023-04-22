@@ -132,7 +132,7 @@ module Qi
 
     # Apply a move to the position.
     #
-    # @param move [Array] The move to play.
+    # @param move [Array] The move to execute.
     # @see https://developer.sashite.com/specs/portable-move-notation
     # @see https://github.com/sashite/pmn.rb
     #
