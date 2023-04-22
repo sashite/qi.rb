@@ -9,7 +9,8 @@ Gem::Specification.new do |spec|
   spec.description  = "Instantiate PCN's positions and apply PMN's moves."
   spec.homepage     = "https://developer.sashite.com/specs/"
   spec.license      = "MIT"
-  spec.files        = Dir["LICENSE.md", "README.md", "lib/**/*"]
+  spec.required_ruby_version = ::Gem::Requirement.new(">= 3.0.0")
+  spec.files = Dir["LICENSE.md", "README.md", "lib/**/*"]
 
   spec.metadata = {
     "bug_tracker_uri" => "https://github.com/sashite/qi.rb/issues",
@@ -17,12 +18,13 @@ Gem::Specification.new do |spec|
     "source_code_uri" => "https://github.com/sashite/qi.rb"
   }
 
-  spec.required_ruby_version = ">= 2.7.0"
-
   spec.add_development_dependency "brutal"
   spec.add_development_dependency "bundler"
+  spec.add_development_dependency "byebug"
   spec.add_development_dependency "rake"
+  spec.add_development_dependency "rubocop-md"
   spec.add_development_dependency "rubocop-performance"
+  spec.add_development_dependency "rubocop-rake"
   spec.add_development_dependency "rubocop-thread_safety"
   spec.add_development_dependency "simplecov"
   spec.add_development_dependency "yard"
