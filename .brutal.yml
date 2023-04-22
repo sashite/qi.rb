@@ -1,6 +1,6 @@
 ---
 header: |
-  # frozen_string_literal: false
+  # frozen_string_literal: true
 
   require 'simplecov'
 
@@ -19,9 +19,7 @@ subject: |
     nil, nil, nil, nil, nil, nil, nil, nil, nil,
     'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P',
     nil, 'B', nil, nil, nil, nil, nil, 'R', nil,
-    'L', 'N', 'S', 'G', 'K', 'G', 'S', 'N', 'L'
-  )
-
+    'L', 'N', 'S', 'G', 'K', 'G', 'S', 'N', 'L')
   %{moves}.reduce(starting_position) { |position, move| position.call(move) }
 
 contexts:
@@ -69,3 +67,4 @@ actuals:
   - "%{subject}.bottomside_in_hand_pieces"
   - "%{subject}.in_hand_pieces"
   - "%{subject}.turn_to_topside?"
+  - "%{subject}.feen(9, 9)"
