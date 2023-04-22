@@ -1,4 +1,4 @@
-# Qi.rb
+# 棋.rb
 
 [![Build Status](https://travis-ci.org/sashite/qi.rb.svg?branch=master)](https://travis-ci.org/sashite/qi.rb)
 [![Gem Version](https://badge.fury.io/rb/qi.svg)][gem]
@@ -30,7 +30,7 @@ Let's replay [The Shortest Possible Game of Shogi](https://userpages.monmouth.co
 ```ruby
 require 'qi'
 
-shogi_starting_position = Qi::Position.new(
+starting_position = Qi::Position.new(
   'l', 'n', 's', 'g', 'k', 'g', 's', 'n', 'l',
   nil, 'r', nil, nil, nil, nil, nil, 'b', nil,
   'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p',
@@ -52,7 +52,7 @@ moves = [
   [ nil, 13, 'G' ]
 ]
 
-last_position = moves.reduce(shogi_starting_position) do |position, move|
+last_position = moves.reduce(starting_position) do |position, move|
   position.call(move)
 end
 
