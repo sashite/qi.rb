@@ -1,24 +1,19 @@
 # Qi
 
-[![Build Status](https://travis-ci.org/cyril/qi.rb.svg?branch=master)][travis]
-[![Code Climate](https://codeclimate.com/github/cyril/qi.rb/badges/gpa.svg)][codeclimate]
+[![Build Status](https://api.travis-ci.org/sashite/qi.rb.svg?branch=master)][travis]
 [![Gem Version](https://badge.fury.io/rb/qi.svg)][gem]
-[![Inline docs](http://inch-ci.org/github/cyril/qi.rb.svg?branch=master)][inchpages]
-[![Documentation](http://img.shields.io/:yard-docs-38c800.svg)][rubydoc]
+[![Inline docs](https://inch-ci.org/github/sashite/qi.rb.svg?branch=master)][inchpages]
+[![Documentation](https://img.shields.io/:yard-docs-38c800.svg)][rubydoc]
 
-> An ordered store of stuff to manage, for Ruby.
-
-## Rubies
-
-* [MRI](https://www.ruby-lang.org/)
-* [Rubinius](http://rubini.us/)
-* [JRuby](http://jruby.org/)
+> Instantiate [Portable Chess Notation](https://developer.sashite.com/specs/portable-chess-notation)'s positions and apply [Portable Move Notation](https://developer.sashite.com/specs/portable-move-notation)'s moves.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'qi'
+```ruby
+gem 'qi'
+```
 
 And then execute:
 
@@ -30,34 +25,64 @@ Or install it yourself as:
 
 ## Example
 
+Let's replay [The Shortest Possible Game of Shogi](https://userpages.monmouth.com/~colonel/shortshogi.html):
+
 ```ruby
 require 'qi'
 
-db = Qi::Store.new(8)       # => #<Qi::Store:0x007fb79f09b8d0 @size=8, @captured=nil, @position={}>
+shogi_starting_position = Qi::Position.new(
+  'l', 'n', 's', 'g', 'k', 'g', 's', 'n', 'l',
+  nil, 'r', nil, nil, nil, nil, nil, 'b', nil,
+  'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p',
+  nil, nil, nil, nil, nil, nil, nil, nil, nil,
+  nil, nil, nil, nil, nil, nil, nil, nil, nil,
+  nil, nil, nil, nil, nil, nil, nil, nil, nil,
+  'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P',
+  nil, 'B', nil, nil, nil, nil, nil, 'R', nil,
+  'L', 'N', 'S', 'G', 'K', 'G', 'S', 'N', 'L'
+)
 
-result = db.call(2, 3, 'p') # => #<Qi::Store:0x007fb79f091150 @size=8, @captured=nil, @position={3=>"p"}>
-result.to_a                 # => [nil, nil, nil, "p", nil, nil, nil, nil]
-result.captured             # => nil
+moves = [
+  [ 56, 47, 'P' ],
+  [ 3, 11, 'g' ],
+  [ 64, 24, '+B', 'P' ],
+  [ 5, 14, 'g' ],
+  [ 24, 14, '+B', 'G' ],
+  [ 4, 3, 'k' ],
+  [ nil, 13, 'G' ]
+]
+
+last_position = moves.reduce(shogi_starting_position) do |position, move|
+  position.call(move)
+end
+
+last_position.topside_in_hand_pieces # => []
+
+last_position.squares # => ["l", "n", "s", "k", nil, nil, "s", "n", "l",
+                      #     nil, "r", "g", nil, "G", "+B", nil, "b", nil,
+                      #     "p", "p", "p", "p", "p", "p", nil, "p", "p",
+                      #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+                      #     nil, nil, nil, nil, nil, nil, nil, nil, nil,
+                      #     nil, nil, "P", nil, nil, nil, nil, nil, nil,
+                      #     "P", "P", nil, "P", "P", "P", "P", "P", "P",
+                      #     nil, nil, nil, nil, nil, nil, nil, "R", nil,
+                      #     "L", "N", "S", "G", "K", "G", "S", "N", "L"]
+
+last_position.bottomside_in_hand_pieces # => ["P"]
+last_position.turn_to_topside? # => true
 ```
-
-## Versioning
-
-__Qi__ follows [Semantic Versioning 2.0](http://semver.org/).
-
-## Contributing
-
-1. [Fork it](https://github.com/cyril/qi.rb/fork)
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
 
 ## License
 
-See `LICENSE.md` file.
+The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+
+## About Sashite
+
+The `qi` gem is maintained by [Sashite](https://sashite.com/).
+
+With some [lines of code](https://github.com/sashite/), let's share the beauty of Chinese, Japanese and Western cultures through the game of chess!
 
 [gem]: https://rubygems.org/gems/qi
-[travis]: https://travis-ci.org/cyril/qi.rb
-[codeclimate]: https://codeclimate.com/github/cyril/qi.rb
-[inchpages]: http://inch-ci.org/github/cyril/qi.rb
-[rubydoc]: http://rubydoc.info/gems/qi/frames
+[travis]: https://travis-ci.org/sashite/qi.rb
+[inchpages]: https://inch-ci.org/github/sashite/qi.rb
+[rubydoc]: https://rubydoc.info/gems/qi/frames
