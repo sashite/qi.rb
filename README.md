@@ -30,20 +30,16 @@ require "qi"
 
 Qi.call(
   [43, 13, "+B"],
-  "side_id": 0,
-  "board": {
+  *%w[S r r b g g g g s n n n n p p p p p p p p p p p p p p p p p],
+  **{
      3 => "s",
      4 => "k",
      5 => "s",
     22 => "+P",
     43 => "+B"
-  },
-  "hands": [
-    %w[S],
-    %w[r r b g g g g s n n n n p p p p p p p p p p p p p p p p p]
-  ]
+  }
 )
-# => {:side_id=>1, :board=>{3=>"s", 4=>"k", 5=>"s", 22=>"+P", 13=>"+B"}, :hands=>[["S"], ["r", "r", "b", "g", "g", "g", "g", "s", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p"]]}
+# => {:square=>{3=>"s", 4=>"k", 5=>"s", 22=>"+P", 13=>"+B"}, :in_hand=>["S", "r", "r", "b", "g", "g", "g", "g", "s", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p"]}
 ```
 
 ## License

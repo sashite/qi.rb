@@ -5,54 +5,42 @@
 # @example
 #   Qi.call(
 #     [43, 13, "+B"],
-#     "side_id": 0,
-#     "board": {
+#     "in_hand": %w[S r r b g g g g s n n n n p p p p p p p p p p p p p p p p p],
+#     "square": {
 #        3 => "s",
 #        4 => "k",
 #        5 => "s",
 #       22 => "+P",
 #       43 => "+B"
-#     },
-#     "hands": [
-#       %w[S],
-#       %w[r r b g g g g s n n n n p p p p p p p p p p p p p p p p p]
-#     ]
+#     }
 #   )
-#   # => {:side_id=>1, :board=>{3=>"s", 4=>"k", 5=>"s", 22=>"+P", 13=>"+B"}, :hands=>[["S"], ["r", "r", "b", "g", "g", "g", "g", "s", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p"]]}
+#   # => {:in_hand=>["S", "r", "r", "b", "g", "g", "g", "g", "s", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p"], :square=>{3=>"s", 4=>"k", 5=>"s", 22=>"+P", 13=>"+B"}}
 module Qi
   # Apply a move to the position.
   #
   # @param move [Array] The move to play.
-  # @param side_id [Integer] The identifier of the player who must play.
-  # @param board [Hash] The indexes of each piece on the board.
-  # @param hands [Array] The list of pieces in hand grouped by players.
+  # @param in_hand [Array] The list of pieces in hand.
+  # @param square [Hash] The index of each piece on the board.
   #
   # @see https://developer.sashite.com/specs/portable-chess-notation
   # @see https://developer.sashite.com/specs/portable-move-notation
   #
-  # @example
+  # @example A classic Shogi problem
   #   call(
   #     [43, 13, "+B"],
-  #     "side_id": 0,
-  #     "board": {
+  #     *%w[S r r b g g g g s n n n n p p p p p p p p p p p p p p p p p],
+  #     **{
   #        3 => "s",
   #        4 => "k",
   #        5 => "s",
   #       22 => "+P",
   #       43 => "+B"
-  #     },
-  #     "hands": [
-  #       %w[S],
-  #       %w[r r b g g g g s n n n n p p p p p p p p p p p p p p p p p]
-  #     ]
+  #     }
   #   )
-  #   # => {:side_id=>1, :board=>{3=>"s", 4=>"k", 5=>"s", 22=>"+P", 13=>"+B"}, :hands=>[["S"], ["r", "r", "b", "g", "g", "g", "g", "s", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p"]]}
+  #   # => {:in_hand=>["S", "r", "r", "b", "g", "g", "g", "g", "s", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p"], :square=>{3=>"s", 4=>"k", 5=>"s", 22=>"+P", 13=>"+B"}}
   #
   # @return [Hash] The next position.
-  def self.call(move, side_id:, board:, hands:)
-    updated_board = board.dup
-    updated_in_hand_pieces = hands.fetch(side_id).dup
-
+  def self.call(move, *in_hand, **square)
     actions = move.each_slice(4)
 
     actions.each do |action|
@@ -62,23 +50,19 @@ module Qi
       captured_piece_name = action.fetch(3, nil)
 
       if src_square_id.nil?
-        piece_in_hand_id = updated_in_hand_pieces.index(moved_piece_name)
-        updated_in_hand_pieces.delete_at(piece_in_hand_id) unless piece_in_hand_id.nil?
+        piece_in_hand_id = in_hand.index(moved_piece_name)
+        in_hand.delete_at(piece_in_hand_id) unless piece_in_hand_id.nil?
       else
-        updated_board.delete(src_square_id)
+        square.delete(src_square_id)
       end
 
-      updated_board[dst_square_id] = moved_piece_name
-      updated_in_hand_pieces.push(captured_piece_name) unless captured_piece_name.nil?
+      square[dst_square_id] = moved_piece_name
+      in_hand.push(captured_piece_name) unless captured_piece_name.nil?
     end
 
-    updated_hands = hands.dup
-    updated_hands[side_id] = updated_in_hand_pieces
-
     {
-      side_id: side_id.succ % hands.length,
-      board: updated_board,
-      hands: updated_hands
+      in_hand: in_hand,
+      square: square
     }
   end
 end
