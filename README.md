@@ -62,9 +62,6 @@ starting_position.pieces_in_hand_grouped_by_sides
 starting_position.active_side_id
 # => 0
 
-starting_position.feen(9, 9)
-# => "l,n,s,g,k,g,s,n,l/1,r,5,b,1/p,p,p,p,p,p,p,p,p/9/9/9/P,P,P,P,P,P,P,P,P/1,B,5,R,1/L,N,S,G,K,G,S,N,L 0 /"
-
 # List of moves (see https://github.com/sashite/pmn.rb)
 moves = [
   [ 56, 47, "P" ],
@@ -99,9 +96,6 @@ last_position.pieces_in_hand_grouped_by_sides
 
 last_position.active_side_id
 # => 1
-
-last_position.feen(9, 9)
-# => "l,n,s,k,2,s,n,l/1,r,g,1,G,+B,1,b,1/p,p,p,p,p,p,1,p,p/9/9/2,P,6/P,P,1,P,P,P,P,P,P/7,R,1/L,N,S,G,K,G,S,N,L 1 P/"
 ```
 
 A classic [Tsume Shogi](https://en.wikipedia.org/wiki/Tsume_shogi) problem:
@@ -145,9 +139,6 @@ starting_position.pieces_in_hand_grouped_by_sides
 starting_position.active_side_id
 # => 0
 
-starting_position.feen(9, 9)
-# => "3,s,k,s,3/9/4,+P,4/9/7,+B,1/9/9/9/9 0 S/b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s"
-
 # List of moves (see https://github.com/sashite/pmn.rb)
 moves = [
   [  43, 13, "+B" ],  [ 5, 13, "s", "b" ],
@@ -177,9 +168,6 @@ last_position.pieces_in_hand_grouped_by_sides
 
 last_position.active_side_id
 # => 1
-
-last_position.feen(9, 9)
-# => "3,s,k,4/4,s,S,3/4,+P,4/9/9/9/9/9/9 1 /b,b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s"
 ```
 
 Another example with [Xiangqi](https://en.wikipedia.org/wiki/Xiangqi)'s Short Double Cannons Checkmate:
@@ -221,9 +209,6 @@ starting_position.pieces_in_hand_grouped_by_sides
 starting_position.active_side_id
 # => 0
 
-starting_position.feen(10, 9)
-# => "車,馬,象,士,將,士,象,馬,車/9/1,砲,5,砲,1/卒,1,卒,1,卒,1,卒,1,卒/9/9/兵,1,兵,1,兵,1,兵,1,兵/1,炮,5,炮,1/9/俥,傌,相,仕,帥,仕,相,傌,俥 0 /"
-
 # List of moves (see https://github.com/sashite/pmn.rb)
 moves = [
   [ 64, 67, "炮" ],
@@ -259,9 +244,6 @@ last_position.pieces_in_hand_grouped_by_sides
 
 last_position.active_side_id
 # => 1
-
-last_position.feen(10, 9)
-# => "車,馬,象,士,將,士,象,馬,車/9/9/卒,1,卒,1,炮,1,卒,1,卒/9/4,炮,4/兵,砲,兵,1,砲,1,兵,1,兵/9/9/俥,傌,相,仕,帥,仕,相,傌,俥 1 /"
 ```
 
 Let's do some moves on a [Four-player chess](https://en.wikipedia.org/wiki/Four-player_chess) board:
@@ -317,9 +299,6 @@ starting_position.pieces_in_hand_grouped_by_sides
 starting_position.active_side_id
 # => 0
 
-starting_position.feen(14, 14)
-# => "3,yR,yN,yB,yK,yQ,yB,yN,yR,3/3,yP,yP,yP,yP,yP,yP,yP,yP,3/14/bR,bP,10,gP,gR/bN,bP,10,gP,gN/bB,bP,10,gP,gB/bK,bP,10,gP,gQ/bQ,bP,10,gP,gK/bB,bP,10,gP,gB/bN,bP,10,gP,gN/bR,bP,10,gP,gR/14/3,rP,rP,rP,rP,rP,rP,rP,rP,3/3,rR,rN,rB,rQ,rK,rB,rN,rR,3 0 ///"
-
 # List of moves (see https://github.com/sashite/pmn.rb)
 moves = [
   [ 175, 147, "rP" ],
@@ -357,9 +336,6 @@ last_position.pieces_in_hand_grouped_by_sides
 
 last_position.active_side_id
 # => 1
-
-last_position.feen(14, 14)
-# => "3,yR,yN,yB,yK,yQ,yB,yN,yR,3/3,yP,yP,yP,1,yP,yP,yP,yP,3/14/bR,bP,4,yP,5,gP,gR/bN,bP,10,gP,gN/bB,bP,10,gP,gB/bK,2,bP,8,gP,gQ/bQ,bP,8,gP,2,gK/bB,bP,10,gP,gB/bN,bP,10,gP,gN/bR,bP,5,rP,4,gP,gR/8,rN,5/3,rP,rP,rP,rP,1,rP,rP,rP,3/3,rR,rN,rB,rQ,rK,rB,1,rR,3 1 ///"
 ```
 
 ## License

@@ -27,7 +27,6 @@ raise if actual.in_hand_pieces != []
 raise if actual.squares != ["l", "n", "s", "g", "k", "g", "s", "n", "l", nil, "r", nil, nil, nil, nil, nil, "b", nil, "p", "p", "p", "p", "p", "p", "p", "p", "p", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "P", "P", "P", "P", "P", "P", "P", "P", "P", nil, "B", nil, nil, nil, nil, nil, "R", nil, "L", "N", "S", "G", "K", "G", "S", "N", "L"]
 raise if actual.pieces_in_hand_grouped_by_sides != [[], []]
 raise if actual.active_side_id != 0
-raise if actual.feen(9, 9) != "l,n,s,g,k,g,s,n,l/1,r,5,b,1/p,p,p,p,p,p,p,p,p/9/9/9/P,P,P,P,P,P,P,P,P/1,B,5,R,1/L,N,S,G,K,G,S,N,L 0 /"
 
 # ------------------------------------------------------------------------------
 
@@ -49,7 +48,6 @@ raise if actual.in_hand_pieces != []
 raise if actual.squares != ["l", "n", "s", "g", "k", "g", "s", "n", "l", nil, "r", nil, nil, nil, nil, nil, "b", nil, "p", "p", "p", "p", "p", "p", "p", "p", "p", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "P", nil, nil, nil, nil, nil, nil, "P", "P", nil, "P", "P", "P", "P", "P", "P", nil, "B", nil, nil, nil, nil, nil, "R", nil, "L", "N", "S", "G", "K", "G", "S", "N", "L"]
 raise if actual.pieces_in_hand_grouped_by_sides != [[], []]
 raise if actual.active_side_id != 1
-raise if actual.feen(9, 9) != "l,n,s,g,k,g,s,n,l/1,r,5,b,1/p,p,p,p,p,p,p,p,p/9/9/2,P,6/P,P,1,P,P,P,P,P,P/1,B,5,R,1/L,N,S,G,K,G,S,N,L 1 /"
 
 # ------------------------------------------------------------------------------
 
@@ -71,7 +69,6 @@ raise if actual.in_hand_pieces != []
 raise if actual.squares != ["l", "n", "s", nil, "k", "g", "s", "n", "l", nil, "r", "g", nil, nil, nil, nil, "b", nil, "p", "p", "p", "p", "p", "p", "p", "p", "p", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "P", nil, nil, nil, nil, nil, nil, "P", "P", nil, "P", "P", "P", "P", "P", "P", nil, "B", nil, nil, nil, nil, nil, "R", nil, "L", "N", "S", "G", "K", "G", "S", "N", "L"]
 raise if actual.pieces_in_hand_grouped_by_sides != [[], []]
 raise if actual.active_side_id != 0
-raise if actual.feen(9, 9) != "l,n,s,1,k,g,s,n,l/1,r,g,4,b,1/p,p,p,p,p,p,p,p,p/9/9/2,P,6/P,P,1,P,P,P,P,P,P/1,B,5,R,1/L,N,S,G,K,G,S,N,L 0 /"
 
 # ------------------------------------------------------------------------------
 
@@ -93,7 +90,6 @@ raise if actual.in_hand_pieces != []
 raise if actual.squares != ["l", "n", "s", nil, "k", "g", "s", "n", "l", nil, "r", "g", nil, nil, nil, nil, "b", nil, "p", "p", "p", "p", "p", "p", "+B", "p", "p", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "P", nil, nil, nil, nil, nil, nil, "P", "P", nil, "P", "P", "P", "P", "P", "P", nil, nil, nil, nil, nil, nil, nil, "R", nil, "L", "N", "S", "G", "K", "G", "S", "N", "L"]
 raise if actual.pieces_in_hand_grouped_by_sides != [["P"], []]
 raise if actual.active_side_id != 1
-raise if actual.feen(9, 9) != "l,n,s,1,k,g,s,n,l/1,r,g,4,b,1/p,p,p,p,p,p,+B,p,p/9/9/2,P,6/P,P,1,P,P,P,P,P,P/7,R,1/L,N,S,G,K,G,S,N,L 1 P/"
 
 # ------------------------------------------------------------------------------
 
@@ -115,7 +111,6 @@ raise if actual.in_hand_pieces != ["P"]
 raise if actual.squares != ["l", "n", "s", nil, "k", nil, "s", "n", "l", nil, "r", "g", nil, nil, "g", nil, "b", nil, "p", "p", "p", "p", "p", "p", "+B", "p", "p", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "P", nil, nil, nil, nil, nil, nil, "P", "P", nil, "P", "P", "P", "P", "P", "P", nil, nil, nil, nil, nil, nil, nil, "R", nil, "L", "N", "S", "G", "K", "G", "S", "N", "L"]
 raise if actual.pieces_in_hand_grouped_by_sides != [["P"], []]
 raise if actual.active_side_id != 0
-raise if actual.feen(9, 9) != "l,n,s,1,k,1,s,n,l/1,r,g,2,g,1,b,1/p,p,p,p,p,p,+B,p,p/9/9/2,P,6/P,P,1,P,P,P,P,P,P/7,R,1/L,N,S,G,K,G,S,N,L 0 P/"
 
 # ------------------------------------------------------------------------------
 
@@ -137,7 +132,6 @@ raise if actual.in_hand_pieces != []
 raise if actual.squares != ["l", "n", "s", nil, "k", nil, "s", "n", "l", nil, "r", "g", nil, nil, "+B", nil, "b", nil, "p", "p", "p", "p", "p", "p", nil, "p", "p", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "P", nil, nil, nil, nil, nil, nil, "P", "P", nil, "P", "P", "P", "P", "P", "P", nil, nil, nil, nil, nil, nil, nil, "R", nil, "L", "N", "S", "G", "K", "G", "S", "N", "L"]
 raise if actual.pieces_in_hand_grouped_by_sides != [["P", "G"], []]
 raise if actual.active_side_id != 1
-raise if actual.feen(9, 9) != "l,n,s,1,k,1,s,n,l/1,r,g,2,+B,1,b,1/p,p,p,p,p,p,1,p,p/9/9/2,P,6/P,P,1,P,P,P,P,P,P/7,R,1/L,N,S,G,K,G,S,N,L 1 G,P/"
 
 # ------------------------------------------------------------------------------
 
@@ -159,7 +153,6 @@ raise if actual.in_hand_pieces != ["P", "G"]
 raise if actual.squares != ["l", "n", "s", "k", nil, nil, "s", "n", "l", nil, "r", "g", nil, nil, "+B", nil, "b", nil, "p", "p", "p", "p", "p", "p", nil, "p", "p", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "P", nil, nil, nil, nil, nil, nil, "P", "P", nil, "P", "P", "P", "P", "P", "P", nil, nil, nil, nil, nil, nil, nil, "R", nil, "L", "N", "S", "G", "K", "G", "S", "N", "L"]
 raise if actual.pieces_in_hand_grouped_by_sides != [["P", "G"], []]
 raise if actual.active_side_id != 0
-raise if actual.feen(9, 9) != "l,n,s,k,2,s,n,l/1,r,g,2,+B,1,b,1/p,p,p,p,p,p,1,p,p/9/9/2,P,6/P,P,1,P,P,P,P,P,P/7,R,1/L,N,S,G,K,G,S,N,L 0 G,P/"
 
 # ------------------------------------------------------------------------------
 
@@ -181,4 +174,3 @@ raise if actual.in_hand_pieces != []
 raise if actual.squares != ["l", "n", "s", "k", nil, nil, "s", "n", "l", nil, "r", "g", nil, "G", "+B", nil, "b", nil, "p", "p", "p", "p", "p", "p", nil, "p", "p", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "P", nil, nil, nil, nil, nil, nil, "P", "P", nil, "P", "P", "P", "P", "P", "P", nil, nil, nil, nil, nil, nil, nil, "R", nil, "L", "N", "S", "G", "K", "G", "S", "N", "L"]
 raise if actual.pieces_in_hand_grouped_by_sides != [["P"], []]
 raise if actual.active_side_id != 1
-raise if actual.feen(9, 9) != "l,n,s,k,2,s,n,l/1,r,g,1,G,+B,1,b,1/p,p,p,p,p,p,1,p,p/9/9/2,P,6/P,P,1,P,P,P,P,P,P/7,R,1/L,N,S,G,K,G,S,N,L 1 P/"

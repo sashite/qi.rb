@@ -66,4 +66,3 @@ actuals:
   - "%{subject}.squares"
   - "%{subject}.pieces_in_hand_grouped_by_sides"
   - "%{subject}.active_side_id"
-  - "%{subject}.feen(9, 9)"
