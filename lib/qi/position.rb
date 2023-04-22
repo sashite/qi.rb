@@ -6,7 +6,7 @@ module Qi
   # @see https://developer.sashite.com/specs/portable-chess-notation
   class Position
     # Players are identified by a number according to the order in which they
-    #   traditionally play from the starting position.
+    # traditionally play from the starting position.
     #
     # @!attribute [r] active_side_id
     #   @return [Integer] The identifier of the player who must play.
