@@ -14,16 +14,33 @@ Gemspec/RequiredRubyVersion:
     - 'qi.gemspec'
 
 # Offense count: 1
+# Cop supports --auto-correct.
+# Configuration parameters: EnforcedStyle, IndentationWidth.
+# SupportedStyles: with_first_argument, with_fixed_indentation
+Layout/ArgumentAlignment:
+  Exclude:
+    - 'lib/qi/position.rb'
+
+# Offense count: 1
+# Cop supports --auto-correct.
+# Configuration parameters: EnforcedStyle.
+# SupportedStyles: symmetrical, new_line, same_line
+Layout/MultilineMethodCallBraceLayout:
+  Exclude:
+    - 'lib/qi/position.rb'
+
+# Offense count: 1
 # Configuration parameters: IgnoredMethods.
 Metrics/AbcSize:
-  Max: 32
+  Max: 29
 
 # Offense count: 1
 # Configuration parameters: CountComments, CountAsOne, ExcludedMethods.
 Metrics/MethodLength:
-  Max: 32
+  Max: 25
 
 # Offense count: 1
-# Configuration parameters: IgnoredMethods.
-Metrics/PerceivedComplexity:
-  Max: 9
+# Cop supports --auto-correct.
+Style/IfUnlessModifier:
+  Exclude:
+    - 'lib/qi/position.rb'
