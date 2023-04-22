@@ -1,7 +1,7 @@
 *.gem
 *.rbc
 /.config
-coverage/
+/**/coverage/
 /InstalledFiles
 /pkg/
 /spec/reports/
@@ -56,7 +56,4 @@ build-iPhoneSimulator/
 .rvmrc
 
 # Used by RuboCop. Remote config files pulled in from inherit_from directive.
-# .rubocop-https?--*
-
-# rspec failure tracking
-.rspec_status
+.rubocop-https?--*

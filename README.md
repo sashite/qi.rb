@@ -6,26 +6,26 @@
 [![RuboCop](https://github.com/sashite/qi.rb/workflows/RuboCop/badge.svg?branch=main)](https://github.com/sashite/qi.rb/actions?query=workflow%3Arubocop+branch%3Amain)
 [![License](https://img.shields.io/github/license/sashite/qi.rb?label=License&logo=github)](https://github.com/sashite/qi.rb/raw/main/LICENSE.md)
 
-> `Qi` (棋) is an abstraction for updating positions of chess variants (including Chess, Janggi, Markruk, Shogi, Xiangqi), with a move.
+> `Qi` (Chinese: 棋; pinyin: _qí_) is an abstraction that could help to update positions for games like Shogi.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "qi"
+gem "qi", ">= 10.0.0.beta1"
 ```
 
 And then execute:
 
 ```sh
-bundle
+bundle install
 ```
 
 Or install it yourself as:
 
 ```sh
-gem install qi
+gem install qi --pre
 ```
 
 ## Example
@@ -33,18 +33,13 @@ gem install qi
 ```ruby
 require "qi"
 
-Qi.call(
-  43, 13, "+B",
-  in_hand: %w[S r r b g g g g s n n n n p p p p p p p p p p p p p p p p p],
-  square: {
-    3 => "s",
-    4 => "k",
-    5 => "s",
-    22 => "+P",
-    43 => "+B"
-  }
-)
-# => {:in_hand=>["S", "r", "r", "b", "g", "g", "g", "g", "s", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p"], :square=>{3=>"s", 4=>"k", 5=>"s", 22=>"+P", 13=>"+B"}}
+captures  = %w[S r r b g g g g s n n n n p p p p p p p p p p p p p p p p p]
+squares   = { "3": "s", "4": "k", "5": "s", "22": "+P", "43": "+B" }
+
+captures, squares = Qi(*captures, **squares).call("43": nil, "13": "+B")
+
+captures  # => ["S", "r", "r", "b", "g", "g", "g", "g", "s", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p"]
+squares   # => {:"3"=>"s", :"4"=>"k", :"5"=>"s", :"22"=>"+P", :"13"=>"+B"}
 ```
 
 ## License
