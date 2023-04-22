@@ -18,8 +18,6 @@ AllCops:
   
     - doc/
   
-    - pkg/
-  
     - test.rb
     - config/**/*
 
