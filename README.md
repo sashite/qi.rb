@@ -32,9 +32,9 @@ Or install it yourself as:
 ```ruby
 require 'qi'
 
-db = Qi::Store.new(8)       # => #<Qi::Store:0x007f8c0a82f300 @cells=[nil, nil, nil, nil, nil, nil, nil, nil]>
+db = Qi::Store.new(8)       # => #<Qi::Store:0x007f82129493c8 @cells=[nil, nil, nil, nil, nil, nil, nil, nil], @deleted_content=nil>
 
-result = db.call(2, 3, 'p') # => #<Qi::Result:0x007ff3539d71e8 @store=#<Qi::Store:0x007ff3539d7238 @cells=[nil, nil, nil, "p", nil, nil, nil, nil]>, @deleted_content=nil>
+result = db.call(2, 3, 'p') # => #<Qi::Store:0x007f821293a170 @cells=[nil, nil, nil, "p", nil, nil, nil, nil], @deleted_content=nil>
 result.store.cells          # => [nil, nil, nil, "p", nil, nil, nil, nil]
 result.deleted_content      # => nil
 ```
