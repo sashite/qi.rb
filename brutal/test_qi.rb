@@ -67,7 +67,7 @@ actual = begin
   starting_position = Qi.new(*STARTING_POSITION_CONTEXT)
 
   [].reduce(starting_position) do |position, args|
-    position.commit(*args)
+    position.commit(*args.first(2), **Hash(args[2]).transform_keys(&:to_sym))
   end
 end
 
@@ -81,10 +81,10 @@ raise if actual.south_turn? != true
 if actual.to_a != [false, [], [], { 0 => "l", 1 => "n", 2 => "s", 3 => "g", 4 => "k", 5 => "g", 6 => "s", 7 => "n", 8 => "l", 10 => "r", 16 => "b", 18 => "p", 19 => "p", 20 => "p", 21 => "p", 22 => "p", 23 => "p", 24 => "p", 25 => "p", 26 => "p", 54 => "P", 55 => "P", 56 => "P", 57 => "P", 58 => "P", 59 => "P", 60 => "P", 61 => "P", 62 => "P", 64 => "B", 70 => "R", 72 => "L", 73 => "N", 74 => "S", 75 => "G", 76 => "K", 77 => "G", 78 => "S", 79 => "N", 80 => "L" }]
   raise
 end
-if actual.inspect != "<Qi south-turn  0:l,1:n,2:s,3:g,4:k,5:g,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,24:p,25:p,26:p,54:P,55:P,56:P,57:P,58:P,59:P,60:P,61:P,62:P,64:B,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L>"
+if actual.serialize != "SouthTurn======0:l,1:n,2:s,3:g,4:k,5:g,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,24:p,25:p,26:p,54:P,55:P,56:P,57:P,58:P,59:P,60:P,61:P,62:P,64:B,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L"
   raise
 end
-if actual.display(81, 9) != [[], [["l", "n", "s", "g", "k", "g", "s", "n", "l"], [".", "r", ".", ".", ".", ".", ".", "b", "."], ["p", "p", "p", "p", "p", "p", "p", "p", "p"], [".", ".", ".", ".", ".", ".", ".", ".", "."], [".", ".", ".", ".", ".", ".", ".", ".", "."], [".", ".", ".", ".", ".", ".", ".", ".", "."], ["P", "P", "P", "P", "P", "P", "P", "P", "P"], [".", "B", ".", ".", ".", ".", ".", "R", "."], ["L", "N", "S", "G", "K", "G", "S", "N", "L"]], [], "Turn to south"]
+if actual.inspect != "<Qi SouthTurn======0:l,1:n,2:s,3:g,4:k,5:g,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,24:p,25:p,26:p,54:P,55:P,56:P,57:P,58:P,59:P,60:P,61:P,62:P,64:B,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L>"
   raise
 end
 
@@ -98,7 +98,7 @@ actual = begin
   starting_position = Qi.new(*STARTING_POSITION_CONTEXT)
 
   [[{ 56 => nil, 47 => "P" }]].reduce(starting_position) do |position, args|
-    position.commit(*args)
+    position.commit(*args.first(2), **Hash(args[2]).transform_keys(&:to_sym))
   end
 end
 
@@ -112,10 +112,10 @@ raise if actual.south_turn? != false
 if actual.to_a != [true, [], [], { 0 => "l", 1 => "n", 2 => "s", 3 => "g", 4 => "k", 5 => "g", 6 => "s", 7 => "n", 8 => "l", 10 => "r", 16 => "b", 18 => "p", 19 => "p", 20 => "p", 21 => "p", 22 => "p", 23 => "p", 24 => "p", 25 => "p", 26 => "p", 54 => "P", 55 => "P", 57 => "P", 58 => "P", 59 => "P", 60 => "P", 61 => "P", 62 => "P", 64 => "B", 70 => "R", 72 => "L", 73 => "N", 74 => "S", 75 => "G", 76 => "K", 77 => "G", 78 => "S", 79 => "N", 80 => "L", 47 => "P" }]
   raise
 end
-if actual.inspect != "<Qi north-turn  0:l,1:n,2:s,3:g,4:k,5:g,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,24:p,25:p,26:p,54:P,55:P,57:P,58:P,59:P,60:P,61:P,62:P,64:B,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L,47:P>"
+if actual.serialize != "NorthTurn======0:l,1:n,2:s,3:g,4:k,5:g,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,24:p,25:p,26:p,54:P,55:P,57:P,58:P,59:P,60:P,61:P,62:P,64:B,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L,47:P"
   raise
 end
-if actual.display(81, 9) != [[], [["l", "n", "s", "g", "k", "g", "s", "n", "l"], [".", "r", ".", ".", ".", ".", ".", "b", "."], ["p", "p", "p", "p", "p", "p", "p", "p", "p"], [".", ".", ".", ".", ".", ".", ".", ".", "."], [".", ".", ".", ".", ".", ".", ".", ".", "."], [".", ".", "P", ".", ".", ".", ".", ".", "."], ["P", "P", ".", "P", "P", "P", "P", "P", "P"], [".", "B", ".", ".", ".", ".", ".", "R", "."], ["L", "N", "S", "G", "K", "G", "S", "N", "L"]], [], "Turn to north"]
+if actual.inspect != "<Qi NorthTurn======0:l,1:n,2:s,3:g,4:k,5:g,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,24:p,25:p,26:p,54:P,55:P,57:P,58:P,59:P,60:P,61:P,62:P,64:B,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L,47:P>"
   raise
 end
 
@@ -129,7 +129,7 @@ actual = begin
   starting_position = Qi.new(*STARTING_POSITION_CONTEXT)
 
   [[{ 56 => nil, 47 => "P" }], [{ 3 => nil, 11 => "g" }]].reduce(starting_position) do |position, args|
-    position.commit(*args)
+    position.commit(*args.first(2), **Hash(args[2]).transform_keys(&:to_sym))
   end
 end
 
@@ -143,10 +143,10 @@ raise if actual.south_turn? != true
 if actual.to_a != [false, [], [], { 0 => "l", 1 => "n", 2 => "s", 4 => "k", 5 => "g", 6 => "s", 7 => "n", 8 => "l", 10 => "r", 16 => "b", 18 => "p", 19 => "p", 20 => "p", 21 => "p", 22 => "p", 23 => "p", 24 => "p", 25 => "p", 26 => "p", 54 => "P", 55 => "P", 57 => "P", 58 => "P", 59 => "P", 60 => "P", 61 => "P", 62 => "P", 64 => "B", 70 => "R", 72 => "L", 73 => "N", 74 => "S", 75 => "G", 76 => "K", 77 => "G", 78 => "S", 79 => "N", 80 => "L", 47 => "P", 11 => "g" }]
   raise
 end
-if actual.inspect != "<Qi south-turn  0:l,1:n,2:s,4:k,5:g,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,24:p,25:p,26:p,54:P,55:P,57:P,58:P,59:P,60:P,61:P,62:P,64:B,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L,47:P,11:g>"
+if actual.serialize != "SouthTurn======0:l,1:n,2:s,4:k,5:g,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,24:p,25:p,26:p,54:P,55:P,57:P,58:P,59:P,60:P,61:P,62:P,64:B,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L,47:P,11:g"
   raise
 end
-if actual.display(81, 9) != [[], [["l", "n", "s", ".", "k", "g", "s", "n", "l"], [".", "r", "g", ".", ".", ".", ".", "b", "."], ["p", "p", "p", "p", "p", "p", "p", "p", "p"], [".", ".", ".", ".", ".", ".", ".", ".", "."], [".", ".", ".", ".", ".", ".", ".", ".", "."], [".", ".", "P", ".", ".", ".", ".", ".", "."], ["P", "P", ".", "P", "P", "P", "P", "P", "P"], [".", "B", ".", ".", ".", ".", ".", "R", "."], ["L", "N", "S", "G", "K", "G", "S", "N", "L"]], [], "Turn to south"]
+if actual.inspect != "<Qi SouthTurn======0:l,1:n,2:s,4:k,5:g,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,24:p,25:p,26:p,54:P,55:P,57:P,58:P,59:P,60:P,61:P,62:P,64:B,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L,47:P,11:g>"
   raise
 end
 
@@ -160,7 +160,7 @@ actual = begin
   starting_position = Qi.new(*STARTING_POSITION_CONTEXT)
 
   [[{ 56 => nil, 47 => "P" }], [{ 3 => nil, 11 => "g" }], [{ 64 => nil, 24 => "+B" }, "P"]].reduce(starting_position) do |position, args|
-    position.commit(*args)
+    position.commit(*args.first(2), **Hash(args[2]).transform_keys(&:to_sym))
   end
 end
 
@@ -174,10 +174,10 @@ raise if actual.south_turn? != false
 if actual.to_a != [true, [], ["P"], { 0 => "l", 1 => "n", 2 => "s", 4 => "k", 5 => "g", 6 => "s", 7 => "n", 8 => "l", 10 => "r", 16 => "b", 18 => "p", 19 => "p", 20 => "p", 21 => "p", 22 => "p", 23 => "p", 24 => "+B", 25 => "p", 26 => "p", 54 => "P", 55 => "P", 57 => "P", 58 => "P", 59 => "P", 60 => "P", 61 => "P", 62 => "P", 70 => "R", 72 => "L", 73 => "N", 74 => "S", 75 => "G", 76 => "K", 77 => "G", 78 => "S", 79 => "N", 80 => "L", 47 => "P", 11 => "g" }]
   raise
 end
-if actual.inspect != "<Qi north-turn P 0:l,1:n,2:s,4:k,5:g,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,24:+B,25:p,26:p,54:P,55:P,57:P,58:P,59:P,60:P,61:P,62:P,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L,47:P,11:g>"
+if actual.serialize != "NorthTurn===P===0:l,1:n,2:s,4:k,5:g,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,24:+B,25:p,26:p,54:P,55:P,57:P,58:P,59:P,60:P,61:P,62:P,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L,47:P,11:g"
   raise
 end
-if actual.display(81, 9) != [[], [["l ", "n ", "s ", ". ", "k ", "g ", "s ", "n ", "l "], [". ", "r ", "g ", ". ", ". ", ". ", ". ", "b ", ". "], ["p ", "p ", "p ", "p ", "p ", "p ", "+B", "p ", "p "], [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "], [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "], [". ", ". ", "P ", ". ", ". ", ". ", ". ", ". ", ". "], ["P ", "P ", ". ", "P ", "P ", "P ", "P ", "P ", "P "], [". ", ". ", ". ", ". ", ". ", ". ", ". ", "R ", ". "], ["L ", "N ", "S ", "G ", "K ", "G ", "S ", "N ", "L "]], ["P"], "Turn to north"]
+if actual.inspect != "<Qi NorthTurn===P===0:l,1:n,2:s,4:k,5:g,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,24:+B,25:p,26:p,54:P,55:P,57:P,58:P,59:P,60:P,61:P,62:P,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L,47:P,11:g>"
   raise
 end
 
@@ -191,7 +191,7 @@ actual = begin
   starting_position = Qi.new(*STARTING_POSITION_CONTEXT)
 
   [[{ 56 => nil, 47 => "P" }], [{ 3 => nil, 11 => "g" }], [{ 64 => nil, 24 => "+B" }, "P"], [{ 5 => nil, 14 => "g" }]].reduce(starting_position) do |position, args|
-    position.commit(*args)
+    position.commit(*args.first(2), **Hash(args[2]).transform_keys(&:to_sym))
   end
 end
 
@@ -205,10 +205,10 @@ raise if actual.south_turn? != true
 if actual.to_a != [false, [], ["P"], { 0 => "l", 1 => "n", 2 => "s", 4 => "k", 6 => "s", 7 => "n", 8 => "l", 10 => "r", 16 => "b", 18 => "p", 19 => "p", 20 => "p", 21 => "p", 22 => "p", 23 => "p", 24 => "+B", 25 => "p", 26 => "p", 54 => "P", 55 => "P", 57 => "P", 58 => "P", 59 => "P", 60 => "P", 61 => "P", 62 => "P", 70 => "R", 72 => "L", 73 => "N", 74 => "S", 75 => "G", 76 => "K", 77 => "G", 78 => "S", 79 => "N", 80 => "L", 47 => "P", 11 => "g", 14 => "g" }]
   raise
 end
-if actual.inspect != "<Qi south-turn P 0:l,1:n,2:s,4:k,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,24:+B,25:p,26:p,54:P,55:P,57:P,58:P,59:P,60:P,61:P,62:P,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L,47:P,11:g,14:g>"
+if actual.serialize != "SouthTurn===P===0:l,1:n,2:s,4:k,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,24:+B,25:p,26:p,54:P,55:P,57:P,58:P,59:P,60:P,61:P,62:P,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L,47:P,11:g,14:g"
   raise
 end
-if actual.display(81, 9) != [[], [["l ", "n ", "s ", ". ", "k ", ". ", "s ", "n ", "l "], [". ", "r ", "g ", ". ", ". ", "g ", ". ", "b ", ". "], ["p ", "p ", "p ", "p ", "p ", "p ", "+B", "p ", "p "], [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "], [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "], [". ", ". ", "P ", ". ", ". ", ". ", ". ", ". ", ". "], ["P ", "P ", ". ", "P ", "P ", "P ", "P ", "P ", "P "], [". ", ". ", ". ", ". ", ". ", ". ", ". ", "R ", ". "], ["L ", "N ", "S ", "G ", "K ", "G ", "S ", "N ", "L "]], ["P"], "Turn to south"]
+if actual.inspect != "<Qi SouthTurn===P===0:l,1:n,2:s,4:k,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,24:+B,25:p,26:p,54:P,55:P,57:P,58:P,59:P,60:P,61:P,62:P,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L,47:P,11:g,14:g>"
   raise
 end
 
@@ -222,7 +222,7 @@ actual = begin
   starting_position = Qi.new(*STARTING_POSITION_CONTEXT)
 
   [[{ 56 => nil, 47 => "P" }], [{ 3 => nil, 11 => "g" }], [{ 64 => nil, 24 => "+B" }, "P"], [{ 5 => nil, 14 => "g" }], [{ 24 => nil, 14 => "+B" }, "G"]].reduce(starting_position) do |position, args|
-    position.commit(*args)
+    position.commit(*args.first(2), **Hash(args[2]).transform_keys(&:to_sym))
   end
 end
 
@@ -236,10 +236,10 @@ raise if actual.south_turn? != false
 if actual.to_a != [true, [], %w[G P], { 0 => "l", 1 => "n", 2 => "s", 4 => "k", 6 => "s", 7 => "n", 8 => "l", 10 => "r", 16 => "b", 18 => "p", 19 => "p", 20 => "p", 21 => "p", 22 => "p", 23 => "p", 25 => "p", 26 => "p", 54 => "P", 55 => "P", 57 => "P", 58 => "P", 59 => "P", 60 => "P", 61 => "P", 62 => "P", 70 => "R", 72 => "L", 73 => "N", 74 => "S", 75 => "G", 76 => "K", 77 => "G", 78 => "S", 79 => "N", 80 => "L", 47 => "P", 11 => "g", 14 => "+B" }]
   raise
 end
-if actual.inspect != "<Qi north-turn G,P 0:l,1:n,2:s,4:k,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,25:p,26:p,54:P,55:P,57:P,58:P,59:P,60:P,61:P,62:P,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L,47:P,11:g,14:+B>"
+if actual.serialize != "NorthTurn===G,P===0:l,1:n,2:s,4:k,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,25:p,26:p,54:P,55:P,57:P,58:P,59:P,60:P,61:P,62:P,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L,47:P,11:g,14:+B"
   raise
 end
-if actual.display(81, 9) != [[], [["l ", "n ", "s ", ". ", "k ", ". ", "s ", "n ", "l "], [". ", "r ", "g ", ". ", ". ", "+B", ". ", "b ", ". "], ["p ", "p ", "p ", "p ", "p ", "p ", ". ", "p ", "p "], [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "], [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "], [". ", ". ", "P ", ". ", ". ", ". ", ". ", ". ", ". "], ["P ", "P ", ". ", "P ", "P ", "P ", "P ", "P ", "P "], [". ", ". ", ". ", ". ", ". ", ". ", ". ", "R ", ". "], ["L ", "N ", "S ", "G ", "K ", "G ", "S ", "N ", "L "]], %w[G P], "Turn to north"]
+if actual.inspect != "<Qi NorthTurn===G,P===0:l,1:n,2:s,4:k,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,25:p,26:p,54:P,55:P,57:P,58:P,59:P,60:P,61:P,62:P,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L,47:P,11:g,14:+B>"
   raise
 end
 
@@ -253,7 +253,7 @@ actual = begin
   starting_position = Qi.new(*STARTING_POSITION_CONTEXT)
 
   [[{ 56 => nil, 47 => "P" }], [{ 3 => nil, 11 => "g" }], [{ 64 => nil, 24 => "+B" }, "P"], [{ 5 => nil, 14 => "g" }], [{ 24 => nil, 14 => "+B" }, "G"], [{ 4 => nil, 3 => "k" }]].reduce(starting_position) do |position, args|
-    position.commit(*args)
+    position.commit(*args.first(2), **Hash(args[2]).transform_keys(&:to_sym))
   end
 end
 
@@ -267,10 +267,10 @@ raise if actual.south_turn? != true
 if actual.to_a != [false, [], %w[G P], { 0 => "l", 1 => "n", 2 => "s", 6 => "s", 7 => "n", 8 => "l", 10 => "r", 16 => "b", 18 => "p", 19 => "p", 20 => "p", 21 => "p", 22 => "p", 23 => "p", 25 => "p", 26 => "p", 54 => "P", 55 => "P", 57 => "P", 58 => "P", 59 => "P", 60 => "P", 61 => "P", 62 => "P", 70 => "R", 72 => "L", 73 => "N", 74 => "S", 75 => "G", 76 => "K", 77 => "G", 78 => "S", 79 => "N", 80 => "L", 47 => "P", 11 => "g", 14 => "+B", 3 => "k" }]
   raise
 end
-if actual.inspect != "<Qi south-turn G,P 0:l,1:n,2:s,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,25:p,26:p,54:P,55:P,57:P,58:P,59:P,60:P,61:P,62:P,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L,47:P,11:g,14:+B,3:k>"
+if actual.serialize != "SouthTurn===G,P===0:l,1:n,2:s,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,25:p,26:p,54:P,55:P,57:P,58:P,59:P,60:P,61:P,62:P,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L,47:P,11:g,14:+B,3:k"
   raise
 end
-if actual.display(81, 9) != [[], [["l ", "n ", "s ", "k ", ". ", ". ", "s ", "n ", "l "], [". ", "r ", "g ", ". ", ". ", "+B", ". ", "b ", ". "], ["p ", "p ", "p ", "p ", "p ", "p ", ". ", "p ", "p "], [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "], [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "], [". ", ". ", "P ", ". ", ". ", ". ", ". ", ". ", ". "], ["P ", "P ", ". ", "P ", "P ", "P ", "P ", "P ", "P "], [". ", ". ", ". ", ". ", ". ", ". ", ". ", "R ", ". "], ["L ", "N ", "S ", "G ", "K ", "G ", "S ", "N ", "L "]], %w[G P], "Turn to south"]
+if actual.inspect != "<Qi SouthTurn===G,P===0:l,1:n,2:s,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,25:p,26:p,54:P,55:P,57:P,58:P,59:P,60:P,61:P,62:P,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L,47:P,11:g,14:+B,3:k>"
   raise
 end
 
@@ -283,8 +283,8 @@ end
 actual = begin
   starting_position = Qi.new(*STARTING_POSITION_CONTEXT)
 
-  [[{ 56 => nil, 47 => "P" }], [{ 3 => nil, 11 => "g" }], [{ 64 => nil, 24 => "+B" }, "P"], [{ 5 => nil, 14 => "g" }], [{ 24 => nil, 14 => "+B" }, "G"], [{ 4 => nil, 3 => "k" }], [{ 13=>"G" }, "G", true]].reduce(starting_position) do |position, args|
-    position.commit(*args)
+  [[{ 56 => nil, 47 => "P" }], [{ 3 => nil, 11 => "g" }], [{ 64 => nil, 24 => "+B" }, "P"], [{ 5 => nil, 14 => "g" }], [{ 24 => nil, 14 => "+B" }, "G"], [{ 4 => nil, 3 => "k" }], [{ 13=>"G" }, "G", { "is_drop"=>true }]].reduce(starting_position) do |position, args|
+    position.commit(*args.first(2), **Hash(args[2]).transform_keys(&:to_sym))
   end
 end
 
@@ -298,10 +298,10 @@ raise if actual.south_turn? != false
 if actual.to_a != [true, [], ["P"], { 0 => "l", 1 => "n", 2 => "s", 6 => "s", 7 => "n", 8 => "l", 10 => "r", 16 => "b", 18 => "p", 19 => "p", 20 => "p", 21 => "p", 22 => "p", 23 => "p", 25 => "p", 26 => "p", 54 => "P", 55 => "P", 57 => "P", 58 => "P", 59 => "P", 60 => "P", 61 => "P", 62 => "P", 70 => "R", 72 => "L", 73 => "N", 74 => "S", 75 => "G", 76 => "K", 77 => "G", 78 => "S", 79 => "N", 80 => "L", 47 => "P", 11 => "g", 14 => "+B", 3 => "k", 13 => "G" }]
   raise
 end
-if actual.inspect != "<Qi north-turn P 0:l,1:n,2:s,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,25:p,26:p,54:P,55:P,57:P,58:P,59:P,60:P,61:P,62:P,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L,47:P,11:g,14:+B,3:k,13:G>"
+if actual.serialize != "NorthTurn===P===0:l,1:n,2:s,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,25:p,26:p,54:P,55:P,57:P,58:P,59:P,60:P,61:P,62:P,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L,47:P,11:g,14:+B,3:k,13:G"
   raise
 end
-if actual.display(81, 9) != [[], [["l ", "n ", "s ", "k ", ". ", ". ", "s ", "n ", "l "], [". ", "r ", "g ", ". ", "G ", "+B", ". ", "b ", ". "], ["p ", "p ", "p ", "p ", "p ", "p ", ". ", "p ", "p "], [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "], [". ", ". ", ". ", ". ", ". ", ". ", ". ", ". ", ". "], [". ", ". ", "P ", ". ", ". ", ". ", ". ", ". ", ". "], ["P ", "P ", ". ", "P ", "P ", "P ", "P ", "P ", "P "], [". ", ". ", ". ", ". ", ". ", ". ", ". ", "R ", ". "], ["L ", "N ", "S ", "G ", "K ", "G ", "S ", "N ", "L "]], ["P"], "Turn to north"]
+if actual.inspect != "<Qi NorthTurn===P===0:l,1:n,2:s,6:s,7:n,8:l,10:r,16:b,18:p,19:p,20:p,21:p,22:p,23:p,25:p,26:p,54:P,55:P,57:P,58:P,59:P,60:P,61:P,62:P,70:R,72:L,73:N,74:S,75:G,76:K,77:G,78:S,79:N,80:L,47:P,11:g,14:+B,3:k,13:G>"
   raise
 end
 

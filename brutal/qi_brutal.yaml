@@ -65,7 +65,7 @@ subject: |
   starting_position = Qi.new(*STARTING_POSITION_CONTEXT)
 
   %{moves}.reduce(starting_position) do |position, args|
-    position.commit(*args)
+    position.commit(*args.first(2), **Hash(args[2]).transform_keys(&:to_sym))
   end
 
 contexts:
@@ -105,7 +105,7 @@ contexts:
       - [{5: null, 14: "g"}]
       - [{24: null, 14: "+B"}, "G"]
       - [{4: null, 3: "k"}]
-      - [{13: "G"}, "G", true]
+      - [{13: "G"}, "G", {is_drop: true}]
 
 actuals:
   - "%{subject}.north_captures"
@@ -114,5 +114,5 @@ actuals:
   - "%{subject}.north_turn?"
   - "%{subject}.south_turn?"
   - "%{subject}.to_a"
+  - "%{subject}.serialize"
   - "%{subject}.inspect"
-  - "%{subject}.display(81, 9)"
