@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    qi (10.0.0.beta6)
+    qi (10.0.0.beta7)
 
 GEM
   remote: https://rubygems.org/
@@ -16,7 +16,7 @@ GEM
     json (2.6.3)
     matchi (3.3.1)
     parallel (1.23.0)
-    parser (3.2.2.0)
+    parser (3.2.2.1)
       ast (~> 2.4.1)
     r_spec (1.0.5)
       r_spec-clone
@@ -38,7 +38,7 @@ GEM
       rubocop-ast (>= 1.28.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 3.0)
-    rubocop-ast (1.28.0)
+    rubocop-ast (1.28.1)
       parser (>= 3.2.1.0)
     rubocop-capybara (2.18.0)
       rubocop (~> 1.41)

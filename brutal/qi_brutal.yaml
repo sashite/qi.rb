@@ -114,5 +114,6 @@ actuals:
   - "%{subject}.north_turn?"
   - "%{subject}.south_turn?"
   - "%{subject}.to_a"
+  - "%{subject}.to_h"
   - "%{subject}.serialize"
   - "%{subject}.inspect"

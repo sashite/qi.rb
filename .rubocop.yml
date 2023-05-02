@@ -62,6 +62,9 @@ Layout/LineLength:
 Lint/RequireRelativeSelfPath:
   Enabled: false
 
+RSpec/MultipleExpectations:
+  Max: 10
+
 Style/RedundantConstantBase:
   Enabled: false
 

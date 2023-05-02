@@ -69,6 +69,22 @@ class Qi
     ]
   end
 
+  # Returns a hash representation of the Qi object's attributes.
+  #
+  # @return [Hash{Symbol => Object}] a hash containing four key-value pairs:
+  #   - is_north_turn: a boolean value indicating whose turn it is
+  #   - north_captures: an array of pieces captured by the north player
+  #   - south_captures: an array of pieces captured by the south player
+  #   - squares: a hash of squares on the board
+  def to_h
+    {
+      is_north_turn:  north_turn?,
+      north_captures:,
+      south_captures:,
+      squares:
+    }
+  end
+
   # Returns a string representation of the Qi object's attributes.
   #
   # @return [String] a string containing three parts separated by "===":
