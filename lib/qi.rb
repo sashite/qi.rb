@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "digest"
 require_relative "qi/error/drop"
 
 # A class that represents the state of a game.
@@ -41,13 +42,12 @@ class Qi
     self.class.new(!north_turn?, *modified_captures, modified_squares)
   end
 
-  def side_name
-    if north_turn?
-      "north"
-    else
-      "south"
-    end
+  def eql?(other)
+    return false unless other.respond_to?(:serialize)
+
+    other.serialize == serialize
   end
+  alias == eql?
 
   def other_captures
     if north_turn?
@@ -62,6 +62,14 @@ class Qi
       north_captures
     else
       south_captures
+    end
+  end
+
+  def side_name
+    if north_turn?
+      "north"
+    else
+      "south"
     end
   end
 
@@ -109,6 +117,11 @@ class Qi
       south_captures:,
       squares:
     }
+  end
+
+  # Returns the hash-code for the position.
+  def hash
+    ::Digest::SHA256.hexdigest(serialize)
   end
 
   # Returns a string representation of the Qi object's attributes.

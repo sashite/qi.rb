@@ -7,6 +7,32 @@ RSpec.describe Qi do
     described_class.new(is_north_turn, %i[rook bishop], %i[rook pawn knight], { a1: :king, b2: :queen })
   end
 
+  describe "#==" do
+    subject do
+      qi == another_qi
+    end
+
+    let(:is_north_turn) { true }
+
+    context "with the same position" do
+      let(:is_north_turn) { true }
+
+      let(:another_qi) do
+        described_class.new(is_north_turn, %i[rook bishop], %i[rook pawn knight], { a1: :king, b2: :queen })
+      end
+
+      it { is_expected.to be true }
+    end
+
+    context "with another position" do
+      let(:another_qi) do
+        described_class.new(!is_north_turn, %i[rook bishop], %i[rook pawn knight], { a1: :king, b2: :queen })
+      end
+
+      it { is_expected.to be false }
+    end
+  end
+
   describe "#commit" do
     context "when a piece is in hand" do
       let(:in_hand) { :rook }
@@ -26,7 +52,7 @@ RSpec.describe Qi do
           end
 
           it "raises an error if the piece is not in north captures" do
-            expect { qi.commit({ c3: in_hand }, :knight, is_drop:) }.to raise_exception(IndexError)
+            expect { qi.commit({ c3: in_hand }, :knight, is_drop:) }.to raise_exception(Qi::Error::Drop)
           end
         end
 
@@ -42,7 +68,7 @@ RSpec.describe Qi do
           end
 
           it "raises an error if the piece is not in south captures" do
-            expect { qi.commit({ c3: in_hand }, :bishop, is_drop:) }.to raise_exception(IndexError)
+            expect { qi.commit({ c3: in_hand }, :bishop, is_drop:) }.to raise_exception(Qi::Error::Drop)
           end
         end
       end

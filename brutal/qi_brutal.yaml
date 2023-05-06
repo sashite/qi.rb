@@ -108,6 +108,8 @@ contexts:
       - [{13: "G"}, "G", {is_drop: true}]
 
 actuals:
+  - "(%{subject} == Qi.new(*STARTING_POSITION_CONTEXT))"
+  - "%{subject}.eql?(Qi.new(*STARTING_POSITION_CONTEXT))"
   - "%{subject}.side_name"
   - "%{subject}.other_captures"
   - "%{subject}.owned_captures"
@@ -118,5 +120,6 @@ actuals:
   - "%{subject}.south_turn?"
   - "%{subject}.to_a"
   - "%{subject}.to_h"
+  - "%{subject}.hash"
   - "%{subject}.serialize"
   - "%{subject}.inspect"
