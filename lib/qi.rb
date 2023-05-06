@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "qi/error/drop"
+
 # A class that represents the state of a game.
 class Qi
   # @!attribute [r] north_captures
@@ -37,6 +39,30 @@ class Qi
     modified_squares = squares.merge(diffs)
     modified_captures = update_captures(in_hand, is_drop:)
     self.class.new(!north_turn?, *modified_captures, modified_squares)
+  end
+
+  def side_name
+    if north_turn?
+      "north"
+    else
+      "south"
+    end
+  end
+
+  def other_captures
+    if north_turn?
+      south_captures
+    else
+      north_captures
+    end
+  end
+
+  def owned_captures
+    if north_turn?
+      north_captures
+    else
+      south_captures
+    end
   end
 
   # Checks if it is the north turn or not.
@@ -92,7 +118,7 @@ class Qi
   #   - the captures, sorted and joined by ","
   #   - the squares, mapped to "coordinate:piece" pairs and joined by ","
   def serialize
-    serialized_turn     = (north_turn? ? "NorthTurn" : "SouthTurn")
+    serialized_turn     = "#{side_name}-turn"
     serialized_captures = (north_captures + south_captures).sort.join(",")
     serialized_squares  = squares.keys.map { |i| "#{i}:#{squares.fetch(i)}" }.join(",")
 
@@ -116,14 +142,11 @@ class Qi
   def update_captures(in_hand, is_drop:)
     return [north_captures, south_captures] if in_hand.nil?
 
-    captures = north_turn? ? north_captures : south_captures
-    other_captures = north_turn? ? south_captures : north_captures
-
-    if is_drop
-      captures = remove_from_captures(in_hand, *captures)
-    else
-      captures += [in_hand]
-    end
+    captures = if is_drop
+                 remove_from_captures(in_hand, *owned_captures)
+               else
+                 owned_captures + [in_hand]
+               end
 
     north_turn? ? [captures, other_captures] : [other_captures, captures]
   end
@@ -133,10 +156,10 @@ class Qi
   # @param piece [Object] the piece to be removed
   # @param captures [Array<Object>] the array of captures
   # @return [Array<Object>] the modified array of captures
-  # @raise [IndexError] if the piece is not found in the array
+  # @raise [Qi::Error::Drop] if the piece is not found in the array
   def remove_from_captures(piece, *captures)
     index = captures.rindex(piece)
-    raise ::IndexError, "#{piece} not found!" if index.nil?
+    raise Error::Drop, "There are no #{piece} in hand." if index.nil?
 
     captures.delete_at(index)
     captures

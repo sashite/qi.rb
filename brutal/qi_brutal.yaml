@@ -108,6 +108,9 @@ contexts:
       - [{13: "G"}, "G", {is_drop: true}]
 
 actuals:
+  - "%{subject}.side_name"
+  - "%{subject}.other_captures"
+  - "%{subject}.owned_captures"
   - "%{subject}.north_captures"
   - "%{subject}.south_captures"
   - "%{subject}.squares"

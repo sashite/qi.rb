@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    qi (10.0.0.beta7)
+    qi (10.0.0.beta8)
 
 GEM
   remote: https://rubygems.org/
@@ -51,7 +51,7 @@ GEM
       rubocop-ast (>= 0.4.0)
     rubocop-rake (0.6.0)
       rubocop (~> 1.0)
-    rubocop-rspec (2.20.0)
+    rubocop-rspec (2.21.0)
       rubocop (~> 1.33)
       rubocop-capybara (~> 2.17)
     rubocop-thread_safety (0.5.1)

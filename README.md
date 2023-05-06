@@ -13,7 +13,7 @@
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "qi", ">= 10.0.0.beta7"
+gem "qi", ">= 10.0.0.beta8"
 ```
 
 And then execute:
@@ -45,8 +45,8 @@ qi0.south_captures  # => ["S"]
 qi0.squares         # => {3=>"s", 4=>"k", 5=>"s", 22=>"+P", 43=>"+B"}
 qi0.north_turn?     # => false
 qi0.south_turn?     # => true
-qi0.serialize       # => "SouthTurn===S,b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s===3:s,4:k,5:s,22:+P,43:+B"
-qi0.inspect         # => "<Qi SouthTurn===S,b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s===3:s,4:k,5:s,22:+P,43:+B>"
+qi0.serialize       # => "south-turn===S,b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s===3:s,4:k,5:s,22:+P,43:+B"
+qi0.inspect         # => "<Qi south-turn===S,b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s===3:s,4:k,5:s,22:+P,43:+B>"
 
 qi0.to_a
 # [false,
@@ -61,8 +61,8 @@ qi1.south_captures  # => ["S"]
 qi1.squares         # => {3=>"s", 4=>"k", 5=>"s", 22=>"+P", 13=>"+B"}
 qi1.north_turn?     # => true
 qi1.south_turn?     # => false
-qi1.serialize       # => "NorthTurn===S,b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s===3:s,4:k,5:s,22:+P,13:+B"
-qi1.inspect         # => "<Qi NorthTurn===S,b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s===3:s,4:k,5:s,22:+P,13:+B>"
+qi1.serialize       # => "north-turn===S,b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s===3:s,4:k,5:s,22:+P,13:+B"
+qi1.inspect         # => "<Qi north-turn===S,b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s===3:s,4:k,5:s,22:+P,13:+B>"
 
 qi1.to_a
 # [true,
