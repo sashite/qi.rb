@@ -13,7 +13,7 @@
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "qi", ">= 10.0.0.beta9"
+gem "qi", ">= 10.0.0.beta10"
 ```
 
 And then execute:
@@ -38,37 +38,39 @@ north_captures  = %w[r r b g g g g s n n n n p p p p p p p p p p p p p p p p p]
 south_captures  = %w[S]
 squares         = { 3 => "s", 4 => "k", 5 => "s", 22 => "+P", 43 => "+B" }
 
-qi0 = Qi.new(is_north_turn, north_captures, south_captures, squares)
+qi0 = Qi.new(is_north_turn, north_captures, south_captures, squares, false)
 
 qi0.north_captures  # => ["b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s"]
 qi0.south_captures  # => ["S"]
 qi0.squares         # => {3=>"s", 4=>"k", 5=>"s", 22=>"+P", 43=>"+B"}
 qi0.north_turn?     # => false
 qi0.south_turn?     # => true
-qi0.serialize       # => "south-turn===S,b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s===3:s,4:k,5:s,22:+P,43:+B"
-qi0.inspect         # => "<Qi south-turn===S,b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s===3:s,4:k,5:s,22:+P,43:+B>"
+qi0.serialize       # => "South-turn===S,b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s===3:s,4:k,5:s,22:+P,43:+B===not-in-check"
+qi0.inspect         # => "<Qi South-turn===S,b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s===3:s,4:k,5:s,22:+P,43:+B===not-in-check>"
 
 qi0.to_a
 # [false,
 #  ["b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s"],
 #  ["S"],
-#  {3=>"s", 4=>"k", 5=>"s", 22=>"+P", 43=>"+B"}]
+#  {3=>"s", 4=>"k", 5=>"s", 22=>"+P", 43=>"+B"},
+#  false]
 
-qi1 = qi0.commit({ 43 => nil, 13 => "+B" })
+qi1 = qi0.commit({ 43 => nil, 13 => "+B" }, nil, is_drop: nil, is_in_check: true)
 
 qi1.north_captures  # => ["b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s"]
 qi1.south_captures  # => ["S"]
 qi1.squares         # => {3=>"s", 4=>"k", 5=>"s", 22=>"+P", 13=>"+B"}
 qi1.north_turn?     # => true
 qi1.south_turn?     # => false
-qi1.serialize       # => "north-turn===S,b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s===3:s,4:k,5:s,22:+P,13:+B"
-qi1.inspect         # => "<Qi north-turn===S,b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s===3:s,4:k,5:s,22:+P,13:+B>"
+qi1.serialize       # => "North-turn===S,b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s===3:s,4:k,5:s,22:+P,13:+B===in-check"
+qi1.inspect         # => "<Qi North-turn===S,b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s===3:s,4:k,5:s,22:+P,13:+B===in-check>"
 
 qi1.to_a
 # [true,
 #  ["b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s"],
 #  ["S"],
-#  {3=>"s", 4=>"k", 5=>"s", 22=>"+P", 13=>"+B"}]
+#  {3=>"s", 4=>"k", 5=>"s", 22=>"+P", 13=>"+B"},
+#  true]
 ```
 
 ## License

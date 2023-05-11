@@ -58,7 +58,8 @@ header: |
       78 => "S",
       79 => "N",
       80 => "L"
-    }
+    },
+    false
   ].freeze
 
 subject: |
@@ -72,54 +73,58 @@ contexts:
   moves:
     - []
     -
-      - [{56: null, 47: "P"}]
+      - [{56: null, 47: "P"}, null, {is_drop: null, is_in_check: false}]
     -
-      - [{56: null, 47: "P"}]
-      - [{3: null, 11: "g"}]
+      - [{56: null, 47: "P"}, null, {is_drop: null, is_in_check: false}]
+      - [{3: null, 11: "g"}, null, {is_drop: null, is_in_check: false}]
     -
-      - [{56: null, 47: "P"}]
-      - [{3: null, 11: "g"}]
-      - [{64: null, 24: "+B"}, "P"]
+      - [{56: null, 47: "P"}, null, {is_drop: null, is_in_check: false}]
+      - [{3: null, 11: "g"}, null, {is_drop: null, is_in_check: false}]
+      - [{64: null, 24: "+B"}, "P", {is_drop: false, is_in_check: false}]
     -
-      - [{56: null, 47: "P"}]
-      - [{3: null, 11: "g"}]
-      - [{64: null, 24: "+B"}, "P"]
-      - [{5: null, 14: "g"}]
+      - [{56: null, 47: "P"}, null, {is_drop: null, is_in_check: false}]
+      - [{3: null, 11: "g"}, null, {is_drop: null, is_in_check: false}]
+      - [{64: null, 24: "+B"}, "P", {is_drop: false, is_in_check: false}]
+      - [{5: null, 14: "g"}, null, {is_drop: null, is_in_check: false}]
     -
-      - [{56: null, 47: "P"}]
-      - [{3: null, 11: "g"}]
-      - [{64: null, 24: "+B"}, "P"]
-      - [{5: null, 14: "g"}]
-      - [{24: null, 14: "+B"}, "G"]
+      - [{56: null, 47: "P"}, null, {is_drop: null, is_in_check: false}]
+      - [{3: null, 11: "g"}, null, {is_drop: null, is_in_check: false}]
+      - [{64: null, 24: "+B"}, "P", {is_drop: false, is_in_check: false}]
+      - [{5: null, 14: "g"}, null, {is_drop: null, is_in_check: false}]
+      - [{24: null, 14: "+B"}, "G", {is_drop: false, is_in_check: false}]
     -
-      - [{56: null, 47: "P"}]
-      - [{3: null, 11: "g"}]
-      - [{64: null, 24: "+B"}, "P"]
-      - [{5: null, 14: "g"}]
-      - [{24: null, 14: "+B"}, "G"]
-      - [{4: null, 3: "k"}]
+      - [{56: null, 47: "P"}, null, {is_drop: null, is_in_check: false}]
+      - [{3: null, 11: "g"}, null, {is_drop: null, is_in_check: false}]
+      - [{64: null, 24: "+B"}, "P", {is_drop: false, is_in_check: false}]
+      - [{5: null, 14: "g"}, null, {is_drop: null, is_in_check: false}]
+      - [{24: null, 14: "+B"}, "G", {is_drop: false, is_in_check: false}]
+      - [{4: null, 3: "k"}, null, {is_drop: null, is_in_check: false}]
     -
-      - [{56: null, 47: "P"}]
-      - [{3: null, 11: "g"}]
-      - [{64: null, 24: "+B"}, "P"]
-      - [{5: null, 14: "g"}]
-      - [{24: null, 14: "+B"}, "G"]
-      - [{4: null, 3: "k"}]
-      - [{13: "G"}, "G", {is_drop: true}]
+      - [{56: null, 47: "P"}, null, {is_drop: null, is_in_check: false}]
+      - [{3: null, 11: "g"}, null, {is_drop: null, is_in_check: false}]
+      - [{64: null, 24: "+B"}, "P", {is_drop: false, is_in_check: false}]
+      - [{5: null, 14: "g"}, null, {is_drop: null, is_in_check: false}]
+      - [{24: null, 14: "+B"}, "G", {is_drop: false, is_in_check: false}]
+      - [{4: null, 3: "k"}, null, {is_drop: null, is_in_check: false}]
+      - [{13: "G"}, "G", {is_drop: true, is_in_check: false}]
 
 actuals:
-  - "(%{subject} == Qi.new(*STARTING_POSITION_CONTEXT))"
-  - "%{subject}.eql?(Qi.new(*STARTING_POSITION_CONTEXT))"
-  - "%{subject}.side_name"
-  - "%{subject}.other_captures"
-  - "%{subject}.owned_captures"
   - "%{subject}.north_captures"
   - "%{subject}.south_captures"
   - "%{subject}.squares"
+  - "(%{subject} == Qi.new(*STARTING_POSITION_CONTEXT))"
+  - "%{subject}.eql?(Qi.new(*STARTING_POSITION_CONTEXT))"
+  - "%{subject}.current_captures"
+  - "%{subject}.opponent_captures"
+  - "%{subject}.current_turn"
+  - "%{subject}.next_turn"
   - "%{subject}.north_turn?"
   - "%{subject}.south_turn?"
+  - "%{subject}.in_check?"
+  - "%{subject}.not_in_check?"
   - "%{subject}.to_a"
   - "%{subject}.to_h"
   - "%{subject}.hash"
+  - "%{subject}.board_pieces"
   - "%{subject}.serialize"
   - "%{subject}.inspect"

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    qi (10.0.0.beta9)
+    qi (10.0.0.beta10)
 
 GEM
   remote: https://rubygems.org/
@@ -42,6 +42,8 @@ GEM
       parser (>= 3.2.1.0)
     rubocop-capybara (2.18.0)
       rubocop (~> 1.41)
+    rubocop-factory_bot (2.22.0)
+      rubocop (~> 1.33)
     rubocop-gitlab-security (0.1.1)
       rubocop (>= 0.51)
     rubocop-md (1.2.0)
@@ -51,9 +53,10 @@ GEM
       rubocop-ast (>= 0.4.0)
     rubocop-rake (0.6.0)
       rubocop (~> 1.0)
-    rubocop-rspec (2.21.0)
+    rubocop-rspec (2.22.0)
       rubocop (~> 1.33)
       rubocop-capybara (~> 2.17)
+      rubocop-factory_bot (~> 2.22)
     rubocop-thread_safety (0.5.1)
       rubocop (>= 0.90.0)
     ruby-progressbar (1.13.0)
