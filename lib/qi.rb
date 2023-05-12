@@ -3,69 +3,84 @@
 require "digest"
 require_relative "qi/error/drop"
 
-# The Qi class represents the current state of a game, tracking both the positions of pieces on the board and the pieces captured by each player.
-# It provides methods for manipulating the game state, including moving pieces around the board, capturing opponent's pieces, and dropping pieces from hand onto the board.
-# Additionally, it maintains information about the current game turn (which player's turn it is) and whether a player is in check.
+# Qi is a class for representing a state of games like Shogi. It includes
+# information about the current turn, captures, game board, and other game options.
 class Qi
-  # Constant representing the North player.
-  North = "North"
+  # Constants for representing the North and South players.
+  North = :North
+  South = :South
 
-  # Constant representing the South player.
-  South = "South"
-
-  # @!attribute [r] north_captures
-  # @return [Array] The list of pieces captured by the North player.
+  # @return [Array] the pieces captured by the north player
   attr_reader :north_captures
 
-  # @!attribute [r] south_captures
-  # @return [Array] The list of pieces captured by the South player.
+  # @return [Array] the pieces captured by the south player
   attr_reader :south_captures
 
-  # @!attribute [r] squares
-  # @return [Hash] The current state of the board, represented as a hash where each key is a position and each value is the state of that position.
+  # @return [Hash] the current state of the game board
   attr_reader :squares
 
-  # Initializes a new instance of the game state.
+  # @return [Hash] additional game options
+  attr_reader :options
+
+  # Initialize a new Qi object.
   #
-  # @param is_north_turn [Boolean] True if it's North's turn, false otherwise.
-  # @param north_captures [Array] An array representing the pieces captured by North.
-  # @param south_captures [Array] An array representing the pieces captured by South.
-  # @param squares [Hash] A hash representing the state of the squares on the board.
-  # @param is_in_check [Boolean] True if the current player is in check, false otherwise.
-  def initialize(is_north_turn, north_captures, south_captures, squares, is_in_check)
+  # @example Creating a new Qi object
+  #   qi = Qi.new(true, ['P', 'G'], ['B', '+B'], {56 => 'P', 3 => 'g', 64 => '+B'}, fullmove_number: 42, is_in_check: false)
+  #
+  # @param [Boolean] is_north_turn true if it's the north player's turn, false otherwise
+  # @param [Array] north_captures the pieces captured by the north player
+  # @param [Array] south_captures the pieces captured by the south player
+  # @param [Hash] squares the current state of the game board
+  # @param [Hash] options additional game options
+  def initialize(is_north_turn, north_captures, south_captures, squares, **options)
     @is_north_turn  = is_north_turn
     @north_captures = north_captures.sort
     @south_captures = south_captures.sort
     @squares        = squares.compact
-    @is_in_check    = is_in_check
+    @options        = options
   end
 
-  # Creates a new game state by applying a set of diffs to the squares and the captures.
-  # Raises an error if in_hand is provided but is_drop is not, or vice versa.
+  # Apply a move or a drop on the board.
   #
-  # @param diffs [Hash] A hash representing the changes to the squares. Each key is a position, and each value is the new state of that position.
-  # @param in_hand [String, nil] A string representing the piece that the current player has in hand, or nil if no piece is in hand.
-  # @param is_drop [Boolean, nil] True if the current player is dropping a piece, false if they are not, or nil if there is no piece in hand.
-  # @param is_in_check [Boolean] True if the current player is in check after the move, false otherwise.
-  # @return [Qi] The new game state after applying the diffs.
-  # @raise [ArgumentError] If in_hand is provided but is_drop is not, or vice versa.
-  def commit(diffs, in_hand, is_drop:, is_in_check:)
-    if !in_hand.nil? && is_drop.nil?
-      raise ::ArgumentError, "A piece is in hand, but is_drop is not provided"
-    elsif in_hand.nil? && !is_drop.nil?
-      raise ::ArgumentError, "No piece is in hand, but is_drop is provided"
-    end
+  # The method creates a new instance of Qi representing the state of the game after the move.
+  # This includes updating the captures and the positions of the pieces on the board.
+  #
+  # @param src_square [Object, nil] the source square, or nil if dropping a piece from hand
+  # @param dst_square [Object] the destination square
+  # @param piece_name [String] the name of the piece to move
+  # @param in_hand [String, nil] the piece in hand, or nil if moving a piece from a square
+  # @param options [Hash] options to pass to the new instance
+  #
+  # @example Applying a move
+  #   qi = Qi.new(true, ['P', 'B'], ['G', '+B'], {56 => 'P', 64 => '+B'})
+  #   qi.commit(56, 47, 'P', nil) #=> <Qi South-turn===B,P,+B,G===47:P,64:+B>
+  #
+  # @example Applying a capture
+  #   qi = Qi.new(true, ['P', 'B'], ['G', '+B'], {56 => 'P', 64 => '+B'})
+  #   qi.commit(56, 47, 'P', 'G') #=> <Qi South-turn===B,G,P,+B,G===47:P,64:+B>
+  #
+  # @example Applying a drop
+  #   qi = Qi.new(true, ['P', 'B', 'G'], ['G', '+B'], {56 => 'P', 64 => '+B'})
+  #   qi.commit(nil, 47, 'G', 'G') #=> <Qi South-turn===B,P,+B,G===47:G,56:P,64:+B>
+  #
+  # @return [Qi] the new game state after the move
+  def commit(src_square, dst_square, piece_name, in_hand, **options)
+    raise ::ArgumentError, "Both src_square and in_hand cannot be nil" if src_square.nil? && in_hand.nil?
 
-    modified_squares = squares.merge(diffs)
-    modified_captures = update_captures(in_hand, is_drop:)
-    self.class.new(south_turn?, *modified_captures, modified_squares, is_in_check)
+    modified_captures = update_captures(src_square, in_hand)
+    modified_squares = squares.merge({ src_square => nil, dst_square => piece_name })
+    self.class.new(south_turn?, *modified_captures, modified_squares, **options)
   end
 
-  # Checks if this game state is equal to another.
-  # Two game states are considered equal if they can be serialized to the same string.
+  # Compare this Qi object with another for equality.
   #
-  # @param other [Object] The object to compare with this game state.
-  # @return [Boolean] True if the other object can be serialized and its serialized form is equal to this game state's serialized form, false otherwise.
+  # @example Comparing two Qi objects
+  #   qi1 = Qi.new(...)
+  #   qi2 = Qi.new(...)
+  #   qi1.eql?(qi2) #=> true or false
+  #
+  # @param [Qi] other the other Qi object to compare with
+  # @return [Boolean] true if the two objects represent the same game state, false otherwise
   def eql?(other)
     return false unless other.respond_to?(:serialize)
 
@@ -73,171 +88,155 @@ class Qi
   end
   alias == eql?
 
-  # Returns the captures of the current player.
+  # Get the captures of the current player.
   #
-  # @return [Array] An array or other iterable representing the pieces captured by the current player.
+  # The method returns the north player's captures when it's their turn,
+  # and the south player's captures when it's their turn.
+  #
+  # @example When it's the north player's turn
+  #   qi = Qi.new(true, ['P', 'B'], ['G', '+B'], {56 => 'P', 64 => '+B'})
+  #   qi.current_captures #=> ['B', 'P']
+  #
+  # @example When it's the south player's turn
+  #   qi = Qi.new(false, ['P', 'B'], ['G', '+B'], {56 => 'P', 64 => '+B'})
+  #   qi.current_captures #=> ['+B', 'G']
+  #
+  # @return [Array] the captures of the current player
   def current_captures
-    if north_turn?
-      north_captures
-    else
-      south_captures
-    end
+    north_turn? ? north_captures : south_captures
   end
 
-  # Returns the list of pieces that the current player's opponent has captured.
+  # Get the captures of the opponent player.
   #
-  # @return [Array] An array of pieces that the opponent has captured.
+  # @return [Array] the captures of the opponent player
   def opponent_captures
-    if north_turn?
-      south_captures
-    else
-      north_captures
-    end
+    north_turn? ? south_captures : north_captures
   end
 
-  # Returns the name of the current side.
+  # Get the current turn.
   #
-  # @return [String] "North" if it's North's turn, "South" otherwise.
+  # @return [Symbol] :North if it's the north player's turn, :South otherwise
   def current_turn
-    if north_turn?
-      North
-    else
-      South
-    end
+    north_turn? ? North : South
   end
 
-  # Returns the name of the next side.
-  # If it's currently the North player's turn, this method will return "South", and vice versa.
+  # Get the next turn.
   #
-  # @return [String] "South" if it's North's turn, "North" otherwise.
+  # @return [Symbol] :South if it's the north player's turn, :North otherwise
   def next_turn
-    if north_turn?
-      South
-    else
-      North
-    end
+    north_turn? ? South : North
   end
 
-  # Checks if it's North's turn.
+  # Check if it's the north player's turn.
   #
-  # @return [Boolean] True if it's North's turn, false otherwise.
+  # @return [Boolean] true if it's the north player's turn, false otherwise
   def north_turn?
     @is_north_turn
   end
 
-  # Checks if it's South's turn.
+  # Check if it's the south player's turn.
   #
-  # @return [Boolean] True if it's South's turn, false otherwise.
+  # @return [Boolean] true if it's the south player's turn, false otherwise
   def south_turn?
     !north_turn?
   end
 
-  # Checks if the current player is in check.
+  # Convert the state to an array.
   #
-  # @return [Boolean] True if the current player is in check, false otherwise.
-  def in_check?
-    @is_in_check
-  end
-
-  # Checks if the current player is not in check.
+  # @example Converting the state to an array
+  #   qi.to_a #=> [true, ['P', 'G'], ['B', '+B'], {56 => 'P', 3 => 'g', 64 => '+B'}, {}]
   #
-  # @return [Boolean] True if the current player is not in check, false otherwise.
-  def not_in_check?
-    !in_check?
-  end
-
-  # Converts the current game state to an array. The resulting array includes:
-  # whether it's North's turn, the pieces captured by North, the pieces captured by South,
-  # the state of the squares, and whether the current player is in check.
-  # This array can be used for various purposes, such as saving the game state,
-  # transmitting the game state over a network, or analyzing the game state.
-  #
-  # @return [Array] The game state, represented as an array. The elements of the array are:
-  #   - A boolean indicating whether it's North's turn,
-  #   - An array or other iterable representing the pieces captured by North,
-  #   - An array or other iterable representing the pieces captured by South,
-  #   - A data structure representing the state of the squares on the board,
-  #   - A boolean indicating whether the current player is in check.
+  # @return [Array] an array representing the game state
   def to_a
     [
       north_turn?,
       north_captures,
       south_captures,
       squares,
-      in_check?
+      options
     ]
   end
 
-  # Converts the current game state to a hash. The resulting hash includes:
-  # whether it's North's turn, the pieces captured by North, the pieces captured by South,
-  # the state of the squares, and whether the current player is in check.
-  # This hash can be used for various purposes, such as saving the game state,
-  # transmitting the game state over a network, or analyzing the game state.
+  # Convert the state to a hash.
   #
-  # @return [Hash] The game state, represented as a hash. The keys of the hash are:
-  #   - :is_north_turn, a boolean indicating whether it's North's turn,
-  #   - :north_captures, an array or other iterable representing the pieces captured by North,
-  #   - :south_captures, an array or other iterable representing the pieces captured by South,
-  #   - :squares, a data structure representing the state of the squares on the board,
-  #   - :is_in_check, a boolean indicating whether the current player is in check.
+  # @example Converting the state to a hash
+  #   qi.to_h #=> {is_north_turn: true, north_captures: ['P', 'G'], south_captures: ['B', '+B'], squares: {56 => 'P', 3 => 'g', 64 => '+B'}, options: {}}
+  #
+  # @return [Hash] a hash representing the game state
   def to_h
     {
       is_north_turn:  north_turn?,
       north_captures:,
       south_captures:,
       squares:,
-      is_in_check:    in_check?
+      options:
     }
   end
 
-  # Returns the hash-code for the position.
+  # Generate a hash value for the game state.
+  #
+  # @example Generating a hash value
+  #   qi.hash #=> "10dfb778f6559dd368c510a27e3b00bdb5b4ad88d4d67f38864d7e36de7c2f9c"
+  #
+  # @return [String] a SHA256 hash of the serialized game state
   def hash
     ::Digest::SHA256.hexdigest(serialize)
   end
 
-  # Returns a sorted list of all pieces currently on the board.
+  # Serialize the game state.
   #
-  # @return [Array] An array of all pieces currently on the board.
-  def board_pieces
-    squares.keys.sort
-  end
-
-  # Serialize the current game state to a string. The serialized state includes:
-  # the current turn, the captured pieces, the state of the squares, and whether
-  # the current player is in check. The serialized state can be used to save
-  # the game, or to transmit the game state over a network.
+  # @example Serializing the game state
+  #   qi.serialize #=> "North-turn===P,G,B,+B===3:g,56:P,64:+B"
   #
-  # @return [String] The serialized game state.
+  # @return [String] a string representation of the game state
   def serialize
     serialized_turn     = "#{current_turn}-turn"
-    serialized_captures = (north_captures + south_captures).sort.join(",")
-    serialized_squares  = board_pieces.map { |i| "#{i}:#{squares.fetch(i)}" }.join(",")
-    serialized_check    = (in_check? ? "in-check" : "not-in-check")
+    serialized_captures = (north_captures + south_captures).join(",")
+    serialized_squares  = squares.keys.sort.map { |i| "#{i}:#{squares.fetch(i)}" }.join(",")
 
-    "#{serialized_turn}===#{serialized_captures}===#{serialized_squares}===#{serialized_check}"
+    "#{serialized_turn}===#{serialized_captures}===#{serialized_squares}"
   end
 
-  # Provides a string representation of the game state, including the class name and the serialized game state.
+  # Provide a string representation of the game state for debugging.
   #
-  # @return [String] A string representation of the game state.
+  # @example Getting a string representation of the game state
+  #   qi.inspect #=> "<Qi North-turn===P,G,B,+B===3:g,56:P,64:+B>"
+  #
+  # @return [String] a string representation of the game state
   def inspect
     "<#{self.class} #{serialize}>"
   end
 
   private
 
-  # Updates the list of captures based on the piece in hand and whether the move is a drop.
-  # If the in_hand parameter is nil, the method returns the current captures without modification.
-  # Otherwise, the method either adds the piece in hand to the current player's captures (if is_drop is false),
-  # or removes the piece in hand from the current player's captures (if is_drop is true).
+  # Update captures based on the source square and the piece in hand.
   #
-  # @param in_hand [String, nil] The piece in hand, or nil if no piece is in hand.
-  # @param is_drop [Boolean] True if the current move is a drop, false otherwise.
-  # @return [Array] The updated list of captures for North and South.
-  def update_captures(in_hand, is_drop:)
+  # If the source square is not nil and in_hand is nil (i.e., we're moving a piece on the board),
+  # the captures remain the same. If the source square is not nil and in_hand is not nil
+  # (i.e., we're capturing a piece that will remain in hand), the piece is added to the
+  # current player's captures. If the source square is nil (i.e., we're dropping a piece from hand),
+  # the piece is removed from the current player's captures.
+  #
+  # @param src_square [Object, nil] the source square, or nil if dropping a piece from hand
+  # @param in_hand [String, nil] the piece in hand, or nil if moving a piece from a square
+  #
+  # @example When moving a piece on the board
+  #   qi = Qi.new(true, ['P', 'B'], ['G', '+B'], {56 => 'P', 64 => '+B'})
+  #   qi.send(:update_captures, 56, nil) #=> [['B', 'P'], ['G', '+B']]
+  #
+  # @example When capturing a piece that will remain in hand
+  #   qi = Qi.new(true, ['P', 'B'], ['G', '+B'], {56 => 'P', 64 => '+B'})
+  #   qi.send(:update_captures, 56, 'G') #=> [['B', 'P', 'G'], ['G', '+B']]
+  #
+  # @example When dropping a piece from hand
+  #   qi = Qi.new(true, ['P', 'B', 'G'], ['G', '+B'], {56 => 'P', 64 => '+B'})
+  #   qi.send(:update_captures, nil, 'G') #=> [['B', 'P'], ['G', '+B']]
+  #
+  # @return [Array] a two-element array with the updated north and south captures
+  def update_captures(src_square, in_hand)
     return [north_captures, south_captures] if in_hand.nil?
 
-    captures = if is_drop
+    captures = if src_square.nil?
                  remove_from_captures(in_hand, *current_captures)
                else
                  current_captures + [in_hand]
@@ -247,12 +246,19 @@ class Qi
   end
 
   # Removes a piece from the captures.
-  # The method raises an error if the piece is not found in the captures.
   #
-  # @param piece [String] The piece to remove from the captures.
-  # @param captures [Array] The list of captures.
-  # @return [Array] The updated list of captures.
-  # @raise [Error::Drop] If the piece is not found in the captures.
+  # If the piece is not found in the captures, an Error::Drop exception is raised.
+  #
+  # @param piece [String] the piece to remove from the captures
+  # @param captures [Array] the captures to update
+  #
+  # @example
+  #   qi = Qi.new(true, ['P', 'B', 'G'], ['G', '+B'], {56 => 'P', 64 => '+B'})
+  #   qi.send(:remove_from_captures, 'G', *qi.current_captures) #=> ['P', 'B']
+  #
+  # @raise [Error::Drop] if the piece is not found in the captures
+  #
+  # @return [Array] the captures after removing the piece
   def remove_from_captures(piece, *captures)
     index = captures.rindex(piece)
     raise Error::Drop, "There are no #{piece} in hand" if index.nil?

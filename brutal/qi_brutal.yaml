@@ -58,55 +58,54 @@ header: |
       78 => "S",
       79 => "N",
       80 => "L"
-    },
-    false
+    }
   ].freeze
 
 subject: |
   starting_position = Qi.new(*STARTING_POSITION_CONTEXT)
 
   %{moves}.reduce(starting_position) do |position, args|
-    position.commit(*args.first(2), **Hash(args[2]).transform_keys(&:to_sym))
+    position.commit(*args)
   end
 
 contexts:
   moves:
     - []
     -
-      - [{56: null, 47: "P"}, null, {is_drop: null, is_in_check: false}]
+      - [56, 47, "P", null]
     -
-      - [{56: null, 47: "P"}, null, {is_drop: null, is_in_check: false}]
-      - [{3: null, 11: "g"}, null, {is_drop: null, is_in_check: false}]
+      - [56, 47, "P", null]
+      - [3, 11, "g", null]
     -
-      - [{56: null, 47: "P"}, null, {is_drop: null, is_in_check: false}]
-      - [{3: null, 11: "g"}, null, {is_drop: null, is_in_check: false}]
-      - [{64: null, 24: "+B"}, "P", {is_drop: false, is_in_check: false}]
+      - [56, 47, "P", null]
+      - [3, 11, "g", null]
+      - [64, 24, "+B", "P"]
     -
-      - [{56: null, 47: "P"}, null, {is_drop: null, is_in_check: false}]
-      - [{3: null, 11: "g"}, null, {is_drop: null, is_in_check: false}]
-      - [{64: null, 24: "+B"}, "P", {is_drop: false, is_in_check: false}]
-      - [{5: null, 14: "g"}, null, {is_drop: null, is_in_check: false}]
+      - [56, 47, "P", null]
+      - [3, 11, "g", null]
+      - [64, 24, "+B", "P"]
+      - [5, 14, "g", null]
     -
-      - [{56: null, 47: "P"}, null, {is_drop: null, is_in_check: false}]
-      - [{3: null, 11: "g"}, null, {is_drop: null, is_in_check: false}]
-      - [{64: null, 24: "+B"}, "P", {is_drop: false, is_in_check: false}]
-      - [{5: null, 14: "g"}, null, {is_drop: null, is_in_check: false}]
-      - [{24: null, 14: "+B"}, "G", {is_drop: false, is_in_check: false}]
+      - [56, 47, "P", null]
+      - [3, 11, "g", null]
+      - [64, 24, "+B", "P"]
+      - [5, 14, "g", null]
+      - [24, 14, "+B", "G"]
     -
-      - [{56: null, 47: "P"}, null, {is_drop: null, is_in_check: false}]
-      - [{3: null, 11: "g"}, null, {is_drop: null, is_in_check: false}]
-      - [{64: null, 24: "+B"}, "P", {is_drop: false, is_in_check: false}]
-      - [{5: null, 14: "g"}, null, {is_drop: null, is_in_check: false}]
-      - [{24: null, 14: "+B"}, "G", {is_drop: false, is_in_check: false}]
-      - [{4: null, 3: "k"}, null, {is_drop: null, is_in_check: false}]
+      - [56, 47, "P", null]
+      - [3, 11, "g", null]
+      - [64, 24, "+B", "P"]
+      - [5, 14, "g", null]
+      - [24, 14, "+B", "G"]
+      - [4, 3, "k", null]
     -
-      - [{56: null, 47: "P"}, null, {is_drop: null, is_in_check: false}]
-      - [{3: null, 11: "g"}, null, {is_drop: null, is_in_check: false}]
-      - [{64: null, 24: "+B"}, "P", {is_drop: false, is_in_check: false}]
-      - [{5: null, 14: "g"}, null, {is_drop: null, is_in_check: false}]
-      - [{24: null, 14: "+B"}, "G", {is_drop: false, is_in_check: false}]
-      - [{4: null, 3: "k"}, null, {is_drop: null, is_in_check: false}]
-      - [{13: "G"}, "G", {is_drop: true, is_in_check: false}]
+      - [56, 47, "P", null]
+      - [3, 11, "g", null]
+      - [64, 24, "+B", "P"]
+      - [5, 14, "g", null]
+      - [24, 14, "+B", "G"]
+      - [4, 3, "k", null]
+      - [null, 13, "G", "G"]
 
 actuals:
   - "%{subject}.north_captures"
@@ -120,11 +119,9 @@ actuals:
   - "%{subject}.next_turn"
   - "%{subject}.north_turn?"
   - "%{subject}.south_turn?"
-  - "%{subject}.in_check?"
-  - "%{subject}.not_in_check?"
+  - "%{subject}.options"
   - "%{subject}.to_a"
   - "%{subject}.to_h"
   - "%{subject}.hash"
-  - "%{subject}.board_pieces"
   - "%{subject}.serialize"
   - "%{subject}.inspect"
