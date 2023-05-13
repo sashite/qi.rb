@@ -1,7 +1,8 @@
 PATH
   remote: .
   specs:
-    qi (10.0.0.beta11)
+    qi (10.0.0.beta12)
+      kernel-boolean
 
 GEM
   remote: https://rubygems.org/
@@ -14,6 +15,7 @@ GEM
     docile (1.4.0)
     expresenter (1.4.0)
     json (2.6.3)
+    kernel-boolean (1.0.1)
     matchi (3.3.1)
     parallel (1.23.0)
     parser (3.2.2.1)
@@ -28,7 +30,7 @@ GEM
     rake (13.0.6)
     regexp_parser (2.8.0)
     rexml (3.2.5)
-    rubocop (1.50.2)
+    rubocop (1.51.0)
       json (~> 2.3)
       parallel (~> 1.10)
       parser (>= 3.2.0.0)

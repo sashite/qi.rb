@@ -3,51 +3,78 @@
 require_relative "spec_helper"
 
 RSpec.describe Qi do
-  let(:north_captures) { %w[p] }
-  let(:south_captures) { %w[G] }
-  let(:squares) { { 1 => "P", 2 => "g", 3 => nil } }
-  let(:options) { {} }
-  let(:is_north_turn) { false }
-  let(:qi) { described_class.new(is_north_turn, north_captures, south_captures, squares, **options) }
-  let(:commit) { qi.commit(src_square, dst_square, piece_name, in_hand) }
+  let(:qi) { described_class.new("P", is_in_check: false, is_north_turn: true, 56 => "P", 47 => "+G") }
 
-  context "when moving a piece" do
-    let(:src_square) { 1 }
-    let(:dst_square) { 3 }
-    let(:piece_name) { squares.fetch(1) }
-    let(:in_hand) { nil }
-
-    it "moves the piece from the source to the destination" do
-      result = commit
-      expect(result.squares[src_square]).to be_nil
-      expect(result.squares[dst_square]).to eq(piece_name)
+  describe "#initialize" do
+    it "initializes with correct state" do
+      expect(qi.captures).to eq(["P"])
+      expect(qi.squares).to eq({ 56 => "P", 47 => "+G" })
+      expect(qi.in_check?).to be false
+      expect(qi.north_turn?).to be true
     end
   end
 
-  context "when dropping a piece" do
-    let(:src_square) { nil }
-    let(:dst_square) { 3 }
-    let(:piece_name) { south_captures.fetch(0) }
-    let(:in_hand) { piece_name }
+  describe "#commit" do
+    context "when capturing a piece" do
+      let(:new_qi) { qi.commit(capture: "G", 47 => nil) }
 
-    it "drops the piece to the destination square" do
-      result = commit
-      expect(result.squares[dst_square]).to eq(piece_name)
-      expect(result.south_captures).not_to be_include(in_hand)
+      it "updates the game state correctly" do
+        expect(new_qi.captures).to be_include("G")
+        expect(new_qi.squares[47]).to be_nil
+        expect(new_qi.south_turn?).to be true
+      end
+    end
+
+    context "when dropping a piece" do
+      let(:new_qi) { qi.commit(drop: "P", 47 => "P") }
+
+      it "updates the game state correctly" do
+        expect(new_qi.captures).not_to be_include("P")
+        expect(new_qi.squares[47]).to eq("P")
+        expect(new_qi.south_turn?).to be true
+      end
+    end
+
+    context "when moving a piece" do
+      let(:new_qi) { qi.commit(56 => nil, 47 => "P") }
+
+      it "updates the game state correctly" do
+        expect(new_qi.squares[56]).to be_nil
+        expect(new_qi.squares[47]).to eq("P")
+        expect(new_qi.south_turn?).to be true
+      end
     end
   end
 
-  context "when capturing a piece" do
-    let(:src_square) { 1 }
-    let(:dst_square) { 2 }
-    let(:piece_name) { squares.fetch(1) }
-    let(:in_hand) { squares.fetch(2) }
+  describe "#in_check?" do
+    context "when in check" do
+      let(:qi) { described_class.new(is_in_check: true) }
 
-    it "captures the opponent piece" do
-      result = commit
-      expect(result.squares[src_square]).to be_nil
-      expect(result.squares[dst_square]).to eq(piece_name)
-      expect(result.south_captures).to be_include(in_hand)
+      it "returns true" do
+        expect(qi.in_check?).to be true
+      end
+    end
+
+    context "when not in check" do
+      it "returns false" do
+        expect(qi.in_check?).to be false
+      end
+    end
+  end
+
+  describe "#north_turn?" do
+    context "when it is north turn" do
+      it "returns true" do
+        expect(qi.north_turn?).to be true
+      end
+    end
+
+    context "when it is not north turn" do
+      let(:qi) { described_class.new(is_north_turn: false) }
+
+      it "returns false" do
+        expect(qi.north_turn?).to be false
+      end
     end
   end
 end

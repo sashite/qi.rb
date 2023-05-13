@@ -6,14 +6,25 @@
 [![RuboCop](https://github.com/sashite/qi.rb/workflows/RuboCop/badge.svg?branch=main)](https://github.com/sashite/qi.rb/actions?query=workflow%3Arubocop+branch%3Amain)
 [![License](https://img.shields.io/github/license/sashite/qi.rb?label=License&logo=github)](https://github.com/sashite/qi.rb/raw/main/LICENSE.md)
 
-> `Qi` (Chinese: 棋; pinyin: _qí_) is an abstraction that could help to update positions for games like Shogi.
+Welcome to `Qi` (Chinese: 棋; pinyin: _qí_), a flexible and customizable library designed to represent and manipulate board game positions. `Qi` is ideal for a variety of board games, including chess, shogi, xiangqi, makruk, and more.
+
+With `Qi`, you can easily track the game state, including which pieces are on the board and where, as well as any captured pieces. The library allows for the application of game moves, updating the state of the game and generating a new position, all while preserving the original state.
+
+## Features:
+
+- **Flexible representation of game states:** `Qi`'s design allows it to adapt to different games with varying rules and pieces.
+- **Immutable positions:** Every move generates a new position, preserving the original one. This is particularly useful for scenarios like undoing moves or exploring potential future states in the game.
+- **Compact serialization:** `Qi` provides a compact string serialization method for game states, which is useful for saving game progress or transmitting game states over the network.
+- **Check state tracking:** In addition to the positions and captured pieces, `Qi` also allows tracking of specific game states such as check in chess.
+
+While `Qi` does not generate game moves itself, it serves as a solid foundation upon which game engines can be built. Its design is focused on providing a robust and adaptable representation of game states, paving the way for the development of diverse board game applications.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "qi", ">= 10.0.0.beta11"
+gem "qi", ">= 10.0.0.beta12"
 ```
 
 And then execute:
@@ -33,42 +44,42 @@ gem install qi --pre
 ```ruby
 require "qi"
 
-is_north_turn   = false
 north_captures  = %w[r r b g g g g s n n n n p p p p p p p p p p p p p p p p p]
 south_captures  = %w[S]
+captures        = north_captures + south_captures
 squares         = { 3 => "s", 4 => "k", 5 => "s", 22 => "+P", 43 => "+B" }
 
-qi0 = Qi.new(is_north_turn, north_captures, south_captures, squares)
+qi0 = Qi.new(*captures, **squares)
 
-qi0.north_captures  # => ["b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s"]
-qi0.south_captures  # => ["S"]
-qi0.squares         # => {3=>"s", 4=>"k", 5=>"s", 22=>"+P", 43=>"+B"}
-qi0.north_turn?     # => false
-qi0.south_turn?     # => true
-qi0.serialize       # => "South-turn===b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s,S===3:s,4:k,5:s,22:+P,43:+B"
-qi0.inspect         # => "<Qi South-turn===b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s,S===3:s,4:k,5:s,22:+P,43:+B>"
+qi0.captures      # => ["S", "b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s"]
+qi0.squares       # => {3=>"s", 4=>"k", 5=>"s", 22=>"+P", 43=>"+B"}
+qi0.in_check?     # => false
+qi0.not_in_check? # => true
+qi0.north_turn?   # => false
+qi0.south_turn?   # => true
+qi0.serialize     # => "{ S;b;g;g;g;g;n;n;n;n;p;p;p;p;p;p;p;p;p;p;p;p;p;p;p;p;p;r;r;s s@3;k@4;s@5;+P@22;+B@43 ."
+qi0.inspect       # => "<Qi { S;b;g;g;g;g;n;n;n;n;p;p;p;p;p;p;p;p;p;p;p;p;p;p;p;p;p;r;r;s s@3;k@4;s@5;+P@22;+B@43 .>"
 qi0.to_a
 # [false,
-#  ["b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s"],
-#  ["S"],
+#  ["S", "b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s"],
 #  {3=>"s", 4=>"k", 5=>"s", 22=>"+P", 43=>"+B"},
-#  {}]
+#  false]
 
-qi1 = qi0.commit(43, 13, "+B", nil)
+qi1 = qi0.commit(is_in_check: true, 43 => nil, 13 => "+B")
 
-qi1.north_captures  # => ["b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s"]
-qi1.south_captures  # => ["S"]
-qi1.squares         # => {3=>"s", 4=>"k", 5=>"s", 22=>"+P", 13=>"+B"}
-qi1.north_turn?     # => true
-qi1.south_turn?     # => false
-qi1.serialize       # => "North-turn===b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s,S===3:s,4:k,5:s,13:+B,22:+P"
-qi1.inspect         # => "<Qi North-turn===b,g,g,g,g,n,n,n,n,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,p,r,r,s,S===3:s,4:k,5:s,13:+B,22:+P>"
+qi1.captures      # => ["S", "b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s"]
+qi1.squares       # => {3=>"s", 4=>"k", 5=>"s", 22=>"+P", 13=>"+B"}
+qi1.in_check?     # => true
+qi1.not_in_check? # => false
+qi1.north_turn?   # => true
+qi1.south_turn?   # => false
+qi1.serialize     # => "} S;b;g;g;g;g;n;n;n;n;p;p;p;p;p;p;p;p;p;p;p;p;p;p;p;p;p;r;r;s s@3;k@4;s@5;+B@13;+P@22 +"
+qi1.inspect       # => "<Qi } S;b;g;g;g;g;n;n;n;n;p;p;p;p;p;p;p;p;p;p;p;p;p;p;p;p;p;r;r;s s@3;k@4;s@5;+B@13;+P@22 +>"
 qi1.to_a
 # [true,
-#  ["b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s"],
-#  ["S"],
+#  ["S", "b", "g", "g", "g", "g", "n", "n", "n", "n", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "r", "r", "s"],
 #  {3=>"s", 4=>"k", 5=>"s", 22=>"+P", 13=>"+B"},
-#  {}]
+#  true]
 ```
 
 ## License
