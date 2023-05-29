@@ -57,61 +57,56 @@ header: |
   }.freeze
 
 subject: |
-  starting_position = Qi.new(**STARTING_POSITION_CONTEXT)
+  starting_position = Qi.new({}, STARTING_POSITION_CONTEXT, [0, 1])
 
-  %{moves}.reduce(starting_position) do |position, kwargs|
-    position.commit(**kwargs.transform_keys { |k| k.is_a?(::String) ? k.to_sym : k })
+  %{moves}.reduce(starting_position) do |position, args|
+    position.commit(*args.first(3), **args.fetch(3) { Hash.new })
   end
 
 contexts:
   moves:
     -
-      - { 56: nil, 47: "P" }
+      - [[],    [],     { 56: nil, 47: "P" }]
     -
-      - { 56: nil, 47: "P" }
-      - { 3: nil, 11: "g" }
+      - [[],    [],     { 56: nil, 47: "P" }]
+      - [[],    [],     { 3: nil, 11: "g" }]
     -
-      - { 56: nil, 47: "P" }
-      - { 3: nil, 11: "g" }
-      - { 64: nil, 24: "+B", capture: "P"}
+      - [[],    [],     { 56: nil, 47: "P" }]
+      - [[],    [],     { 3: nil, 11: "g" }]
+      - [["P"], [],     { 64: nil, 24: "+B" }]
     -
-      - { 56: nil, 47: "P" }
-      - { 3: nil, 11: "g" }
-      - { 64: nil, 24: "+B", capture: "P"}
-      - { 5: nil, 14: "g" }
+      - [[],    [],     { 56: nil, 47: "P" }]
+      - [[],    [],     { 3: nil, 11: "g" }]
+      - [["P"], [],     { 64: nil, 24: "+B" }]
+      - [[],    [],     { 5: nil, 14: "g" }]
     -
-      - { 56: nil, 47: "P" }
-      - { 3: nil, 11: "g" }
-      - { 64: nil, 24: "+B", capture: "P"}
-      - { 5: nil, 14: "g" }
-      - { 24: nil, 14: "+B", capture: "G"}
+      - [[],    [],     { 56: nil, 47: "P" }]
+      - [[],    [],     { 3: nil, 11: "g" }]
+      - [["P"], [],     { 64: nil, 24: "+B" }]
+      - [[],    [],     { 5: nil, 14: "g" }]
+      - [["G"], [],     { 24: nil, 14: "+B" }]
     -
-      - { 56: nil, 47: "P" }
-      - { 3: nil, 11: "g" }
-      - { 64: nil, 24: "+B", capture: "P"}
-      - { 5: nil, 14: "g" }
-      - { 24: nil, 14: "+B", capture: "G"}
-      - { 4: nil, 3: "k" }
+      - [[],    [],     { 56: nil, 47: "P" }]
+      - [[],    [],     { 3: nil, 11: "g" }]
+      - [["P"], [],     { 64: nil, 24: "+B" }]
+      - [[],    [],     { 5: nil, 14: "g" }]
+      - [["G"], [],     { 24: nil, 14: "+B" }]
+      - [[],    [],     { 4: nil, 3: "k" }]
     -
-      - { 56: nil, 47: "P" }
-      - { 3: nil, 11: "g" }
-      - { 64: nil, 24: "+B", capture: "P"}
-      - { 5: nil, 14: "g" }
-      - { 24: nil, 14: "+B", capture: "G"}
-      - { 4: nil, 3: "k" }
-      - { 13: "G", drop: "G"}
+      - [[],    [],     { 56: nil, 47: "P" }]
+      - [[],    [],     { 3: nil, 11: "g" }]
+      - [["P"], [],     { 64: nil, 24: "+B" }]
+      - [[],    [],     { 5: nil, 14: "g" }]
+      - [["G"], [],     { 24: nil, 14: "+B" }]
+      - [[],    [],     { 4: nil, 3: "k" }]
+      - [[],    ["G"],  { 13: "G" }, { note: "this is a drop" }]
 
 actuals:
-  - "%{subject}.captures"
-  - "%{subject}.squares"
-  - "%{subject}.in_check?"
-  - "%{subject}.not_in_check?"
-  - "%{subject}.north_turn?"
-  - "%{subject}.south_turn?"
-  - "(%{subject} == Qi.new(*STARTING_POSITION_CONTEXT))"
-  - "%{subject}.eql?(Qi.new(*STARTING_POSITION_CONTEXT))"
-  - "%{subject}.to_a"
-  - "%{subject}.to_h"
-  - "%{subject}.hash"
-  - "%{subject}.serialize"
-  - "%{subject}.inspect"
+  - "%{subject}.captures_array"
+  - "%{subject}.captures_hash"
+  - "%{subject}.squares_hash"
+  - "%{subject}.state"
+  - "%{subject}.turn"
+  - "%{subject}.turns"
+  - "(%{subject} == Qi.new({}, STARTING_POSITION_CONTEXT, [0, 1]))"
+  - "%{subject}.eql?(Qi.new({}, STARTING_POSITION_CONTEXT, [0, 1]))"

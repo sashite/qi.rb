@@ -3,78 +3,62 @@
 require_relative "spec_helper"
 
 RSpec.describe Qi do
-  let(:qi) { described_class.new("P", is_in_check: false, is_north_turn: true, 56 => "P", 47 => "+G") }
+  let(:captures_hash) { { "r" => 2, "b" => 1, "g" => 4, "s" => 1, "n" => 4, "p" => 17, "S" => 1 } }
+  let(:squares_hash) { { 3 => "s", 4 => "k", 5 => "s", 22 => "+P", 43 => "+B" } }
+  let(:turns) { [0, 1] }
+  let(:state) { {} }
+  let(:qi) { described_class.new(captures_hash, squares_hash, turns, **state) }
 
   describe "#initialize" do
-    it "initializes with correct state" do
-      expect(qi.captures).to eq(["P"])
-      expect(qi.squares).to eq({ 56 => "P", 47 => "+G" })
-      expect(qi.in_check?).to be false
-      expect(qi.north_turn?).to be true
+    it "initializes with correct attributes" do
+      expect(qi.captures_hash).to eq(captures_hash)
+      expect(qi.squares_hash).to eq(squares_hash)
+      expect(qi.turn).to eq(0)
+      expect(qi.state).to eq(state)
+    end
+  end
+
+  describe "#captures_array" do
+    it "returns an array of captured pieces" do
+      expected_array = %w[S b g g g g n n n n p p p p p p p p p p p p p p p p p r r s]
+      expect(qi.captures_array).to eq(expected_array)
     end
   end
 
   describe "#commit" do
-    context "when capturing a piece" do
-      let(:new_qi) { qi.commit(capture: "G", 47 => nil) }
+    let(:add_captures_array) { %w[r p] }
+    let(:del_captures_array) { %w[g n] }
+    let(:edit_squares_hash) { { 43 => nil, 13 => "+B" } }
+    let(:state) { { in_check: true } }
+    let(:new_qi) { qi.commit(add_captures_array, del_captures_array, edit_squares_hash, **state) }
 
-      it "updates the game state correctly" do
-        expect(new_qi.captures).to be_include("G")
-        expect(new_qi.squares[47]).to be_nil
-        expect(new_qi.south_turn?).to be true
-      end
+    it "returns a new Qi object with updated captures hash" do
+      expect(new_qi.captures_hash["r"]).to eq(3)
+      expect(new_qi.captures_hash["p"]).to eq(18)
+      expect(new_qi.captures_hash["g"]).to eq(3)
+      expect(new_qi.captures_hash["n"]).to eq(3)
     end
 
-    context "when dropping a piece" do
-      let(:new_qi) { qi.commit(drop: "P", 47 => "P") }
-
-      it "updates the game state correctly" do
-        expect(new_qi.captures).not_to be_include("P")
-        expect(new_qi.squares[47]).to eq("P")
-        expect(new_qi.south_turn?).to be true
-      end
+    it "returns a new Qi object with updated squares hash" do
+      expect(new_qi.squares_hash).to eq({ 3 => "s", 4 => "k", 5 => "s", 22 => "+P", 13 => "+B" })
     end
 
-    context "when moving a piece" do
-      let(:new_qi) { qi.commit(56 => nil, 47 => "P") }
+    it "returns a new Qi object with updated turn" do
+      expect(new_qi.turn).to eq(1)
+    end
 
-      it "updates the game state correctly" do
-        expect(new_qi.squares[56]).to be_nil
-        expect(new_qi.squares[47]).to eq("P")
-        expect(new_qi.south_turn?).to be true
-      end
+    it "returns a new Qi object with updated state" do
+      expect(new_qi.state).to eq({ in_check: true })
     end
   end
 
-  describe "#in_check?" do
-    context "when in check" do
-      let(:qi) { described_class.new(is_in_check: true) }
-
-      it "returns true" do
-        expect(qi.in_check?).to be true
-      end
+  describe "#eql?" do
+    it "returns true if two Qi objects are the same" do
+      expect(qi.eql?(described_class.new(captures_hash, squares_hash, turns, **state))).to be(true)
     end
 
-    context "when not in check" do
-      it "returns false" do
-        expect(qi.in_check?).to be false
-      end
-    end
-  end
-
-  describe "#north_turn?" do
-    context "when it is north turn" do
-      it "returns true" do
-        expect(qi.north_turn?).to be true
-      end
-    end
-
-    context "when it is not north turn" do
-      let(:qi) { described_class.new(is_north_turn: false) }
-
-      it "returns false" do
-        expect(qi.north_turn?).to be false
-      end
+    it "returns false if two Qi objects are different" do
+      expect(qi.eql?(described_class.new(captures_hash, squares_hash, [1, 0], **state))).to be(false)
     end
   end
 end
