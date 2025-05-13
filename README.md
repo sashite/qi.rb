@@ -95,14 +95,8 @@ In this example, we first create a `Qi` object to represent a game position with
 
 ## License
 
-The code is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+The [gem](https://rubygems.org/gems/qi) is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
 ## About Sashité
 
-This [gem](https://rubygems.org/gems/qi) is proudly maintained and developed by [Sashité](https://sashite.com/). Our mission is to promote intercultural understanding and appreciation through the universal language of board games.
-
-At Sashité, we believe in the power of games as a medium for sharing and appreciating the richness of different cultures. From Chinese to Japanese, and Western traditions, every culture has its unique representation in the world of board games, particularly in chess.
-
-Our `Qi` gem is a testament to this belief - a flexible, efficient, and inclusive software that allows for the representation and interaction of diverse chess systems. This piece of software is not just a tool; it is a bridge connecting different cultures under the love of strategic play.
-
-Join us in our journey as we continue to write [code](https://github.com/sashite/) to share the beauty of these cultures, one game at a time.
+This project is maintained by [Sashité](https://sashite.com/) — promoting chess variants and sharing the beauty of Chinese, Japanese, and Western chess cultures.
