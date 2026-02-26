@@ -1,0 +1,84 @@
+# frozen_string_literal: true
+
+module Qi
+  # Pure validation functions for player hands.
+  #
+  # Hands are represented as a Hash with exactly two keys:
+  #
+  # - +:first+ — array of pieces held by the first player.
+  # - +:second+ — array of pieces held by the second player.
+  #
+  # Each piece in a hand can be any non-nil object. The ordering of pieces
+  # within a hand carries no semantic meaning.
+  #
+  # @example Validate hands with pieces
+  #   Qi::Hands.validate({ first: ["+P", "+P"], second: ["b"] }) #=> 3
+  #
+  # @example Validate empty hands
+  #   Qi::Hands.validate({ first: [], second: [] }) #=> 0
+  module Hands
+    REQUIRED_KEYS = %i[first second].freeze
+
+    # Validates hands structure and returns the total piece count.
+    #
+    # Validation checks shape (exactly two keys), type (both values are arrays),
+    # then performs a single pass over each array to reject +nil+ elements and
+    # count pieces simultaneously.
+    #
+    # @param hands [Object] the hands structure to validate.
+    # @return [Integer] the total number of pieces across both hands.
+    # @raise [ArgumentError] if the hands structure is invalid.
+    #
+    # @example Valid hands
+    #   Qi::Hands.validate({ first: [:P, :B], second: [:p] }) #=> 3
+    #
+    # @example Nil piece rejected
+    #   Qi::Hands.validate({ first: [nil], second: [] })
+    #   # => ArgumentError: hand pieces must not be nil
+    #
+    # @example Missing key
+    #   Qi::Hands.validate({ first: [] })
+    #   # => ArgumentError: hands must have exactly keys :first and :second
+    def self.validate(hands)
+      validate_shape(hands)
+      validate_arrays(hands)
+      count_hand(hands[:first]) + count_hand(hands[:second])
+    end
+
+    # --- Shape validation -----------------------------------------------------
+
+    def self.validate_shape(hands)
+      unless hands.is_a?(::Hash)
+        raise ::ArgumentError, "hands must be a Hash with keys :first and :second"
+      end
+
+      return if hands.size == 2 && hands.key?(:first) && hands.key?(:second)
+
+      raise ::ArgumentError, "hands must have exactly keys :first and :second"
+    end
+
+    def self.validate_arrays(hands)
+      return if hands[:first].is_a?(::Array) && hands[:second].is_a?(::Array)
+
+      raise ::ArgumentError, "each hand must be an Array"
+    end
+
+    # --- Single pass: reject nil and count simultaneously ---------------------
+
+    def self.count_hand(pieces)
+      count = 0
+
+      pieces.each do |piece|
+        raise ::ArgumentError, "hand pieces must not be nil" if piece.nil?
+
+        count += 1
+      end
+
+      count
+    end
+
+    private_class_method :validate_shape,
+                         :validate_arrays,
+                         :count_hand
+  end
+end

@@ -4,8 +4,6 @@
 /**/coverage/
 /InstalledFiles
 /pkg/
-/spec/reports/
-/spec/examples.txt
 /test/tmp/
 /test/version_tmp/
 /tmp/
@@ -54,6 +52,3 @@ build-iPhoneSimulator/
 
 # unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
 .rvmrc
-
-# Used by RuboCop. Remote config files pulled in from inherit_from directive.
-.rubocop-https?--*
