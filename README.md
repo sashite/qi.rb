@@ -1,9 +1,9 @@
-# Qi
+# qi.rb
 
 [![Version](https://img.shields.io/gem/v/qi.svg)](https://rubygems.org/gems/qi)
 [![Documentation](https://img.shields.io/badge/yard-docs-blue.svg)](https://rubydoc.info/gems/qi)
 [![CI](https://github.com/sashite/qi.rb/actions/workflows/ruby.yml/badge.svg?branch=main)](https://github.com/sashite/qi.rb/actions)
-[![License](https://img.shields.io/gem/l/qi.svg)](https://github.com/sashite/qi.rb/blob/main/LICENSE)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://github.com/sashite/qi.rb/blob/main/LICENSE)
 
 > A minimal, format-agnostic position model for two-player board games.
 
