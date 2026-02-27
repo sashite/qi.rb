@@ -310,6 +310,14 @@ run_test("accepts 255x255 board") do
   raise "expected [#{expected}, 0]" unless sq == expected && pc == 0
 end
 
+run_test("rejects oversized outer dimension (2D board with 256 rows)") do
+  board = Array.new(256) { [nil] }
+  Qi::Board.validate(board)
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message: #{e.message}" unless e.message == "dimension size 256 exceeds maximum of 255"
+end
+
 # ============================================================================
 # PIECE TYPES
 # ============================================================================

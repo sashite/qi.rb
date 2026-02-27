@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    qi (11.0.0)
+    qi (12.0.0)
 
 GEM
   remote: https://rubygems.org/

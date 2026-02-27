@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Qi
+class Qi
   # Pure validation functions for player styles.
   #
   # Styles are represented as a Hash with exactly two keys:

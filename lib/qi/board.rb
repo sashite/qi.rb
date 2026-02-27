@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Qi
+class Qi
   # Pure validation functions for multi-dimensional board structures.
   #
   # A board is represented as a nested Array where:
@@ -30,9 +30,9 @@ module Qi
 
     # Validates a board and returns its square and piece counts.
     #
-    # Validation proceeds in order of increasing cost: type check, emptiness,
-    # shape inference (first-path walk), dimension limits, then a single-pass
-    # structural verification with counting.
+    # Validation is performed in a single recursive pass that simultaneously
+    # infers the board shape, verifies structural regularity, checks dimension
+    # limits, and counts squares and pieces.
     #
     # @param board [Object] the board structure to validate.
     # @return [Array(Integer, Integer)] +[square_count, piece_count]+.
@@ -51,125 +51,98 @@ module Qi
     #   Qi::Board.validate([[:a, :b], [:c]])
     #   # => ArgumentError: non-rectangular board: expected 2 elements, got 1
     def self.validate(board)
-      validate_is_array(board)
-      validate_non_empty(board)
-      shape = compute_shape(board)
-      validate_max_dimensions(shape)
-      validate_dimension_sizes(shape)
-      verify_and_count(board, shape)
+      unless board.is_a?(::Array)
+        raise ::ArgumentError, "board must be an Array"
+      end
+
+      if board.empty?
+        raise ::ArgumentError, "board must not be empty"
+      end
+
+      validate_recursive(board, nil, 0)
     end
 
-    # --- Step 1: basic type checks -------------------------------------------
+    # Single-pass recursive validation.
+    #
+    # At each level, determines whether this is a leaf rank (contains
+    # non-Array elements) or an intermediate dimension (contains Arrays).
+    # Infers expected sizes from the first element at each level,
+    # validates all siblings match, and enforces dimension limits.
+    #
+    # @param node [Array] the current sub-array being validated.
+    # @param expected_size [Integer, nil] expected length (nil if first sibling).
+    # @param depth [Integer] current nesting depth (0-based).
+    # @return [Array(Integer, Integer)] +[square_count, piece_count]+.
+    def self.validate_recursive(node, expected_size, depth)
+      if expected_size && node.size != expected_size
+        raise ::ArgumentError, "non-rectangular board: expected #{expected_size} elements, got #{node.size}"
+      end
 
-    def self.validate_is_array(board)
-      return if board.is_a?(::Array)
+      if node.first.is_a?(::Array)
+        # Intermediate dimension: validate depth and size, then recurse.
+        if depth >= MAX_DIMENSIONS - 1
+          actual = depth + 1 + probe_depth(node.first)
+          raise ::ArgumentError, "board exceeds #{MAX_DIMENSIONS} dimensions (got #{actual})"
+        end
 
-      raise ::ArgumentError, "board must be an Array"
+        dim_size = node.size
+
+        if dim_size > MAX_DIMENSION_SIZE
+          raise ::ArgumentError, "dimension size #{dim_size} exceeds maximum of #{MAX_DIMENSION_SIZE}"
+        end
+
+        inner_size = node.first.size
+        total_squares = 0
+        total_pieces  = 0
+
+        node.each do |sub|
+          unless sub.is_a?(::Array)
+            raise ::ArgumentError, "inconsistent board structure: mixed arrays and non-arrays at same level"
+          end
+
+          sq, pc = validate_recursive(sub, inner_size, depth + 1)
+          total_squares += sq
+          total_pieces  += pc
+        end
+
+        [total_squares, total_pieces]
+      else
+        # Leaf rank: validate size limit and count pieces.
+        dim_size = node.size
+
+        if dim_size > MAX_DIMENSION_SIZE
+          raise ::ArgumentError, "dimension size #{dim_size} exceeds maximum of #{MAX_DIMENSION_SIZE}"
+        end
+
+        piece_count = 0
+
+        node.each do |square|
+          if square.is_a?(::Array)
+            raise ::ArgumentError, "inconsistent board structure: expected flat squares at this level"
+          end
+
+          piece_count += 1 unless square.nil?
+        end
+
+        [dim_size, piece_count]
+      end
     end
 
-    def self.validate_non_empty(board)
-      return unless board.empty?
+    private_class_method :validate_recursive
 
-      raise ::ArgumentError, "board must not be empty"
-    end
-
-    # --- Step 2: compute expected shape by walking the first element ----------
-
-    # The shape is an array of dimension sizes, e.g. [2, 3, 8] for
-    # 2 layers × 3 ranks × 8 files. We derive it by following the first
-    # child at each nesting level.
-    def self.compute_shape(board)
-      shape = []
-      current = board
+    # Counts remaining nesting levels by following the first child.
+    def self.probe_depth(node)
+      depth = 1
+      current = node
 
       while current.is_a?(::Array) && current.first.is_a?(::Array)
-        shape << current.size
+        depth += 1
         current = current.first
       end
 
-      shape << current.size
-      shape
+      depth
     end
 
-    # --- Step 3: validate dimension count and sizes ---------------------------
-
-    def self.validate_max_dimensions(shape)
-      dim = shape.size
-      return if dim <= MAX_DIMENSIONS
-
-      raise ::ArgumentError, "board exceeds #{MAX_DIMENSIONS} dimensions (got #{dim})"
-    end
-
-    def self.validate_dimension_sizes(shape)
-      oversized = shape.find { |size| size > MAX_DIMENSION_SIZE }
-      return unless oversized
-
-      raise ::ArgumentError, "dimension size #{oversized} exceeds maximum of #{MAX_DIMENSION_SIZE}"
-    end
-
-    # --- Step 4: verify structure and count in a single pass ------------------
-
-    def self.verify_and_count(board, shape)
-      if shape.size == 1
-        verify_and_count_rank(board, shape[0])
-      else
-        verify_and_count_multi(board, shape)
-      end
-    end
-
-    # For a 1D shape [n]: single-pass over the rank, verifying all elements are
-    # leaves (not arrays) while counting squares and pieces simultaneously.
-    def self.verify_and_count_rank(rank, expected)
-      unless rank.size == expected
-        raise ::ArgumentError, "non-rectangular board: expected #{expected} elements, got #{rank.size}"
-      end
-
-      piece_count = 0
-
-      rank.each do |square|
-        if square.is_a?(::Array)
-          raise ::ArgumentError, "inconsistent board structure: expected flat squares at this level"
-        end
-
-        piece_count += 1 unless square.nil?
-      end
-
-      [expected, piece_count]
-    end
-
-    # For a multi-dimensional shape [n, *rest]: check length, then recurse
-    # into each sub-array, accumulating counts.
-    def self.verify_and_count_multi(board, shape)
-      expected = shape[0]
-      rest = shape[1..]
-
-      unless board.size == expected
-        raise ::ArgumentError, "non-rectangular board: expected #{expected} elements, got #{board.size}"
-      end
-
-      total_squares = 0
-      total_pieces  = 0
-
-      board.each do |sub|
-        unless sub.is_a?(::Array)
-          raise ::ArgumentError, "inconsistent board structure: mixed arrays and non-arrays at same level"
-        end
-
-        sq, pc = verify_and_count(sub, rest)
-        total_squares += sq
-        total_pieces  += pc
-      end
-
-      [total_squares, total_pieces]
-    end
-
-    private_class_method :validate_is_array,
-                         :validate_non_empty,
-                         :compute_shape,
-                         :validate_max_dimensions,
-                         :validate_dimension_sizes,
-                         :verify_and_count,
-                         :verify_and_count_rank,
-                         :verify_and_count_multi
+    private_class_method :probe_depth
   end
 end
