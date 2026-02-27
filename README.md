@@ -5,31 +5,60 @@
 [![CI](https://github.com/sashite/qi.rb/actions/workflows/ruby.yml/badge.svg?branch=main)](https://github.com/sashite/qi.rb/actions)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://github.com/sashite/qi.rb/blob/main/LICENSE)
 
-> A minimal, format-agnostic position model for two-player board games.
+> An immutable, format-agnostic position model for two-player board games.
+
+## Quick Start
+
+```ruby
+gem "qi", "~> 12.0"
+```
+
+```ruby
+require "qi"
+
+# Create an empty 8×8 board with player styles
+pos = Qi.new(8, 8, first_player_style: "C", second_player_style: "c")
+
+# Place pieces, capture to hand, switch turn — all in one chain
+pos2 = pos
+  .board_diff(0 => :r, 1 => :n, 2 => :b, 3 => :q, 4 => :k)
+  .board_diff(60 => :K, 59 => :Q, 58 => :B, 57 => :N, 56 => :R)
+  .toggle
+
+pos2.turn  #=> :second
+```
+
+Every transformation returns a **new frozen instance**. The original is never modified.
 
 ## Overview
 
-`Qi` provides an immutable position object that represents the state of a two-player, turn-based board game as defined by the [Sashité Game Protocol](https://sashite.dev/game-protocol/).
+`Qi` models a board game position as defined by the [Sashité Game Protocol](https://sashite.dev/game-protocol/). A position encodes exactly four things:
 
-A position encodes exactly four things:
+| Component | Accessors | Description |
+|-----------|-----------|-------------|
+| Board | `board` | Multi-dimensional grid (1D, 2D, or 3D) of squares |
+| Hands | `first_player_hand`, `second_player_hand` | Off-board pieces held by each player |
+| Styles | `first_player_style`, `second_player_style` | One style value per player side |
+| Turn | `turn` | The active player (`:first` or `:second`) |
 
-| Component  | Accessors                                              | Description                           |
-|------------|--------------------------------------------------------|---------------------------------------|
-| Board      | `board`                                                | Board structure and occupancy         |
-| Hands      | `first_player_hand`, `second_player_hand`              | Off-board pieces held by each player  |
-| Styles     | `first_player_style`, `second_player_style`            | Player style for each side            |
-| Turn       | `turn`                                                 | The active player's side              |
+Piece and style representations are **intentionally opaque**: any non-nil Ruby object is a valid piece or style value. `Qi` validates structure, not semantics. This makes the library reusable across [FEEN](https://sashite.dev/specs/feen/1.0.0/), [PON](https://sashite.dev/specs/pon/1.0.0/), or any encoding that shares the same positional model.
 
-Piece and style representations are **intentionally opaque** — `Qi` validates structure, not semantics. This makes the library reusable across [FEEN](https://sashite.dev/specs/feen/1.0.0/), [PON](https://sashite.dev/specs/pon/1.0.0/), or any other encoding that shares the same positional model.
+```ruby
+# All of these are valid pieces:
+pos.board_diff(0 => :king)                      # Symbol
+pos.board_diff(0 => "K^")                       # EPIN string
+pos.board_diff(0 => [:king, :first, true])      # Array as structured representation
+pos.board_diff(0 => 42)                         # Integer
+```
 
 ### Implementation Constraints
 
-| Constraint         | Value    | Rationale                                 |
-|--------------------|----------|-------------------------------------------|
-| Max dimensions     | 3        | Covers 1D, 2D, 3D boards                 |
-| Max dimension size | 255      | Fits in 8-bit integer; covers 255×255×255 |
-| Board non-empty    | n ≥ 1    | A board must contain at least one square  |
-| Piece cardinality  | p ≤ n    | Pieces cannot exceed the number of squares|
+| Constraint | Value | Rationale |
+|------------|-------|-----------|
+| Max dimensions | 3 | Covers 1D, 2D, 3D boards |
+| Max dimension size | 255 | Fits in 8-bit integer; covers 255×255×255 |
+| Board non-empty | n ≥ 1 | A board must contain at least one square |
+| Piece cardinality | p ≤ n | Pieces cannot exceed the number of squares |
 
 ## Installation
 
@@ -44,9 +73,9 @@ Or install manually:
 gem install qi
 ```
 
-## Dependencies
+### Requirements
 
-None. `Qi` is a zero-dependency library.
+`Qi` requires **Ruby 3.2+** (tested against 3.2, 3.3, 3.4, and 4.0) and has **zero runtime dependencies**.
 
 ## Usage
 
@@ -94,24 +123,24 @@ pos.shape                #=> [8, 8]
 
 ### Transforming Positions
 
-Positions are immutable. Transformation methods return a **new frozen `Qi` instance**, leaving the original unchanged. Methods can be chained.
+Positions are immutable. Transformation methods return a **new frozen `Qi` instance**, leaving the original unchanged.
 
 #### Modifying the Board
 
-`board_diff(**squares)` accepts flat indices (row-major order, 0-based) mapped to piece values (`nil` to empty a square):
+`board_diff(**squares)` accepts flat indices (0-based, row-major order) mapped to piece values (`nil` to empty a square):
 
 ```ruby
 # Move a piece from index 12 to index 28
 pos2 = pos.board_diff(12 => nil, 28 => "C:P")
 ```
 
-See [Flat Indexing](#flat-indexing) for the formula used to compute flat indices from dimensional coordinates.
+See [Flat Indexing](#flat-indexing) for computing flat indices from dimensional coordinates.
 
 #### Modifying Hands
 
 `first_player_hand_diff(**pieces)` and `second_player_hand_diff(**pieces)` accept piece identifiers mapped to integer deltas — positive to add, negative to remove. A delta of zero is a no-op for that piece.
 
-Piece matching for removal uses **value equality** (Ruby's `==` operator). Two piece objects are considered the same piece type if they are equal by value, regardless of object identity. Reimplementations should use the equivalent structural/value equality in their language (e.g., `equals()` in Java, `==` in Python, `Eq` trait in Rust).
+Piece matching for removal uses **value equality** (Ruby's `==` operator).
 
 ```ruby
 # Add a pawn to first player's hand
@@ -150,11 +179,8 @@ pos2 = pos
 `Qi.new` raises `ArgumentError` on invalid input:
 
 ```ruby
-begin
-  Qi.new(0, 8, first_player_style: "C", second_player_style: "c")
-rescue ArgumentError => e
-  e.message #=> "dimension size must be at least 1, got 0"
-end
+Qi.new(0, 8, first_player_style: "C", second_player_style: "c")
+# => ArgumentError: dimension size must be at least 1, got 0
 ```
 
 Transformation methods also raise `ArgumentError` for invalid operations:
@@ -167,35 +193,17 @@ pos.first_player_hand_diff(P: -1)
 # => ArgumentError: cannot remove :P: not found in hand
 ```
 
-### Pieces as Arbitrary Objects
-
-Pieces are not restricted to any specific type. You can use symbols, strings (EPIN tokens), arrays, or any non-nil Ruby object:
-
-```ruby
-# Symbols
-pos = Qi.new(5, first_player_style: "C", second_player_style: "c")
-  .board_diff(0 => :k, 1 => :p, 3 => :P, 4 => :K)
-
-# EPIN strings
-pos = Qi.new(2, 2, first_player_style: "C", second_player_style: "c")
-  .board_diff(0 => "K^", 3 => "k^")
-
-# Arrays as structured piece representations
-pos = Qi.new(2, 2, first_player_style: :chess, second_player_style: :chess)
-  .board_diff(0 => [:king, :first, true], 3 => [:king, :second, true])
-```
-
 ## Board Structure
 
 ### Shape and Dimensionality
 
 The board shape is defined by the dimension sizes passed to the constructor. The nesting depth of the array returned by `board` matches the number of dimensions:
 
-| Dimensionality | Constructor           | `board` returns                         |
-|----------------|-----------------------|-----------------------------------------|
-| 1D             | `Qi.new(8, ...)`      | `[square, square, ...]`                 |
-| 2D             | `Qi.new(8, 8, ...)`   | `[[square, ...], [square, ...], ...]`   |
-| 3D             | `Qi.new(5, 5, 5, ...)` | `[[[square, ...], ...], ...]`          |
+| Dimensionality | Constructor | `board` returns |
+|----------------|-------------|-----------------|
+| 1D | `Qi.new(8, ...)` | `[square, square, ...]` |
+| 2D | `Qi.new(8, 8, ...)` | `[[square, ...], [square, ...], ...]` |
+| 3D | `Qi.new(5, 5, 5, ...)` | `[[[square, ...], ...], ...]` |
 
 Each `square` is either `nil` (empty) or any non-nil object (a piece).
 
@@ -203,9 +211,7 @@ For a shape `[D1, D2, ..., DN]`, the total number of squares is `D1 × D2 × ...
 
 ### Flat Indexing
 
-The `board_diff(**squares)` method addresses squares by **flat index** — a single integer corresponding to the square's position in **row-major order** (also known as C order or lexicographic order).
-
-The flat index is computed by traversing the nested structure depth-first, left-to-right, enumerating leaf elements from 0.
+The `board_diff` method addresses squares by **flat index** — a single integer in **row-major order** (C order). The flat index is computed by traversing the nested structure depth-first, left-to-right, enumerating leaf elements from 0.
 
 **1D board** with shape `[F]`:
 
@@ -213,27 +219,33 @@ The flat index is computed by traversing the nested structure depth-first, left-
 flat_index = f
 ```
 
-where `f` is the position (0-based).
-
 **2D board** with shape `[R, F]` (R ranks, F files):
 
 ```
 flat_index = r × F + f
 ```
 
-where `r` is the rank index and `f` is the file index (both 0-based).
+For example, on a 3×3 board (shape `[3, 3]`):
+
+```
+             file
+           0   1   2
+        ┌────┬────┬────┐
+rank 0  │  0 │  1 │  2 │
+        ├────┼────┼────┤
+rank 1  │  3 │  4 │  5 │
+        ├────┼────┼────┤
+rank 2  │  6 │  7 │  8 │
+        └────┴────┴────┘
+```
+
+Square `(rank=1, file=2)` → flat index `1 × 3 + 2 = 5`.
 
 **3D board** with shape `[L, R, F]` (L layers, R ranks, F files):
 
 ```
 flat_index = l × R × F + r × F + f
 ```
-
-where `l` is the layer index, `r` is the rank index, and `f` is the file index (all 0-based).
-
-**Example:** On a standard 8×8 chess board (shape `[8, 8]`), square `(rank=1, file=4)` has flat index `1 × 8 + 4 = 12`.
-
-**Duplicate keys:** In Ruby, passing the same keyword argument twice keeps only the last value (`board_diff(0 => :a, 0 => :b)` is equivalent to `board_diff(0 => :b)`). Reimplementations should define their own policy: last-write-wins, first-write-wins, or rejection.
 
 ## Validation Errors
 
@@ -244,40 +256,52 @@ Construction validates fields in a guaranteed order. When multiple errors exist,
 1. **Shape** — dimension count, types, and bounds
 2. **Styles** — non-nil checks (first, then second)
 
-This order is part of the public API contract. Reimplementations should preserve it to ensure consistent error reporting.
+This order is part of the public API contract.
 
 ### Construction Errors
 
-| Error message                                        | Cause                                     |
-|------------------------------------------------------|-------------------------------------------|
-| `"at least one dimension is required"`               | No dimension sizes provided               |
-| `"board exceeds 3 dimensions (got N)"`               | More than 3 dimension sizes               |
-| `"dimension size must be an Integer, got C"`         | Non-integer dimension size                |
-| `"dimension size must be at least 1, got N"`         | Dimension size is zero or negative        |
-| `"dimension size N exceeds maximum of 255"`          | Dimension size exceeds 255                |
-| `"first player style must not be nil"`               | First style is `nil`                      |
-| `"second player style must not be nil"`              | Second style is `nil`                     |
+| Error message | Cause |
+|---------------|-------|
+| `"at least one dimension is required"` | No dimension sizes provided |
+| `"board exceeds 3 dimensions (got N)"` | More than 3 dimension sizes |
+| `"dimension size must be an Integer, got C"` | Non-integer dimension size |
+| `"dimension size must be at least 1, got N"` | Dimension size is zero or negative |
+| `"dimension size N exceeds maximum of 255"` | Dimension size exceeds 255 |
+| `"first player style must not be nil"` | First style is `nil` |
+| `"second player style must not be nil"` | Second style is `nil` |
 
 ### Transformation Errors
 
-| Error message                                                   | Cause                                          |
-|-----------------------------------------------------------------|-------------------------------------------------|
-| `"invalid flat index: I (board has N squares)"`                 | Board index out of range                        |
-| `"delta must be an Integer, got C for piece P"`                 | Non-integer delta in hand change                |
-| `"cannot remove P: not found in hand"`                          | Removing a piece not present in hand            |
-| `"too many pieces for board size (P pieces, N squares)"`        | Transformation would exceed board capacity      |
+| Error message | Cause |
+|---------------|-------|
+| `"invalid flat index: I (board has N squares)"` | Board index out of range |
+| `"delta must be an Integer, got C for piece P"` | Non-integer delta in hand change |
+| `"cannot remove P: not found in hand"` | Removing a piece not present in hand |
+| `"too many pieces for board size (P pieces, N squares)"` | Transformation would exceed board capacity |
 
-### `inspect` Method
+### `inspect`
 
-`inspect` returns a developer-friendly string representation. Its format is not stable and should not be parsed. It is intended for debugging only.
+Returns a developer-friendly string for debugging. The format is not stable and should not be parsed.
 
 ## Design Principles
 
-- **Format-agnostic**: No dependency on EPIN, SIN, or any specific encoding.
-- **Protocol-aligned**: Structurally compatible with the Game Protocol's Position model.
-- **Immutable**: Positions are frozen at construction; no mutation is possible.
-- **Diff-based transformations**: `board_diff`, `first_player_hand_diff`, `second_player_hand_diff`, and `toggle` return new positions from delta changes, avoiding unnecessary copies.
-- **Zero dependencies**: Only the Ruby standard library.
+**Immutable by construction.** Every `Qi` instance is frozen at creation. Transformation methods return new instances rather than mutating state. This eliminates an entire class of bugs around shared mutable state and makes positions safe to use as hash keys, cache entries, or history snapshots.
+
+**Diff-based transformations.** Rather than rebuilding a full position from scratch, `board_diff` and hand diff methods express changes as deltas against the current state. This keeps the API surface small (four transformation methods cover all possible state transitions) while making the intent of each operation explicit.
+
+**Format-agnostic.** `Qi` has no dependency on any specific piece encoding (EPIN, SIN, or otherwise). Pieces and styles are opaque non-nil values. This separation of concerns allows the same positional engine to serve multiple notation formats and game variants without modification.
+
+**Zero dependencies.** `Qi` relies only on the Ruby standard library. No transitive dependency tree to audit, no version conflicts to resolve.
+
+## Thread Safety
+
+`Qi` instances are frozen at construction and all accessors return independent copies. This makes positions inherently thread-safe: they can be shared freely across threads without synchronization.
+
+## Ecosystem
+
+`Qi` is the positional core of the [Sashité](https://sashite.dev/) ecosystem. It models *what a position is* (board, hands, styles, turn) without prescribing *how positions are serialized* or *what moves are legal*.
+
+Other libraries in the ecosystem build on `Qi` to provide those capabilities: [FEEN](https://sashite.dev/specs/feen/1.0.0/) defines a canonical string encoding for positions, [PON](https://sashite.dev/specs/pon/1.0.0/) provides a JSON-based position format, [EPIN](https://sashite.dev/specs/epin/1.0.0/) specifies piece token syntax, and [SIN](https://sashite.dev/specs/sin/1.0.0/) specifies style token syntax. The [Game Protocol](https://sashite.dev/game-protocol/) describes the conceptual foundation that all these specifications share.
 
 ## Notes for Reimplementors
 
@@ -285,26 +309,23 @@ This section provides guidance for porting `Qi` to other languages.
 
 ### API Naming
 
-The Ruby API separates **accessors** (read) from **transformations** (diff) using a `_diff` suffix. In languages where this convention is unusual, alternatives include:
-
-- `with_board(...)` / `with_first_hand(...)` for transformation methods
-- `update_board(...)` / `update_hand(side, ...)` for a more imperative style
+The Ruby API separates **accessors** (read) from **transformations** (diff) using a `_diff` suffix. In languages where this convention is unusual, alternatives include `with_board(...)` / `with_first_hand(...)` for a fluent style, or `update_board(...)` / `update_hand(side, ...)` for a more imperative style.
 
 ### Key Semantic Contracts
 
-- **Piece equality is by value**, not by identity. Hand removal uses value-based matching (Ruby's `==`). Use the equivalent in your language (e.g., `Eq` in Rust, `__eq__` in Python, `equals()` in Java).
-- **Validation order is guaranteed**: shape → styles. Tests assert which error is reported when multiple inputs are invalid simultaneously.
-- **Positions are immutable**: all transformation methods return a new instance. The original is never modified.
-- **Accessors always copy**: each call returns fresh, independent data structures that the caller owns.
-- **The constructor creates an empty position**: board all `nil`, hands empty, turn `:first`. Pieces are added via `board_diff` and hand diff methods.
+**Piece equality is by value**, not by identity. Hand removal uses value-based matching (Ruby's `==`). Use the equivalent in your language (`Eq` in Rust, `__eq__` in Python, `equals()` in Java).
 
-## Related Specifications
+**Validation order is guaranteed**: shape → styles. Tests assert which error is reported when multiple inputs are invalid simultaneously.
 
-- [Game Protocol](https://sashite.dev/game-protocol/) — Conceptual foundation
-- [PON Specification](https://sashite.dev/specs/pon/1.0.0/) — JSON-based position format
-- [FEEN Specification](https://sashite.dev/specs/feen/1.0.0/) — Canonical string-based position format
-- [EPIN Specification](https://sashite.dev/specs/epin/1.0.0/) — Piece token format
-- [SIN Specification](https://sashite.dev/specs/sin/1.0.0/) — Style token format
+**Positions are immutable**: all transformation methods return a new instance. The original is never modified.
+
+**Accessors always copy**: each call returns fresh, independent data structures that the caller owns.
+
+**The constructor creates an empty position**: board all `nil`, hands empty, turn `:first`. Pieces are added via `board_diff` and hand diff methods.
+
+### Duplicate Key Policy
+
+In Ruby, passing the same keyword argument twice keeps only the last value (`board_diff(0 => :a, 0 => :b)` is equivalent to `board_diff(0 => :b)`). Reimplementations should define their own policy: last-write-wins, first-write-wins, or rejection.
 
 ## License
 
