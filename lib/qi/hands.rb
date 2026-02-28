@@ -1,80 +1,92 @@
 # frozen_string_literal: true
 
 class Qi
-  # Pure validation functions for player hands.
+  # Pure functions for player hand operations.
   #
-  # Hands are represented as a Hash with exactly two keys:
+  # A hand is represented as a +Hash{String => Integer}+ mapping each
+  # piece to its count. An empty hand is +{}+. Entries whose count
+  # reaches zero are removed from the hash.
   #
-  # - +:first+ — array of pieces held by the first player.
-  # - +:second+ — array of pieces held by the second player.
+  # This representation gives O(1) add, remove, and count queries per
+  # piece type, compared to O(n) scans on a flat array.
   #
-  # Each piece in a hand can be any non-nil object. String normalization
-  # of pieces is the responsibility of the +Qi+ class, not of this module.
-  # The ordering of pieces within a hand carries no semantic meaning.
+  # All functions are stateless and side-effect-free.
   #
-  # @example Validate hands with pieces
-  #   Qi::Hands.validate({ first: ["+P", "+P"], second: ["b"] }) #=> 3
+  # @example Apply a diff
+  #   hand = { "P" => 1 }
+  #   new_hand, count = Qi::Hands.apply_diff(hand, 1, { "P" => 1, "B" => 1 })
+  #   new_hand #=> { "P" => 2, "B" => 1 }
+  #   count    #=> 3
   #
-  # @example Validate empty hands
-  #   Qi::Hands.validate({ first: [], second: [] }) #=> 0
+  # @example Remove pieces
+  #   hand = { "P" => 2, "B" => 1 }
+  #   new_hand, count = Qi::Hands.apply_diff(hand, 3, { "P" => -1, "B" => -1 })
+  #   new_hand #=> { "P" => 1 }
+  #   count    #=> 1
   module Hands
-    # Validates hands structure and returns the total piece count.
+    # Applies delta changes to a hand, returning the new hash and its
+    # piece count.
     #
-    # Validation checks shape (exactly two keys), type (both values are
-    # arrays), and rejects +nil+ elements in each hand.
+    # Each change maps a piece (+String+) to an integer delta: positive
+    # to add copies, negative to remove, zero is a no-op. Entries whose
+    # count reaches zero are removed from the result.
     #
-    # @param hands [Object] the hands structure to validate.
-    # @return [Integer] the total number of pieces across both hands.
-    # @raise [ArgumentError] if the hands structure is invalid.
+    # The piece count is computed incrementally during the diff — no
+    # extra iteration over the result hash is needed.
     #
-    # @example Valid hands
-    #   Qi::Hands.validate({ first: ["P", "B"], second: ["p"] }) #=> 3
+    # The original hand is not modified.
     #
-    # @example Nil piece rejected
-    #   Qi::Hands.validate({ first: [nil], second: [] })
-    #   # => ArgumentError: hand pieces must not be nil
+    # @param hand [Hash{String => Integer}] the current hand.
+    # @param hand_count [Integer] current total piece count of +hand+.
+    # @param changes [Hash{String => Integer}] piece to delta mapping.
+    #   Keys are normalized from Symbol to String (Ruby keyword argument
+    #   convention).
+    # @return [Array(Hash{String => Integer}, Integer)]
+    #   +[new_hand, new_piece_count]+.
+    # @raise [ArgumentError] if a delta is not an Integer.
+    # @raise [ArgumentError] if removing more pieces than present.
     #
-    # @example Missing key
-    #   Qi::Hands.validate({ first: [] })
-    #   # => ArgumentError: hands must have exactly keys :first and :second
-    def self.validate(hands)
-      validate_shape(hands)
-      validate_arrays(hands)
-      validate_hand(hands[:first])
-      validate_hand(hands[:second])
-      hands[:first].size + hands[:second].size
-    end
+    # @example Add pieces
+    #   Qi::Hands.apply_diff({}, 0, { "P" => 2, "B" => 1 })
+    #   #=> [{ "P" => 2, "B" => 1 }, 3]
+    #
+    # @example Remove a piece
+    #   Qi::Hands.apply_diff({ "P" => 2, "B" => 1 }, 3, { "P" => -1 })
+    #   #=> [{ "P" => 1, "B" => 1 }, 2]
+    #
+    # @example Zero delta is a no-op
+    #   Qi::Hands.apply_diff({ "P" => 1 }, 1, { "P" => 0 })
+    #   #=> [{ "P" => 1 }, 1]
+    def self.apply_diff(hand, hand_count, changes)
+      result = hand.dup
+      count  = hand_count
 
-    # --- Shape validation -----------------------------------------------------
+      changes.each do |piece_key, delta|
+        unless delta.is_a?(::Integer)
+          raise ::ArgumentError, "delta must be an Integer, got #{delta.class} for piece #{piece_key.inspect}"
+        end
 
-    def self.validate_shape(hands)
-      unless hands.is_a?(::Hash)
-        raise ::ArgumentError, "hands must be a Hash with keys :first and :second"
+        next if delta == 0
+
+        piece = piece_key.is_a?(::Symbol) ? piece_key.name : piece_key
+
+        current = result[piece] || 0
+        new_count = current + delta
+
+        if new_count < 0
+          raise ::ArgumentError, "cannot remove #{piece.inspect}: not found in hand"
+        end
+
+        if new_count == 0
+          result.delete(piece)
+        else
+          result[piece] = new_count
+        end
+
+        count += delta
       end
 
-      return if hands.size == 2 && hands.key?(:first) && hands.key?(:second)
-
-      raise ::ArgumentError, "hands must have exactly keys :first and :second"
+      [result, count]
     end
-
-    def self.validate_arrays(hands)
-      return if hands[:first].is_a?(::Array) && hands[:second].is_a?(::Array)
-
-      raise ::ArgumentError, "each hand must be an Array"
-    end
-
-    # --- Piece validation -----------------------------------------------------
-
-    def self.validate_hand(pieces)
-      pieces.each do |piece|
-        raise ::ArgumentError, "hand pieces must not be nil" if piece.nil?
-      end
-    end
-
-    private_class_method :validate_shape,
-                         :validate_arrays,
-                         :validate_hand
-
-    freeze
   end
 end

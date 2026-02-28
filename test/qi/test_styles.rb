@@ -12,170 +12,166 @@ puts
 # VALID STYLES
 # ============================================================================
 
-puts "Valid styles:"
+puts "validate — valid styles:"
 
-Test("string styles") do
-  result = Qi::Styles.validate({ first: "C", second: "c" })
-  raise "expected nil, got #{result.inspect}" unless result.nil?
+Test("single-character style") do
+  result = Qi::Styles.validate(:first, "C")
+  raise "expected 'C', got #{result.inspect}" unless result == "C"
 end
 
-Test("symbol styles") do
-  result = Qi::Styles.validate({ first: :chess, second: :shogi })
-  raise "expected nil" unless result.nil?
+Test("lowercase style") do
+  result = Qi::Styles.validate(:second, "c")
+  raise "expected 'c', got #{result.inspect}" unless result == "c"
 end
 
-Test("integer styles") do
-  result = Qi::Styles.validate({ first: 1, second: 2 })
-  raise "expected nil" unless result.nil?
+Test("word style") do
+  result = Qi::Styles.validate(:first, "chess")
+  raise "expected 'chess'" unless result == "chess"
 end
 
-Test("mixed types") do
-  result = Qi::Styles.validate({ first: "C", second: :shogi })
-  raise "expected nil" unless result.nil?
+Test("empty string is valid") do
+  result = Qi::Styles.validate(:first, "")
+  raise "expected ''" unless result == ""
 end
 
-Test("false is a valid style (non-nil)") do
-  result = Qi::Styles.validate({ first: false, second: false })
-  raise "expected nil" unless result.nil?
-end
-
-Test("zero is a valid style (non-nil)") do
-  result = Qi::Styles.validate({ first: 0, second: 0 })
-  raise "expected nil" unless result.nil?
-end
-
-Test("empty string is a valid style (non-nil)") do
-  result = Qi::Styles.validate({ first: "", second: "" })
-  raise "expected nil" unless result.nil?
-end
-
-Test("array styles") do
-  result = Qi::Styles.validate({ first: [:chess, :western], second: [:shogi, :japanese] })
-  raise "expected nil" unless result.nil?
-end
-
-Test("hash styles") do
-  result = Qi::Styles.validate({ first: { name: "C" }, second: { name: "c" } })
-  raise "expected nil" unless result.nil?
+Test("namespaced style") do
+  result = Qi::Styles.validate(:first, "C:western")
+  raise "wrong" unless result == "C:western"
 end
 
 # ============================================================================
-# NOT A HASH
+# RETURN VALUE IDENTITY
 # ============================================================================
 
 puts
-puts "Not a Hash:"
+puts "validate — return value identity:"
 
-Test("raises for nil") do
-  Qi::Styles.validate(nil)
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "styles must be a Hash with keys :first and :second"
+Test("returns the same object (no allocation)") do
+  s = "C"
+  result = Qi::Styles.validate(:first, s)
+  raise "different object" unless result.equal?(s)
 end
 
-Test("raises for string") do
-  Qi::Styles.validate("not styles")
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "styles must be a Hash with keys :first and :second"
-end
-
-Test("raises for array") do
-  Qi::Styles.validate(["C", "c"])
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "styles must be a Hash with keys :first and :second"
-end
-
-Test("raises for integer") do
-  Qi::Styles.validate(42)
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "styles must be a Hash with keys :first and :second"
-end
-
-Test("raises for symbol") do
-  Qi::Styles.validate(:styles)
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "styles must be a Hash with keys :first and :second"
+Test("works with both sides") do
+  result_first = Qi::Styles.validate(:first, "S")
+  result_second = Qi::Styles.validate(:second, "s")
+  raise "wrong first" unless result_first == "S"
+  raise "wrong second" unless result_second == "s"
 end
 
 # ============================================================================
-# WRONG KEYS
+# NIL ERRORS
 # ============================================================================
 
 puts
-puts "Wrong keys:"
-
-Test("raises for missing :second") do
-  Qi::Styles.validate({ first: "C" })
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "styles must have exactly keys :first and :second"
-end
-
-Test("raises for missing :first") do
-  Qi::Styles.validate({ second: "c" })
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "styles must have exactly keys :first and :second"
-end
-
-Test("raises for extra keys") do
-  Qi::Styles.validate({ first: "C", second: "c", third: "x" })
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "styles must have exactly keys :first and :second"
-end
-
-Test("raises for wrong key names") do
-  Qi::Styles.validate({ a: "C", b: "c" })
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "styles must have exactly keys :first and :second"
-end
-
-Test("raises for string keys") do
-  Qi::Styles.validate({ "first" => "C", "second" => "c" })
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "styles must have exactly keys :first and :second"
-end
-
-Test("raises for empty hash") do
-  Qi::Styles.validate({})
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "styles must have exactly keys :first and :second"
-end
-
-# ============================================================================
-# NIL VALUES
-# ============================================================================
-
-puts
-puts "Nil values:"
+puts "validate — nil errors:"
 
 Test("raises for nil first style") do
-  Qi::Styles.validate({ first: nil, second: "c" })
+  Qi::Styles.validate(:first, nil)
   raise "should have raised"
 rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "first player style must not be nil"
+  raise "wrong: #{e.message}" unless e.message == "first player style must not be nil"
 end
 
 Test("raises for nil second style") do
-  Qi::Styles.validate({ first: "C", second: nil })
+  Qi::Styles.validate(:second, nil)
   raise "should have raised"
 rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "second player style must not be nil"
+  raise "wrong: #{e.message}" unless e.message == "second player style must not be nil"
 end
 
-Test("raises for both nil (first detected first)") do
-  Qi::Styles.validate({ first: nil, second: nil })
+# ============================================================================
+# TYPE ERRORS — NON-STRING VALUES REJECTED
+# ============================================================================
+
+puts
+puts "validate — type errors (non-string values rejected):"
+
+Test("rejects symbol") do
+  Qi::Styles.validate(:first, :chess)
   raise "should have raised"
 rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "first player style must not be nil"
+  raise "wrong: #{e.message}" unless e.message == "first player style must be a String"
+end
+
+Test("rejects integer") do
+  Qi::Styles.validate(:second, 42)
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong: #{e.message}" unless e.message == "second player style must be a String"
+end
+
+Test("rejects false") do
+  Qi::Styles.validate(:first, false)
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong: #{e.message}" unless e.message == "first player style must be a String"
+end
+
+Test("rejects zero") do
+  Qi::Styles.validate(:first, 0)
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong: #{e.message}" unless e.message == "first player style must be a String"
+end
+
+Test("rejects array") do
+  Qi::Styles.validate(:second, ["chess"])
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong: #{e.message}" unless e.message == "second player style must be a String"
+end
+
+Test("rejects hash") do
+  Qi::Styles.validate(:first, { name: "C" })
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong: #{e.message}" unless e.message == "first player style must be a String"
+end
+
+# ============================================================================
+# VALIDATION ORDER — NIL BEFORE TYPE
+# ============================================================================
+
+puts
+puts "validate — validation order:"
+
+Test("nil is checked before type (nil is not a String, but message says nil)") do
+  Qi::Styles.validate(:first, nil)
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong: #{e.message}" unless e.message == "first player style must not be nil"
+end
+
+# ============================================================================
+# SIDE PARAMETER IN ERROR MESSAGES
+# ============================================================================
+
+puts
+puts "validate — side parameter in error messages:"
+
+Test("first side in nil error") do
+  Qi::Styles.validate(:first, nil)
+rescue ArgumentError => e
+  raise "wrong" unless e.message.start_with?("first ")
+end
+
+Test("second side in nil error") do
+  Qi::Styles.validate(:second, nil)
+rescue ArgumentError => e
+  raise "wrong" unless e.message.start_with?("second ")
+end
+
+Test("first side in type error") do
+  Qi::Styles.validate(:first, :chess)
+rescue ArgumentError => e
+  raise "wrong" unless e.message.start_with?("first ")
+end
+
+Test("second side in type error") do
+  Qi::Styles.validate(:second, :shogi)
+rescue ArgumentError => e
+  raise "wrong" unless e.message.start_with?("second ")
 end
 
 puts

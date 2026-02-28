@@ -1,74 +1,46 @@
 # frozen_string_literal: true
 
 class Qi
-  # Pure validation functions for player styles.
+  # Pure validation function for player styles.
   #
-  # Styles are represented as a Hash with exactly two keys:
+  # A style is a +String+ label denoting a movement tradition or game
+  # family (e.g., +"C"+, +"S"+, +"X"+). Semantic validation (e.g., SIN
+  # compliance) is the responsibility of the encoding layer (FEEN, PON,
+  # etc.).
   #
-  # - +:first+ — the style associated with the first player side.
-  # - +:second+ — the style associated with the second player side.
-  #
-  # Style values can be any non-nil object. String normalization is the
-  # responsibility of the +Qi+ class, not of this module. Semantic
-  # validation (e.g., SIN compliance) is the responsibility of the
-  # encoding layer (FEEN, PON, etc.).
-  #
-  # @example Validate string styles
-  #   Qi::Styles.validate({ first: "C", second: "c" }) #=> nil
-  #
-  # @example Validate symbol styles
-  #   Qi::Styles.validate({ first: :chess, second: :shogi }) #=> nil
+  # @example Validate a style
+  #   Qi::Styles.validate(:first, "C") #=> "C"
   module Styles
-    # Validates the styles structure.
+    # Validates a single player style and returns it.
     #
-    # Returns +nil+ if the Hash has exactly keys +:first+ and +:second+ with
-    # non-nil values, or raises +ArgumentError+ otherwise.
+    # The style must not be +nil+ and must be a +String+. The validated
+    # value is returned as-is (no coercion, no allocation).
     #
-    # @param styles [Object] the styles structure to validate.
-    # @return [nil]
-    # @raise [ArgumentError] if the styles structure is invalid.
+    # @param side [Symbol] +:first+ or +:second+, used in error messages.
+    # @param style [Object] the style value to validate.
+    # @return [String] the validated style.
+    # @raise [ArgumentError] if the style is nil or not a String.
     #
-    # @example Valid styles
-    #   Qi::Styles.validate({ first: "S", second: "s" }) #=> nil
+    # @example Valid style
+    #   Qi::Styles.validate(:first, "C") #=> "C"
     #
-    # @example Nil first style
-    #   Qi::Styles.validate({ first: nil, second: "c" })
+    # @example Nil style
+    #   Qi::Styles.validate(:first, nil)
     #   # => ArgumentError: first player style must not be nil
     #
-    # @example Nil second style
-    #   Qi::Styles.validate({ first: "C", second: nil })
-    #   # => ArgumentError: second player style must not be nil
-    #
-    # @example Missing key
-    #   Qi::Styles.validate({ first: "C" })
-    #   # => ArgumentError: styles must have exactly keys :first and :second
-    #
-    # @example Not a Hash
-    #   Qi::Styles.validate("not a hash")
-    #   # => ArgumentError: styles must be a Hash with keys :first and :second
-    def self.validate(styles)
-      validate_shape(styles)
-      validate_non_nil(styles)
-    end
-
-    def self.validate_shape(styles)
-      unless styles.is_a?(::Hash)
-        raise ::ArgumentError, "styles must be a Hash with keys :first and :second"
+    # @example Non-string style
+    #   Qi::Styles.validate(:second, :chess)
+    #   # => ArgumentError: second player style must be a String
+    def self.validate(side, style)
+      if style.nil?
+        raise ::ArgumentError, "#{side} player style must not be nil"
       end
 
-      return if styles.size == 2 && styles.key?(:first) && styles.key?(:second)
+      unless style.is_a?(::String)
+        raise ::ArgumentError, "#{side} player style must be a String"
+      end
 
-      raise ::ArgumentError, "styles must have exactly keys :first and :second"
+      style
     end
-
-    def self.validate_non_nil(styles)
-      raise ::ArgumentError, "first player style must not be nil" if styles[:first].nil?
-      raise ::ArgumentError, "second player style must not be nil" if styles[:second].nil?
-    end
-
-    private_class_method :validate_shape,
-                         :validate_non_nil
-
-    freeze
   end
 end

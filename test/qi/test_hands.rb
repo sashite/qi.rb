@@ -9,249 +9,308 @@ puts "=== HANDS Tests ==="
 puts
 
 # ============================================================================
-# VALID HANDS
+# APPLY_DIFF — ADDING PIECES
 # ============================================================================
 
-puts "Valid hands:"
+puts "apply_diff — adding pieces:"
 
-Test("both empty") do
-  count = Qi::Hands.validate({ first: [], second: [] })
-  raise "expected 0, got #{count}" unless count == 0
+Test("add one piece to empty hand") do
+  hand, count = Qi::Hands.apply_diff({}, 0, { "P" => 1 })
+  raise "wrong hand: #{hand.inspect}" unless hand == { "P" => 1 }
+  raise "wrong count: #{count}" unless count == 1
 end
 
-Test("first has pieces, second empty") do
-  count = Qi::Hands.validate({ first: ["P", "B"], second: [] })
-  raise "expected 2, got #{count}" unless count == 2
+Test("add multiple copies of one piece") do
+  hand, count = Qi::Hands.apply_diff({}, 0, { "P" => 3 })
+  raise "wrong hand" unless hand == { "P" => 3 }
+  raise "wrong count" unless count == 3
 end
 
-Test("first empty, second has pieces") do
-  count = Qi::Hands.validate({ first: [], second: ["p"] })
-  raise "expected 1, got #{count}" unless count == 1
+Test("add different pieces") do
+  hand, count = Qi::Hands.apply_diff({}, 0, { "P" => 1, "B" => 2 })
+  raise "wrong hand" unless hand == { "P" => 1, "B" => 2 }
+  raise "wrong count" unless count == 3
 end
 
-Test("both have pieces") do
-  count = Qi::Hands.validate({ first: ["P", "B"], second: ["p"] })
-  raise "expected 3, got #{count}" unless count == 3
+Test("add to existing piece") do
+  hand, count = Qi::Hands.apply_diff({ "P" => 1 }, 1, { "P" => 2 })
+  raise "wrong hand" unless hand == { "P" => 3 }
+  raise "wrong count" unless count == 3
+end
+
+Test("add new piece to hand with existing pieces") do
+  hand, count = Qi::Hands.apply_diff({ "P" => 2 }, 2, { "B" => 1 })
+  raise "wrong hand" unless hand == { "P" => 2, "B" => 1 }
+  raise "wrong count" unless count == 3
+end
+
+# ============================================================================
+# APPLY_DIFF — REMOVING PIECES
+# ============================================================================
+
+puts
+puts "apply_diff — removing pieces:"
+
+Test("remove one copy (piece remains)") do
+  hand, count = Qi::Hands.apply_diff({ "P" => 2, "B" => 1 }, 3, { "P" => -1 })
+  raise "wrong hand" unless hand == { "P" => 1, "B" => 1 }
+  raise "wrong count" unless count == 2
+end
+
+Test("remove all copies (entry disappears)") do
+  hand, count = Qi::Hands.apply_diff({ "P" => 1, "B" => 1 }, 2, { "P" => -1 })
+  raise "wrong hand" unless hand == { "B" => 1 }
+  raise "wrong count" unless count == 1
+end
+
+Test("remove multiple copies") do
+  hand, count = Qi::Hands.apply_diff({ "P" => 3 }, 3, { "P" => -2 })
+  raise "wrong hand" unless hand == { "P" => 1 }
+  raise "wrong count" unless count == 1
+end
+
+Test("remove all copies from single-entry hand") do
+  hand, count = Qi::Hands.apply_diff({ "P" => 1 }, 1, { "P" => -1 })
+  raise "wrong hand" unless hand == {}
+  raise "wrong count" unless count == 0
+end
+
+Test("remove different pieces") do
+  hand, count = Qi::Hands.apply_diff({ "P" => 2, "B" => 1, "R" => 1 }, 4, { "P" => -1, "R" => -1 })
+  raise "wrong hand" unless hand == { "P" => 1, "B" => 1 }
+  raise "wrong count" unless count == 2
+end
+
+# ============================================================================
+# APPLY_DIFF — MIXED ADD AND REMOVE
+# ============================================================================
+
+puts
+puts "apply_diff — mixed add and remove:"
+
+Test("add and remove in same call") do
+  hand, count = Qi::Hands.apply_diff({ "P" => 1 }, 1, { "P" => -1, "B" => 1 })
+  raise "wrong hand" unless hand == { "B" => 1 }
+  raise "wrong count" unless count == 1
+end
+
+Test("add new piece while removing existing") do
+  hand, count = Qi::Hands.apply_diff({ "P" => 2, "B" => 1 }, 3, { "P" => -2, "B" => -1, "R" => 3 })
+  raise "wrong hand" unless hand == { "R" => 3 }
+  raise "wrong count" unless count == 3
+end
+
+# ============================================================================
+# APPLY_DIFF — ZERO DELTA
+# ============================================================================
+
+puts
+puts "apply_diff — zero delta:"
+
+Test("zero delta is a no-op") do
+  hand, count = Qi::Hands.apply_diff({ "P" => 1 }, 1, { "P" => 0 })
+  raise "wrong hand" unless hand == { "P" => 1 }
+  raise "wrong count" unless count == 1
+end
+
+Test("zero delta on missing piece is a no-op") do
+  hand, count = Qi::Hands.apply_diff({}, 0, { "P" => 0 })
+  raise "wrong hand" unless hand == {}
+  raise "wrong count" unless count == 0
+end
+
+Test("mixed zero and non-zero deltas") do
+  hand, count = Qi::Hands.apply_diff({ "P" => 1 }, 1, { "P" => 0, "B" => 1 })
+  raise "wrong hand" unless hand == { "P" => 1, "B" => 1 }
+  raise "wrong count" unless count == 2
+end
+
+# ============================================================================
+# APPLY_DIFF — EMPTY CHANGES
+# ============================================================================
+
+puts
+puts "apply_diff — empty changes:"
+
+Test("empty changes on empty hand") do
+  hand, count = Qi::Hands.apply_diff({}, 0, {})
+  raise "wrong hand" unless hand == {}
+  raise "wrong count" unless count == 0
+end
+
+Test("empty changes on non-empty hand") do
+  hand, count = Qi::Hands.apply_diff({ "P" => 2 }, 2, {})
+  raise "wrong hand" unless hand == { "P" => 2 }
+  raise "wrong count" unless count == 2
+end
+
+# ============================================================================
+# APPLY_DIFF — SYMBOL KEYS (RUBY KEYWORD CONVENTION)
+# ============================================================================
+
+puts
+puts "apply_diff — symbol keys:"
+
+Test("symbol keys are normalized to strings") do
+  hand, count = Qi::Hands.apply_diff({}, 0, { P: 1, B: 2 })
+  raise "wrong hand" unless hand == { "P" => 1, "B" => 2 }
+  raise "wrong count" unless count == 3
+end
+
+Test("remove with symbol key") do
+  hand, count = Qi::Hands.apply_diff({ "P" => 1 }, 1, { P: -1 })
+  raise "wrong hand" unless hand == {}
+  raise "wrong count" unless count == 0
+end
+
+Test("namespaced symbol keys") do
+  hand, count = Qi::Hands.apply_diff({}, 0, { "S:P": 1, "C:B": 2 })
+  raise "wrong hand" unless hand == { "S:P" => 1, "C:B" => 2 }
+  raise "wrong count" unless count == 3
+end
+
+# ============================================================================
+# APPLY_DIFF — PIECE STRING TYPES
+# ============================================================================
+
+puts
+puts "apply_diff — piece string types:"
+
+Test("EPIN string pieces") do
+  hand, count = Qi::Hands.apply_diff({}, 0, { "K^" => 1, "R^" => 2 })
+  raise "wrong" unless hand == { "K^" => 1, "R^" => 2 }
+  raise "wrong count" unless count == 3
 end
 
 Test("promoted piece strings") do
-  count = Qi::Hands.validate({ first: ["+P", "+P"], second: ["b"] })
-  raise "expected 3, got #{count}" unless count == 3
-end
-
-Test("EPIN string pieces") do
-  count = Qi::Hands.validate({ first: ["K^", "R^"], second: ["k^"] })
-  raise "expected 3, got #{count}" unless count == 3
+  hand, count = Qi::Hands.apply_diff({}, 0, { "+P" => 2, "+R" => 1 })
+  raise "wrong" unless hand == { "+P" => 2, "+R" => 1 }
+  raise "wrong count" unless count == 3
 end
 
 Test("namespaced string pieces") do
-  count = Qi::Hands.validate({ first: ["C:P", "C:B"], second: ["S:p"] })
-  raise "expected 3, got #{count}" unless count == 3
+  hand, count = Qi::Hands.apply_diff({}, 0, { "C:P" => 1, "S:p" => 1 })
+  raise "wrong" unless hand == { "C:P" => 1, "S:p" => 1 }
+  raise "wrong count" unless count == 2
 end
 
 Test("empty string is a valid piece") do
-  count = Qi::Hands.validate({ first: [""], second: [] })
-  raise "expected 1, got #{count}" unless count == 1
+  hand, count = Qi::Hands.apply_diff({}, 0, { "" => 1 })
+  raise "wrong" unless hand == { "" => 1 }
+  raise "wrong count" unless count == 1
 end
 
 # ============================================================================
-# NOT A HASH
-# ============================================================================
-
-puts
-puts "Not a Hash:"
-
-Test("raises for nil") do
-  Qi::Hands.validate(nil)
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hands must be a Hash with keys :first and :second"
-end
-
-Test("raises for string") do
-  Qi::Hands.validate("not hands")
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hands must be a Hash with keys :first and :second"
-end
-
-Test("raises for array") do
-  Qi::Hands.validate([[], []])
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hands must be a Hash with keys :first and :second"
-end
-
-Test("raises for integer") do
-  Qi::Hands.validate(42)
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hands must be a Hash with keys :first and :second"
-end
-
-Test("raises for symbol") do
-  Qi::Hands.validate(:hands)
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hands must be a Hash with keys :first and :second"
-end
-
-# ============================================================================
-# WRONG KEYS
+# APPLY_DIFF — IMMUTABILITY
 # ============================================================================
 
 puts
-puts "Wrong keys:"
+puts "apply_diff — immutability:"
 
-Test("raises for missing :second") do
-  Qi::Hands.validate({ first: [] })
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hands must have exactly keys :first and :second"
+Test("original hand is not mutated") do
+  original = { "P" => 2 }
+  Qi::Hands.apply_diff(original, 2, { "P" => -1 })
+  raise "original was mutated" unless original == { "P" => 2 }
 end
 
-Test("raises for missing :first") do
-  Qi::Hands.validate({ second: [] })
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hands must have exactly keys :first and :second"
+Test("returned hand is a different object") do
+  original = { "P" => 1 }
+  hand, _ = Qi::Hands.apply_diff(original, 1, { "B" => 1 })
+  raise "same object" if original.equal?(hand)
 end
 
-Test("raises for extra keys") do
-  Qi::Hands.validate({ first: [], second: [], third: [] })
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hands must have exactly keys :first and :second"
-end
-
-Test("raises for wrong key names") do
-  Qi::Hands.validate({ a: [], b: [] })
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hands must have exactly keys :first and :second"
-end
-
-Test("raises for string keys") do
-  Qi::Hands.validate({ "first" => [], "second" => [] })
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hands must have exactly keys :first and :second"
-end
-
-Test("raises for empty hash") do
-  Qi::Hands.validate({})
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hands must have exactly keys :first and :second"
+Test("adding does not mutate original") do
+  original = {}
+  Qi::Hands.apply_diff(original, 0, { "P" => 1 })
+  raise "original was mutated" unless original == {}
 end
 
 # ============================================================================
-# VALUES NOT ARRAYS
+# APPLY_DIFF — DELTA TYPE ERRORS
 # ============================================================================
 
 puts
-puts "Values not Arrays:"
+puts "apply_diff — delta type errors:"
 
-Test("raises when first is not an Array") do
-  Qi::Hands.validate({ first: "not an array", second: [] })
+Test("rejects string delta") do
+  Qi::Hands.apply_diff({}, 0, { "P" => "one" })
   raise "should have raised"
 rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "each hand must be an Array"
+  raise "wrong: #{e.message}" unless e.message.include?("delta must be an Integer")
 end
 
-Test("raises when second is not an Array") do
-  Qi::Hands.validate({ first: [], second: :pieces })
+Test("rejects float delta") do
+  Qi::Hands.apply_diff({}, 0, { "P" => 1.5 })
   raise "should have raised"
 rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "each hand must be an Array"
+  raise "wrong: #{e.message}" unless e.message.include?("delta must be an Integer")
 end
 
-Test("raises when both are not Arrays") do
-  Qi::Hands.validate({ first: nil, second: nil })
+Test("rejects nil delta") do
+  Qi::Hands.apply_diff({}, 0, { "P" => nil })
   raise "should have raised"
 rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "each hand must be an Array"
+  raise "wrong: #{e.message}" unless e.message.include?("delta must be an Integer")
 end
 
-Test("raises when first is a Hash") do
-  Qi::Hands.validate({ first: { a: 1 }, second: [] })
+Test("rejects symbol delta") do
+  Qi::Hands.apply_diff({}, 0, { "P" => :one })
   raise "should have raised"
 rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "each hand must be an Array"
-end
-
-# ============================================================================
-# NIL PIECES
-# ============================================================================
-
-puts
-puts "Nil pieces:"
-
-Test("raises for nil in first hand") do
-  Qi::Hands.validate({ first: [nil], second: [] })
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hand pieces must not be nil"
-end
-
-Test("raises for nil in second hand") do
-  Qi::Hands.validate({ first: [], second: [nil] })
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hand pieces must not be nil"
-end
-
-Test("raises for nil among valid pieces") do
-  Qi::Hands.validate({ first: ["P", nil, "B"], second: [] })
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hand pieces must not be nil"
-end
-
-Test("raises for nil at start of hand") do
-  Qi::Hands.validate({ first: [nil, "P", "B"], second: [] })
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hand pieces must not be nil"
-end
-
-Test("raises for multiple nils") do
-  Qi::Hands.validate({ first: [nil, nil], second: [] })
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hand pieces must not be nil"
+  raise "wrong: #{e.message}" unless e.message.include?("delta must be an Integer")
 end
 
 # ============================================================================
-# NON-STRING PIECE TYPES (ACCEPTED)
+# APPLY_DIFF — REMOVAL ERRORS
 # ============================================================================
 
 puts
-puts "Non-string piece types (accepted — normalization is Qi's responsibility):"
+puts "apply_diff — removal errors:"
 
-Test("symbol pieces") do
-  count = Qi::Hands.validate({ first: [:P], second: [] })
-  raise "expected 1, got #{count}" unless count == 1
+Test("raises when removing from empty hand") do
+  Qi::Hands.apply_diff({}, 0, { "P" => -1 })
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong: #{e.message}" unless e.message == "cannot remove \"P\": not found in hand"
 end
 
-Test("integer pieces") do
-  count = Qi::Hands.validate({ first: [1, 2, 3], second: [4] })
-  raise "expected 4, got #{count}" unless count == 4
+Test("raises when removing more than present") do
+  Qi::Hands.apply_diff({ "P" => 1 }, 1, { "P" => -2 })
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong: #{e.message}" unless e.message == "cannot remove \"P\": not found in hand"
 end
 
-Test("false is a valid piece (non-nil)") do
-  count = Qi::Hands.validate({ first: [false], second: [] })
-  raise "expected 1, got #{count}" unless count == 1
+Test("raises when removing piece not in hand") do
+  Qi::Hands.apply_diff({ "B" => 1 }, 1, { "P" => -1 })
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong: #{e.message}" unless e.message == "cannot remove \"P\": not found in hand"
 end
 
-Test("zero is a valid piece (non-nil)") do
-  count = Qi::Hands.validate({ first: [0], second: [] })
-  raise "expected 1, got #{count}" unless count == 1
+# ============================================================================
+# APPLY_DIFF — COUNT CONSISTENCY
+# ============================================================================
+
+puts
+puts "apply_diff — count consistency:"
+
+Test("count matches hand contents after multiple additions") do
+  hand, count = Qi::Hands.apply_diff({}, 0, { "P" => 3, "B" => 2 })
+  raise "wrong count" unless count == 5
+  raise "count mismatch" unless count == hand.each_value.sum
 end
 
-Test("mixed types") do
-  count = Qi::Hands.validate({ first: [:P, "B", 1], second: [false] })
-  raise "expected 4, got #{count}" unless count == 4
+Test("count is zero after removing everything") do
+  hand, count = Qi::Hands.apply_diff({ "P" => 1, "B" => 1 }, 2, { "P" => -1, "B" => -1 })
+  raise "wrong count" unless count == 0
+  raise "hand not empty" unless hand == {}
+end
+
+Test("count correct after mixed add/remove") do
+  hand, count = Qi::Hands.apply_diff({ "P" => 3 }, 3, { "P" => -2, "B" => 4 })
+  raise "wrong count: #{count}" unless count == 5
+  raise "count mismatch" unless count == hand.each_value.sum
 end
 
 puts
