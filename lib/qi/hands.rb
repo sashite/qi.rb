@@ -17,13 +17,10 @@ class Qi
   # @example Validate empty hands
   #   Qi::Hands.validate({ first: [], second: [] }) #=> 0
   module Hands
-    REQUIRED_KEYS = %i[first second].freeze
-
     # Validates hands structure and returns the total piece count.
     #
     # Validation checks shape (exactly two keys), type (both values are arrays),
-    # then performs a single pass over each array to reject +nil+ elements and
-    # count pieces simultaneously.
+    # and rejects +nil+ elements in each hand.
     #
     # @param hands [Object] the hands structure to validate.
     # @return [Integer] the total number of pieces across both hands.
@@ -42,7 +39,9 @@ class Qi
     def self.validate(hands)
       validate_shape(hands)
       validate_arrays(hands)
-      count_hand(hands[:first]) + count_hand(hands[:second])
+      validate_hand(hands[:first])
+      validate_hand(hands[:second])
+      hands[:first].size + hands[:second].size
     end
 
     # --- Shape validation -----------------------------------------------------
@@ -63,22 +62,16 @@ class Qi
       raise ::ArgumentError, "each hand must be an Array"
     end
 
-    # --- Single pass: reject nil and count simultaneously ---------------------
+    # --- Piece validation -----------------------------------------------------
 
-    def self.count_hand(pieces)
-      count = 0
-
+    def self.validate_hand(pieces)
       pieces.each do |piece|
         raise ::ArgumentError, "hand pieces must not be nil" if piece.nil?
-
-        count += 1
       end
-
-      count
     end
 
     private_class_method :validate_shape,
                          :validate_arrays,
-                         :count_hand
+                         :validate_hand
   end
 end
