@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require_relative "qi/board"
+require_relative "qi/hands"
+require_relative "qi/styles"
 
 # A minimal, format-agnostic library for representing positions in
 # two-player, turn-based board games.
