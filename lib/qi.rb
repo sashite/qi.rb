@@ -12,14 +12,15 @@ require_relative "qi/styles"
 #
 # - *Board* — a multi-dimensional rectangular grid (1D, 2D, or 3D)
 #   where each square is either empty (+nil+) or occupied by a piece
-#   (any non-nil object).
-# - *Hands* — collections of off-board pieces held by each player.
+#   (+String+).
+# - *Hands* — collections of off-board pieces (+String+) held by each player.
 # - *Styles* — one style value per player side (format-free).
 # - *Turn* — which player is active (+:first+ or +:second+).
 #
-# Piece and style representations are intentionally opaque: Qi validates
-# structure, not semantics. This makes the library reusable across FEEN,
-# PON, or any other encoding that shares the same positional model.
+# Pieces are Strings, aligning naturally with the notation formats in the
+# Sashité ecosystem (FEEN, EPIN, PON). Style representations are
+# intentionally opaque: any non-nil Ruby object is a valid style value.
+# Qi validates piece types and structural integrity, not game semantics.
 #
 # == Construction
 #
@@ -46,10 +47,10 @@ require_relative "qi/styles"
 # @example A chess starting position
 #   pos = Qi.new(8, 8, first_player_style: "C", second_player_style: "c")
 #     .board_diff(
-#       0 => :r, 1 => :n, 2 => :b, 3 => :q, 4 => :k, 5 => :b, 6 => :n, 7 => :r,
-#       8 => :p, 9 => :p, 10 => :p, 11 => :p, 12 => :p, 13 => :p, 14 => :p, 15 => :p,
-#       48 => :P, 49 => :P, 50 => :P, 51 => :P, 52 => :P, 53 => :P, 54 => :P, 55 => :P,
-#       56 => :R, 57 => :N, 58 => :B, 59 => :Q, 60 => :K, 61 => :B, 62 => :N, 63 => :R
+#       0 => "r", 1 => "n", 2 => "b", 3 => "q", 4 => "k", 5 => "b", 6 => "n", 7 => "r",
+#       8 => "p", 9 => "p", 10 => "p", 11 => "p", 12 => "p", 13 => "p", 14 => "p", 15 => "p",
+#       48 => "P", 49 => "P", 50 => "P", 51 => "P", 52 => "P", 53 => "P", 54 => "P", 55 => "P",
+#       56 => "R", 57 => "N", 58 => "B", 59 => "Q", 60 => "K", 61 => "B", 62 => "N", 63 => "R"
 #     )
 #   pos.turn               #=> :first
 #   pos.first_player_hand  #=> []
@@ -95,29 +96,29 @@ class Qi
 
   # Returns the board as a nested array matching the board shape.
   #
-  # Each leaf element is +nil+ (empty square) or a piece (any non-nil object).
+  # Each leaf element is +nil+ (empty square) or a +String+ (a piece).
   # The returned structure is an independent copy.
   #
   # @return [Array] nested array (1D, 2D, or 3D depending on shape).
   #
   # @example
   #   pos = Qi.new(2, 3, first_player_style: "C", second_player_style: "c")
-  #     .board_diff(0 => :a, 5 => :b)
-  #   pos.board #=> [[:a, nil, nil], [nil, nil, :b]]
+  #     .board_diff(0 => "a", 5 => "b")
+  #   pos.board #=> [["a", nil, nil], [nil, nil, "b"]]
   def board
     unflatten(@board, @shape)
   end
 
   # Returns the pieces held by the first player.
   #
-  # @return [Array] independent copy of the first player's hand.
+  # @return [Array<String>] independent copy of the first player's hand.
   def first_player_hand
     @first_hand.dup
   end
 
   # Returns the pieces held by the second player.
   #
-  # @return [Array] independent copy of the second player's hand.
+  # @return [Array<String>] independent copy of the second player's hand.
   def second_player_hand
     @second_hand.dup
   end
@@ -159,12 +160,13 @@ class Qi
   # Returns a new position with modified squares on the board.
   #
   # Accepts keyword arguments where each key is a flat index (Integer,
-  # 0-based, row-major order) and each value is a piece (any non-nil
-  # object) or +nil+ (empty square).
+  # 0-based, row-major order) and each value is a piece (+String+) or
+  # +nil+ (empty square).
   #
-  # @param squares [Hash{Integer => Object, nil}] flat index to piece mapping.
+  # @param squares [Hash{Integer => String, nil}] flat index to piece mapping.
   # @return [Qi] a new immutable position with the updated board.
   # @raise [ArgumentError] if a key is not a valid flat index.
+  # @raise [ArgumentError] if a value is not a String or nil.
   # @raise [ArgumentError] if the resulting piece count exceeds the board size.
   #
   # @example Move a piece from index 12 to index 28
@@ -176,6 +178,10 @@ class Qi
     squares.each do |flat_index, value|
       unless flat_index.is_a?(::Integer) && flat_index >= 0 && flat_index < @square_count
         raise ::ArgumentError, "invalid flat index: #{flat_index} (board has #{@square_count} squares)"
+      end
+
+      if !value.nil? && !value.is_a?(::String)
+        raise ::ArgumentError, "piece must be a String, got #{value.class}"
       end
 
       old_value = new_board[flat_index]
@@ -193,7 +199,10 @@ class Qi
   # each value is an integer delta: positive adds copies, negative removes
   # matching pieces (by value equality). A delta of zero is a no-op.
   #
-  # @param pieces [Hash{Object => Integer}] piece to delta mapping.
+  # Keyword argument keys are Symbols; they are converted to Strings
+  # internally to match the String piece constraint.
+  #
+  # @param pieces [Hash{Symbol => Integer}] piece to delta mapping.
   # @return [Qi] a new immutable position with the updated hand.
   # @raise [ArgumentError] if a delta is not an Integer.
   # @raise [ArgumentError] if removing more pieces than present.
@@ -212,7 +221,10 @@ class Qi
   # each value is an integer delta: positive adds copies, negative removes
   # matching pieces (by value equality). A delta of zero is a no-op.
   #
-  # @param pieces [Hash{Object => Integer}] piece to delta mapping.
+  # Keyword argument keys are Symbols; they are converted to Strings
+  # internally to match the String piece constraint.
+  #
+  # @param pieces [Hash{Symbol => Integer}] piece to delta mapping.
   # @return [Qi] a new immutable position with the updated hand.
   # @raise [ArgumentError] if a delta is not an Integer.
   # @raise [ArgumentError] if removing more pieces than present.
@@ -327,13 +339,18 @@ class Qi
   # --- Hand helpers ------------------------------------------------------------
 
   # Applies delta changes to a hand array, returning a new array.
+  #
+  # Piece keys (Symbols from kwargs) are converted to Strings via +to_s+
+  # to satisfy the String piece constraint.
   def apply_hand_changes(hand, changes)
     result = hand.dup
 
-    changes.each do |piece, delta|
+    changes.each do |piece_key, delta|
       unless delta.is_a?(::Integer)
-        raise ::ArgumentError, "delta must be an Integer, got #{delta.class} for piece #{piece.inspect}"
+        raise ::ArgumentError, "delta must be an Integer, got #{delta.class} for piece #{piece_key.inspect}"
       end
+
+      piece = "#{piece_key}"
 
       if delta.positive?
         delta.times { result << piece }

@@ -166,22 +166,22 @@ puts "Board accessor:"
 
 run_test("1D board with pieces") do
   pos = Qi.new(4, first_player_style: "C", second_player_style: "c")
-    .board_diff(0 => :k, 3 => :K)
-  raise "wrong board" unless pos.board == [:k, nil, nil, :K]
+    .board_diff(0 => "k", 3 => "K")
+  raise "wrong board" unless pos.board == ["k", nil, nil, "K"]
 end
 
 run_test("2D board with pieces") do
   pos = Qi.new(2, 2, first_player_style: "C", second_player_style: "c")
-    .board_diff(0 => :a, 3 => :b)
-  raise "wrong board" unless pos.board == [[:a, nil], [nil, :b]]
+    .board_diff(0 => "a", 3 => "b")
+  raise "wrong board" unless pos.board == [["a", nil], [nil, "b"]]
 end
 
 run_test("3D board with pieces") do
   pos = Qi.new(2, 2, 2, first_player_style: "C", second_player_style: "c")
-    .board_diff(0 => :a, 7 => :b)
+    .board_diff(0 => "a", 7 => "b")
   board = pos.board
-  raise "wrong [0][0][0]" unless board[0][0][0] == :a
-  raise "wrong [1][1][1]" unless board[1][1][1] == :b
+  raise "wrong [0][0][0]" unless board[0][0][0] == "a"
+  raise "wrong [1][1][1]" unless board[1][1][1] == "b"
 end
 
 run_test("EPIN string pieces") do
@@ -199,7 +199,7 @@ puts "Accessor immutability:"
 
 run_test("board returns a copy") do
   pos = Qi.new(2, 2, first_player_style: "C", second_player_style: "c")
-    .board_diff(0 => :a)
+    .board_diff(0 => "a")
   b1 = pos.board
   b2 = pos.board
   raise "should be different objects" if b1.equal?(b2)
@@ -207,10 +207,10 @@ end
 
 run_test("mutating board copy does not affect position") do
   pos = Qi.new(2, 2, first_player_style: "C", second_player_style: "c")
-    .board_diff(0 => :a)
+    .board_diff(0 => "a")
   copy = pos.board
-  copy[0][0] = :z
-  raise "position was affected" unless pos.board == [[:a, nil], [nil, nil]]
+  copy[0][0] = "z"
+  raise "position was affected" unless pos.board == [["a", nil], [nil, nil]]
 end
 
 run_test("first_player_hand returns a copy") do
@@ -225,8 +225,8 @@ run_test("mutating hand copy does not affect position") do
   pos = Qi.new(2, first_player_style: "C", second_player_style: "c")
     .first_player_hand_diff(P: 1)
   copy = pos.first_player_hand
-  copy << :B
-  raise "position was affected" unless pos.first_player_hand == [:P]
+  copy << "B"
+  raise "position was affected" unless pos.first_player_hand == ["P"]
 end
 
 run_test("second_player_hand returns a copy") do
@@ -274,28 +274,28 @@ puts "Board diff:"
 
 run_test("set a single square") do
   pos = Qi.new(4, first_player_style: "C", second_player_style: "c")
-  pos2 = pos.board_diff(1 => :a)
-  raise "wrong board" unless pos2.board == [nil, :a, nil, nil]
+  pos2 = pos.board_diff(1 => "a")
+  raise "wrong board" unless pos2.board == [nil, "a", nil, nil]
 end
 
 run_test("empty a square") do
   pos = Qi.new(3, first_player_style: "C", second_player_style: "c")
-    .board_diff(0 => :a)
+    .board_diff(0 => "a")
   pos2 = pos.board_diff(0 => nil)
   raise "wrong board" unless pos2.board == [nil, nil, nil]
 end
 
 run_test("multiple changes at once") do
   pos = Qi.new(4, first_player_style: "C", second_player_style: "c")
-  pos2 = pos.board_diff(0 => :a, 1 => :b, 3 => :c)
-  raise "wrong board" unless pos2.board == [:a, :b, nil, :c]
+  pos2 = pos.board_diff(0 => "a", 1 => "b", 3 => "c")
+  raise "wrong board" unless pos2.board == ["a", "b", nil, "c"]
 end
 
 run_test("replace piece with another") do
   pos = Qi.new(2, first_player_style: "C", second_player_style: "c")
-    .board_diff(0 => :a, 1 => :b)
-  pos2 = pos.board_diff(0 => :x)
-  raise "wrong board" unless pos2.board == [:x, :b]
+    .board_diff(0 => "a", 1 => "b")
+  pos2 = pos.board_diff(0 => "x")
+  raise "wrong board" unless pos2.board == ["x", "b"]
 end
 
 run_test("move a piece (empty source, fill destination)") do
@@ -307,42 +307,42 @@ end
 
 run_test("2D board: set square (flat index 2)") do
   pos = Qi.new(2, 2, first_player_style: "C", second_player_style: "c")
-  pos2 = pos.board_diff(2 => :z)
-  raise "wrong board" unless pos2.board == [[nil, nil], [:z, nil]]
+  pos2 = pos.board_diff(2 => "z")
+  raise "wrong board" unless pos2.board == [[nil, nil], ["z", nil]]
 end
 
 run_test("preserves hands") do
   pos = Qi.new(3, first_player_style: "C", second_player_style: "c")
     .first_player_hand_diff(P: 1)
-  pos2 = pos.board_diff(0 => :a)
-  raise "hands changed" unless pos2.first_player_hand == [:P]
+  pos2 = pos.board_diff(0 => "a")
+  raise "hands changed" unless pos2.first_player_hand == ["P"]
 end
 
 run_test("preserves styles") do
   pos = Qi.new(2, first_player_style: "S", second_player_style: "s")
-  pos2 = pos.board_diff(0 => :a)
+  pos2 = pos.board_diff(0 => "a")
   raise "first style changed" unless pos2.first_player_style == "S"
   raise "second style changed" unless pos2.second_player_style == "s"
 end
 
 run_test("preserves turn") do
   pos = Qi.new(2, first_player_style: "C", second_player_style: "c").toggle
-  pos2 = pos.board_diff(0 => :a)
+  pos2 = pos.board_diff(0 => "a")
   raise "turn changed" unless pos2.turn == :second
 end
 
 run_test("returns a new frozen position") do
   pos = Qi.new(2, first_player_style: "C", second_player_style: "c")
-  pos2 = pos.board_diff(0 => :a)
+  pos2 = pos.board_diff(0 => "a")
   raise "should be a different object" if pos.equal?(pos2)
   raise "should be frozen" unless pos2.frozen?
 end
 
 run_test("original position is unchanged") do
   pos = Qi.new(3, first_player_style: "C", second_player_style: "c")
-    .board_diff(0 => :a)
+    .board_diff(0 => "a")
   pos.board_diff(0 => nil)
-  raise "original was affected" unless pos.board == [:a, nil, nil]
+  raise "original was affected" unless pos.board == ["a", nil, nil]
 end
 
 # --- Board diff errors ---
@@ -352,7 +352,7 @@ puts "Board diff errors:"
 
 run_test("raises for negative flat index") do
   pos = Qi.new(2, first_player_style: "C", second_player_style: "c")
-  pos.board_diff(-1 => :a)
+  pos.board_diff(-1 => "a")
   raise "should have raised"
 rescue ArgumentError => e
   raise "wrong message: #{e.message}" unless e.message == "invalid flat index: -1 (board has 2 squares)"
@@ -360,7 +360,7 @@ end
 
 run_test("raises for flat index equal to square count") do
   pos = Qi.new(2, first_player_style: "C", second_player_style: "c")
-  pos.board_diff(2 => :a)
+  pos.board_diff(2 => "a")
   raise "should have raised"
 rescue ArgumentError => e
   raise "wrong message: #{e.message}" unless e.message == "invalid flat index: 2 (board has 2 squares)"
@@ -368,7 +368,7 @@ end
 
 run_test("raises for flat index exceeding square count") do
   pos = Qi.new(2, first_player_style: "C", second_player_style: "c")
-  pos.board_diff(99 => :a)
+  pos.board_diff(99 => "a")
   raise "should have raised"
 rescue ArgumentError => e
   raise "wrong message: #{e.message}" unless e.message == "invalid flat index: 99 (board has 2 squares)"
@@ -376,16 +376,48 @@ end
 
 run_test("raises for non-integer key") do
   pos = Qi.new(2, first_player_style: "C", second_player_style: "c")
-  pos.board_diff("a1" => :a)
+  pos.board_diff("a1" => "a")
   raise "should have raised"
 rescue ArgumentError => e
   raise "wrong message: #{e.message}" unless e.message.include?("invalid flat index")
 end
 
+run_test("raises for symbol piece") do
+  pos = Qi.new(2, first_player_style: "C", second_player_style: "c")
+  pos.board_diff(0 => :a)
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message: #{e.message}" unless e.message == "piece must be a String, got Symbol"
+end
+
+run_test("raises for integer piece") do
+  pos = Qi.new(2, first_player_style: "C", second_player_style: "c")
+  pos.board_diff(0 => 42)
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message: #{e.message}" unless e.message == "piece must be a String, got Integer"
+end
+
+run_test("raises for array piece") do
+  pos = Qi.new(2, first_player_style: "C", second_player_style: "c")
+  pos.board_diff(0 => [:king])
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message: #{e.message}" unless e.message == "piece must be a String, got Array"
+end
+
+run_test("raises for false piece") do
+  pos = Qi.new(2, first_player_style: "C", second_player_style: "c")
+  pos.board_diff(0 => false)
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message: #{e.message}" unless e.message == "piece must be a String, got FalseClass"
+end
+
 run_test("raises when adding pieces beyond board capacity") do
   pos = Qi.new(1, first_player_style: "C", second_player_style: "c")
     .first_player_hand_diff(P: 1)
-  pos.board_diff(0 => :a)
+  pos.board_diff(0 => "a")
   raise "should have raised"
 rescue ArgumentError => e
   raise "wrong message: #{e.message}" unless e.message == "too many pieces for board size (2 pieces, 1 squares)"
@@ -401,67 +433,67 @@ puts "First player hand diff:"
 run_test("add a piece") do
   pos = Qi.new(3, first_player_style: "C", second_player_style: "c")
   pos2 = pos.first_player_hand_diff(P: 1)
-  raise "wrong hand" unless pos2.first_player_hand == [:P]
+  raise "wrong hand" unless pos2.first_player_hand == ["P"]
 end
 
 run_test("add multiple copies") do
   pos = Qi.new(3, first_player_style: "C", second_player_style: "c")
   pos2 = pos.first_player_hand_diff(P: 3)
-  raise "wrong hand" unless pos2.first_player_hand == [:P, :P, :P]
+  raise "wrong hand" unless pos2.first_player_hand == ["P", "P", "P"]
 end
 
 run_test("add different pieces") do
   pos = Qi.new(4, first_player_style: "C", second_player_style: "c")
   pos2 = pos.first_player_hand_diff(P: 1, B: 1)
-  raise "wrong hand" unless pos2.first_player_hand == [:P, :B]
+  raise "wrong hand" unless pos2.first_player_hand == ["P", "B"]
 end
 
 run_test("remove a piece") do
   pos = Qi.new(3, first_player_style: "C", second_player_style: "c")
     .first_player_hand_diff(P: 1, B: 1)
   pos2 = pos.first_player_hand_diff(P: -1)
-  raise "wrong hand" unless pos2.first_player_hand == [:B]
+  raise "wrong hand" unless pos2.first_player_hand == ["B"]
 end
 
 run_test("remove multiple copies") do
   pos = Qi.new(4, first_player_style: "C", second_player_style: "c")
     .first_player_hand_diff(P: 2, B: 1)
   pos2 = pos.first_player_hand_diff(P: -2)
-  raise "wrong hand" unless pos2.first_player_hand == [:B]
+  raise "wrong hand" unless pos2.first_player_hand == ["B"]
 end
 
 run_test("add and remove in same call") do
   pos = Qi.new(3, first_player_style: "C", second_player_style: "c")
     .first_player_hand_diff(P: 1)
   pos2 = pos.first_player_hand_diff(P: -1, B: 1)
-  raise "wrong hand" unless pos2.first_player_hand == [:B]
+  raise "wrong hand" unless pos2.first_player_hand == ["B"]
 end
 
 run_test("zero delta is a no-op") do
   pos = Qi.new(2, first_player_style: "C", second_player_style: "c")
     .first_player_hand_diff(P: 1)
   pos2 = pos.first_player_hand_diff(P: 0)
-  raise "wrong hand" unless pos2.first_player_hand == [:P]
+  raise "wrong hand" unless pos2.first_player_hand == ["P"]
 end
 
-run_test("string-key pieces") do
+run_test("string-key pieces are stored as strings") do
   pos = Qi.new(3, first_player_style: "C", second_player_style: "c")
   pos2 = pos.first_player_hand_diff("S:P": 1)
-  raise "wrong hand" unless pos2.first_player_hand == [:"S:P"]
+  raise "wrong hand" unless pos2.first_player_hand == ["S:P"]
 end
 
 run_test("preserves board") do
   pos = Qi.new(3, first_player_style: "C", second_player_style: "c")
-    .board_diff(0 => :a)
+    .board_diff(0 => "a")
   pos2 = pos.first_player_hand_diff(P: 1)
-  raise "board changed" unless pos2.board == [:a, nil, nil]
+  raise "board changed" unless pos2.board == ["a", nil, nil]
 end
 
 run_test("preserves second player hand") do
   pos = Qi.new(4, first_player_style: "C", second_player_style: "c")
     .second_player_hand_diff(p: 1)
   pos2 = pos.first_player_hand_diff(P: 1)
-  raise "second hand changed" unless pos2.second_player_hand == [:p]
+  raise "second hand changed" unless pos2.second_player_hand == ["p"]
 end
 
 run_test("preserves styles") do
@@ -487,7 +519,7 @@ run_test("original position is unchanged") do
   pos = Qi.new(2, first_player_style: "C", second_player_style: "c")
     .first_player_hand_diff(P: 1)
   pos.first_player_hand_diff(P: -1)
-  raise "original was affected" unless pos.first_player_hand == [:P]
+  raise "original was affected" unless pos.first_player_hand == ["P"]
 end
 
 # --- First player hand diff errors ---
@@ -522,7 +554,7 @@ end
 
 run_test("raises for cardinality violation") do
   pos = Qi.new(1, first_player_style: "C", second_player_style: "c")
-    .board_diff(0 => :a)
+    .board_diff(0 => "a")
   pos.first_player_hand_diff(P: 1)
   raise "should have raised"
 rescue ArgumentError => e
@@ -539,28 +571,28 @@ puts "Second player hand diff:"
 run_test("add a piece") do
   pos = Qi.new(3, first_player_style: "C", second_player_style: "c")
   pos2 = pos.second_player_hand_diff(p: 1)
-  raise "wrong hand" unless pos2.second_player_hand == [:p]
+  raise "wrong hand" unless pos2.second_player_hand == ["p"]
 end
 
 run_test("remove a piece") do
   pos = Qi.new(3, first_player_style: "C", second_player_style: "c")
     .second_player_hand_diff(p: 1, b: 1)
   pos2 = pos.second_player_hand_diff(p: -1)
-  raise "wrong hand" unless pos2.second_player_hand == [:b]
+  raise "wrong hand" unless pos2.second_player_hand == ["b"]
 end
 
 run_test("add and remove in same call") do
   pos = Qi.new(3, first_player_style: "C", second_player_style: "c")
     .second_player_hand_diff(p: 1)
   pos2 = pos.second_player_hand_diff(p: -1, b: 1)
-  raise "wrong hand" unless pos2.second_player_hand == [:b]
+  raise "wrong hand" unless pos2.second_player_hand == ["b"]
 end
 
 run_test("preserves first player hand") do
   pos = Qi.new(4, first_player_style: "C", second_player_style: "c")
     .first_player_hand_diff(P: 1)
   pos2 = pos.second_player_hand_diff(p: 1)
-  raise "first hand changed" unless pos2.first_player_hand == [:P]
+  raise "first hand changed" unless pos2.first_player_hand == ["P"]
 end
 
 run_test("returns a new frozen position") do
@@ -585,7 +617,7 @@ end
 
 run_test("raises for cardinality violation") do
   pos = Qi.new(1, first_player_style: "C", second_player_style: "c")
-    .board_diff(0 => :a)
+    .board_diff(0 => "a")
   pos.second_player_hand_diff(p: 1)
   raise "should have raised"
 rescue ArgumentError => e
@@ -613,7 +645,7 @@ end
 
 run_test("toggle preserves board") do
   pos = Qi.new(2, 2, first_player_style: "C", second_player_style: "c")
-    .board_diff(0 => :a, 3 => :b)
+    .board_diff(0 => "a", 3 => "b")
   pos2 = pos.toggle
   raise "board changed" unless pos2.board == pos.board
 end
@@ -623,8 +655,8 @@ run_test("toggle preserves hands") do
     .first_player_hand_diff(P: 1)
     .second_player_hand_diff(p: 1)
   pos2 = pos.toggle
-  raise "first hand changed" unless pos2.first_player_hand == [:P]
-  raise "second hand changed" unless pos2.second_player_hand == [:p]
+  raise "first hand changed" unless pos2.first_player_hand == ["P"]
+  raise "second hand changed" unless pos2.second_player_hand == ["p"]
 end
 
 run_test("toggle preserves styles") do
@@ -662,43 +694,43 @@ puts "Chaining:"
 
 run_test("board_diff + toggle") do
   pos = Qi.new(4, first_player_style: "C", second_player_style: "c")
-  pos2 = pos.board_diff(0 => :a).toggle
-  raise "wrong board" unless pos2.board == [:a, nil, nil, nil]
+  pos2 = pos.board_diff(0 => "a").toggle
+  raise "wrong board" unless pos2.board == ["a", nil, nil, nil]
   raise "wrong turn" unless pos2.turn == :second
 end
 
 run_test("board_diff + first_player_hand_diff + toggle") do
   pos = Qi.new(4, first_player_style: "C", second_player_style: "c")
   pos2 = pos
-    .board_diff(0 => :a)
+    .board_diff(0 => "a")
     .first_player_hand_diff(P: 1)
     .toggle
-  raise "wrong board" unless pos2.board == [:a, nil, nil, nil]
-  raise "wrong hand" unless pos2.first_player_hand == [:P]
+  raise "wrong board" unless pos2.board == ["a", nil, nil, nil]
+  raise "wrong hand" unless pos2.first_player_hand == ["P"]
   raise "wrong turn" unless pos2.turn == :second
 end
 
 run_test("board_diff + second_player_hand_diff + toggle") do
   pos = Qi.new(4, first_player_style: "C", second_player_style: "c")
   pos2 = pos
-    .board_diff(0 => :a)
+    .board_diff(0 => "a")
     .second_player_hand_diff(p: 1)
     .toggle
-  raise "wrong board" unless pos2.board == [:a, nil, nil, nil]
-  raise "wrong hand" unless pos2.second_player_hand == [:p]
+  raise "wrong board" unless pos2.board == ["a", nil, nil, nil]
+  raise "wrong hand" unless pos2.second_player_hand == ["p"]
   raise "wrong turn" unless pos2.turn == :second
 end
 
 run_test("complete capture scenario") do
   # Set up: piece at index 1, capture it to hand, place attacker, toggle
   pos = Qi.new(4, first_player_style: "C", second_player_style: "c")
-    .board_diff(0 => :attacker, 1 => :defender)
+    .board_diff(0 => "attacker", 1 => "defender")
   pos2 = pos
-    .board_diff(1 => :attacker, 0 => nil)
+    .board_diff(1 => "attacker", 0 => nil)
     .first_player_hand_diff(defender: 1)
     .toggle
-  raise "wrong board" unless pos2.board == [nil, :attacker, nil, nil]
-  raise "wrong hand" unless pos2.first_player_hand == [:defender]
+  raise "wrong board" unless pos2.board == [nil, "attacker", nil, nil]
+  raise "wrong hand" unless pos2.first_player_hand == ["defender"]
   raise "wrong turn" unless pos2.turn == :second
 end
 
@@ -711,13 +743,13 @@ puts "Cardinality:"
 
 run_test("accepts pieces equal to squares") do
   pos = Qi.new(2, first_player_style: "C", second_player_style: "c")
-    .board_diff(0 => :a, 1 => :b)
-  raise "should have succeeded" unless pos.board == [:a, :b]
+    .board_diff(0 => "a", 1 => "b")
+  raise "should have succeeded" unless pos.board == ["a", "b"]
 end
 
 run_test("accepts pieces equal to squares with hands") do
   pos = Qi.new(3, first_player_style: "C", second_player_style: "c")
-    .board_diff(0 => :a)
+    .board_diff(0 => "a")
     .first_player_hand_diff(P: 1)
     .second_player_hand_diff(p: 1)
   raise "should have 1 board piece" unless pos.board.count { |s| !s.nil? } == 1

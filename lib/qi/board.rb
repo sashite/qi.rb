@@ -9,7 +9,7 @@ class Qi
   # - A *2D board* is an array of ranks: +[[nil, nil], ["K^", nil]]+
   # - A *3D board* is an array of layers, each an array of ranks.
   #
-  # Each leaf element (square) is either +nil+ (empty) or any non-nil object (a piece).
+  # Each leaf element (square) is either +nil+ (empty) or a +String+ (a piece).
   #
   # == Constraints
   #
@@ -18,9 +18,10 @@ class Qi
   # - At least one square (non-empty board)
   # - Rectangular structure: all sub-arrays at the same depth must have
   #   identical length (enforced globally, not just per-sibling).
+  # - Pieces must be Strings.
   #
   # @example Validate a 2D board
-  #   Qi::Board.validate([[:a, nil], [nil, :b]]) #=> [4, 2]
+  #   Qi::Board.validate([["a", nil], [nil, "b"]]) #=> [4, 2]
   #
   # @example Validate an empty board
   #   Qi::Board.validate([[nil, nil, nil], [nil, nil, nil], [nil, nil, nil]]) #=> [9, 0]
@@ -32,24 +33,28 @@ class Qi
     #
     # Validation is performed in a single recursive pass that simultaneously
     # infers the board shape, verifies structural regularity, checks dimension
-    # limits, and counts squares and pieces.
+    # limits, validates piece types, and counts squares and pieces.
     #
     # @param board [Object] the board structure to validate.
     # @return [Array(Integer, Integer)] +[square_count, piece_count]+.
     # @raise [ArgumentError] if the board is structurally invalid.
     #
     # @example A 2D board
-    #   Qi::Board.validate([[:r, nil, nil], [nil, nil, :R]]) #=> [6, 2]
+    #   Qi::Board.validate([["r", nil, nil], [nil, nil, "R"]]) #=> [6, 2]
     #
     # @example A 1D board
-    #   Qi::Board.validate([:k, nil, nil, :K]) #=> [4, 2]
+    #   Qi::Board.validate(["k", nil, nil, "K"]) #=> [4, 2]
     #
     # @example A 3D board (2 layers × 2 ranks × 2 files)
-    #   Qi::Board.validate([[[:a, nil], [nil, :b]], [[nil, :c], [:d, nil]]]) #=> [8, 4]
+    #   Qi::Board.validate([[["a", nil], [nil, "b"]], [[nil, "c"], ["d", nil]]]) #=> [8, 4]
     #
     # @example Non-rectangular boards are rejected
-    #   Qi::Board.validate([[:a, :b], [:c]])
+    #   Qi::Board.validate([["a", "b"], ["c"]])
     #   # => ArgumentError: non-rectangular board: expected 2 elements, got 1
+    #
+    # @example Non-string pieces are rejected
+    #   Qi::Board.validate([:a, nil])
+    #   # => ArgumentError: piece must be a String, got Symbol
     def self.validate(board)
       unless board.is_a?(::Array)
         raise ::ArgumentError, "board must be an Array"
@@ -109,14 +114,24 @@ class Qi
 
         [total_squares, total_pieces]
       else
-        # Leaf rank: validate structure, then count pieces.
+        # Leaf rank: validate structure and piece types, then count pieces.
+        piece_count = 0
+
         node.each do |square|
           if square.is_a?(::Array)
             raise ::ArgumentError, "inconsistent board structure: expected flat squares at this level"
           end
+
+          next if square.nil?
+
+          unless square.is_a?(::String)
+            raise ::ArgumentError, "piece must be a String, got #{square.class}"
+          end
+
+          piece_count += 1
         end
 
-        [node.size, node.count { |sq| !sq.nil? }]
+        [node.size, piece_count]
       end
     end
 

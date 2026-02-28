@@ -8,7 +8,7 @@ class Qi
   # - +:first+ — array of pieces held by the first player.
   # - +:second+ — array of pieces held by the second player.
   #
-  # Each piece in a hand can be any non-nil object. The ordering of pieces
+  # Each piece in a hand must be a +String+. The ordering of pieces
   # within a hand carries no semantic meaning.
   #
   # @example Validate hands with pieces
@@ -20,18 +20,22 @@ class Qi
     # Validates hands structure and returns the total piece count.
     #
     # Validation checks shape (exactly two keys), type (both values are arrays),
-    # and rejects +nil+ elements in each hand.
+    # and requires every element to be a +String+.
     #
     # @param hands [Object] the hands structure to validate.
     # @return [Integer] the total number of pieces across both hands.
     # @raise [ArgumentError] if the hands structure is invalid.
     #
     # @example Valid hands
-    #   Qi::Hands.validate({ first: [:P, :B], second: [:p] }) #=> 3
+    #   Qi::Hands.validate({ first: ["P", "B"], second: ["p"] }) #=> 3
+    #
+    # @example Non-string piece rejected
+    #   Qi::Hands.validate({ first: [:P], second: [] })
+    #   # => ArgumentError: hand piece must be a String, got Symbol
     #
     # @example Nil piece rejected
     #   Qi::Hands.validate({ first: [nil], second: [] })
-    #   # => ArgumentError: hand pieces must not be nil
+    #   # => ArgumentError: hand piece must be a String, got NilClass
     #
     # @example Missing key
     #   Qi::Hands.validate({ first: [] })
@@ -66,7 +70,9 @@ class Qi
 
     def self.validate_hand(pieces)
       pieces.each do |piece|
-        raise ::ArgumentError, "hand pieces must not be nil" if piece.nil?
+        unless piece.is_a?(::String)
+          raise ::ArgumentError, "hand piece must be a String, got #{piece.class}"
+        end
       end
     end
 

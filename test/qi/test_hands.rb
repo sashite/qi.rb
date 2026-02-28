@@ -20,46 +20,36 @@ run_test("both empty") do
 end
 
 run_test("first has pieces, second empty") do
-  count = Qi::Hands.validate({ first: [:P, :B], second: [] })
+  count = Qi::Hands.validate({ first: ["P", "B"], second: [] })
   raise "expected 2, got #{count}" unless count == 2
 end
 
 run_test("first empty, second has pieces") do
-  count = Qi::Hands.validate({ first: [], second: [:p] })
+  count = Qi::Hands.validate({ first: [], second: ["p"] })
   raise "expected 1, got #{count}" unless count == 1
 end
 
 run_test("both have pieces") do
-  count = Qi::Hands.validate({ first: [:P, :B], second: [:p] })
+  count = Qi::Hands.validate({ first: ["P", "B"], second: ["p"] })
   raise "expected 3, got #{count}" unless count == 3
 end
 
-run_test("string pieces") do
+run_test("promoted piece strings") do
   count = Qi::Hands.validate({ first: ["+P", "+P"], second: ["b"] })
   raise "expected 3, got #{count}" unless count == 3
 end
 
-run_test("integer pieces") do
-  count = Qi::Hands.validate({ first: [1, 2, 3], second: [4] })
-  raise "expected 4, got #{count}" unless count == 4
+run_test("EPIN string pieces") do
+  count = Qi::Hands.validate({ first: ["K^", "R^"], second: ["k^"] })
+  raise "expected 3, got #{count}" unless count == 3
 end
 
-run_test("mixed piece types") do
-  count = Qi::Hands.validate({ first: [:P, "B", 1], second: [false] })
-  raise "expected 4, got #{count}" unless count == 4
+run_test("namespaced string pieces") do
+  count = Qi::Hands.validate({ first: ["C:P", "C:B"], second: ["S:p"] })
+  raise "expected 3, got #{count}" unless count == 3
 end
 
-run_test("false is a valid piece (non-nil)") do
-  count = Qi::Hands.validate({ first: [false], second: [] })
-  raise "expected 1, got #{count}" unless count == 1
-end
-
-run_test("zero is a valid piece (non-nil)") do
-  count = Qi::Hands.validate({ first: [0], second: [] })
-  raise "expected 1, got #{count}" unless count == 1
-end
-
-run_test("empty string is a valid piece (non-nil)") do
+run_test("empty string is a valid piece") do
   count = Qi::Hands.validate({ first: [""], second: [] })
   raise "expected 1, got #{count}" unless count == 1
 end
@@ -191,52 +181,80 @@ rescue ArgumentError => e
 end
 
 # ============================================================================
-# NIL PIECES
+# INVALID PIECE TYPES
 # ============================================================================
 
 puts
-puts "Nil pieces:"
+puts "Invalid piece types:"
 
 run_test("raises for nil in first hand") do
   Qi::Hands.validate({ first: [nil], second: [] })
   raise "should have raised"
 rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hand pieces must not be nil"
+  raise "wrong message: #{e.message}" unless e.message == "hand piece must be a String, got NilClass"
 end
 
 run_test("raises for nil in second hand") do
   Qi::Hands.validate({ first: [], second: [nil] })
   raise "should have raised"
 rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hand pieces must not be nil"
+  raise "wrong message: #{e.message}" unless e.message == "hand piece must be a String, got NilClass"
 end
 
-run_test("raises for nil among valid pieces in first hand") do
-  Qi::Hands.validate({ first: [:P, nil, :B], second: [] })
+run_test("raises for nil among valid pieces") do
+  Qi::Hands.validate({ first: ["P", nil, "B"], second: [] })
   raise "should have raised"
 rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hand pieces must not be nil"
-end
-
-run_test("raises for nil among valid pieces in second hand") do
-  Qi::Hands.validate({ first: [], second: [:p, nil] })
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hand pieces must not be nil"
+  raise "wrong message: #{e.message}" unless e.message == "hand piece must be a String, got NilClass"
 end
 
 run_test("raises for nil at start of hand") do
-  Qi::Hands.validate({ first: [nil, :P, :B], second: [] })
+  Qi::Hands.validate({ first: [nil, "P", "B"], second: [] })
   raise "should have raised"
 rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hand pieces must not be nil"
+  raise "wrong message: #{e.message}" unless e.message == "hand piece must be a String, got NilClass"
 end
 
 run_test("raises for multiple nils") do
   Qi::Hands.validate({ first: [nil, nil], second: [] })
   raise "should have raised"
 rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "hand pieces must not be nil"
+  raise "wrong message: #{e.message}" unless e.message == "hand piece must be a String, got NilClass"
+end
+
+run_test("raises for symbol piece") do
+  Qi::Hands.validate({ first: [:P], second: [] })
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message: #{e.message}" unless e.message == "hand piece must be a String, got Symbol"
+end
+
+run_test("raises for integer piece") do
+  Qi::Hands.validate({ first: [1], second: [] })
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message: #{e.message}" unless e.message == "hand piece must be a String, got Integer"
+end
+
+run_test("raises for false piece") do
+  Qi::Hands.validate({ first: [false], second: [] })
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message: #{e.message}" unless e.message == "hand piece must be a String, got FalseClass"
+end
+
+run_test("raises for zero piece") do
+  Qi::Hands.validate({ first: [0], second: [] })
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message: #{e.message}" unless e.message == "hand piece must be a String, got Integer"
+end
+
+run_test("raises for symbol among strings in second hand") do
+  Qi::Hands.validate({ first: [], second: ["p", :B] })
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message: #{e.message}" unless e.message == "hand piece must be a String, got Symbol"
 end
 
 puts
