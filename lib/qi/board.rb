@@ -78,17 +78,15 @@ class Qi
         raise ::ArgumentError, "non-rectangular board: expected #{expected_size} elements, got #{node.size}"
       end
 
+      if node.size > MAX_DIMENSION_SIZE
+        raise ::ArgumentError, "dimension size #{node.size} exceeds maximum of #{MAX_DIMENSION_SIZE}"
+      end
+
       if node.first.is_a?(::Array)
-        # Intermediate dimension: validate depth and size, then recurse.
+        # Intermediate dimension: validate depth, then recurse.
         if depth >= MAX_DIMENSIONS - 1
           actual = depth + 1 + probe_depth(node.first)
           raise ::ArgumentError, "board exceeds #{MAX_DIMENSIONS} dimensions (got #{actual})"
-        end
-
-        dim_size = node.size
-
-        if dim_size > MAX_DIMENSION_SIZE
-          raise ::ArgumentError, "dimension size #{dim_size} exceeds maximum of #{MAX_DIMENSION_SIZE}"
         end
 
         inner_size = node.first.size
@@ -107,13 +105,7 @@ class Qi
 
         [total_squares, total_pieces]
       else
-        # Leaf rank: validate size limit and count pieces.
-        dim_size = node.size
-
-        if dim_size > MAX_DIMENSION_SIZE
-          raise ::ArgumentError, "dimension size #{dim_size} exceeds maximum of #{MAX_DIMENSION_SIZE}"
-        end
-
+        # Leaf rank: count pieces.
         piece_count = 0
 
         node.each do |square|
@@ -124,7 +116,7 @@ class Qi
           piece_count += 1 unless square.nil?
         end
 
-        [dim_size, piece_count]
+        [node.size, piece_count]
       end
     end
 
