@@ -175,6 +175,7 @@ class Qi
       end
 
       old_value = new_board[flat_index]
+      # Track net change in piece count: +1 if filling, -1 if emptying, 0 if replacing.
       delta += (value.nil? ? 0 : 1) - (old_value.nil? ? 0 : 1)
       new_board[flat_index] = value
     end
