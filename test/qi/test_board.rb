@@ -195,6 +195,27 @@ rescue ArgumentError => e
   raise "wrong message: #{e.message}" unless e.message == "board must not be empty"
 end
 
+run_test("raises for empty inner array (2D)") do
+  Qi::Board.validate([[]])
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message: #{e.message}" unless e.message == "board must not be empty"
+end
+
+run_test("raises for multiple empty inner arrays (2D)") do
+  Qi::Board.validate([[], []])
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message: #{e.message}" unless e.message == "board must not be empty"
+end
+
+run_test("raises for empty inner arrays (3D)") do
+  Qi::Board.validate([[[], []]])
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message: #{e.message}" unless e.message == "board must not be empty"
+end
+
 # ============================================================================
 # NON-RECTANGULAR BOARDS
 # ============================================================================

@@ -89,6 +89,11 @@ class Qi
         end
 
         inner_size = node.first.size
+
+        if inner_size == 0
+          raise ::ArgumentError, "board must not be empty"
+        end
+
         total_squares = 0
         total_pieces  = 0
 
