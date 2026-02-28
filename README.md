@@ -19,7 +19,7 @@ require "qi"
 # Create an empty 8×8 board with player styles
 pos = Qi.new(8, 8, first_player_style: "C", second_player_style: "c")
 
-# Place pieces, capture to hand, switch turn — all in one chain
+# Place pieces and switch turn
 pos2 = pos
   .board_diff(0 => "r", 1 => "n", 2 => "b", 3 => "q", 4 => "k")
   .board_diff(60 => "K", 59 => "Q", 58 => "B", 57 => "N", 56 => "R")
@@ -41,27 +41,17 @@ Every transformation returns a **new frozen instance**. The original is never mo
 | Styles | `first_player_style`, `second_player_style` | One style value per player side |
 | Turn | `turn` | The active player (`:first` or `:second`) |
 
-**Pieces are Strings.** Every piece — whether on the board or in a hand — must be a `String`. This aligns naturally with the notation formats in the Sashité ecosystem (FEEN, EPIN, PON), which all produce string representations. Empty squares are represented by `nil`.
+**Pieces are Strings.** Every piece — whether on the board or in a hand — must be a `String`. This aligns naturally with the notation formats in the Sashité ecosystem ([FEEN](https://sashite.dev/specs/feen/1.0.0/), [EPIN](https://sashite.dev/specs/epin/1.0.0/), [PON](https://sashite.dev/specs/pon/1.0.0/)), which all produce string representations. Empty squares are represented by `nil`.
 
-Style representations are **intentionally opaque**: any non-nil Ruby object is a valid style value. `Qi` validates piece types and structural integrity, not game semantics. This makes the library reusable across [FEEN](https://sashite.dev/specs/feen/1.0.0/), [PON](https://sashite.dev/specs/pon/1.0.0/), or any encoding that shares the same positional model.
+**Styles are opaque.** Any non-nil Ruby object is a valid style value. `Qi` validates structure, not semantics.
 
 ```ruby
 # All of these are valid pieces:
-pos.board_diff(0 => "K")                # Short name
-pos.board_diff(0 => "K^")               # EPIN string
-pos.board_diff(0 => "C:K")              # Namespaced
-pos.board_diff(0 => "+P")               # Promoted
+pos.board_diff(0 => "K")               # Short name
+pos.board_diff(0 => "K^")              # EPIN token
+pos.board_diff(0 => "C:K")             # Namespaced
+pos.board_diff(0 => "+P")              # Promoted
 ```
-
-### Implementation Constraints
-
-| Constraint | Value | Rationale |
-|------------|-------|-----------|
-| Max dimensions | 3 | Covers 1D, 2D, 3D boards |
-| Max dimension size | 255 | Fits in 8-bit integer; covers 255×255×255 |
-| Board non-empty | n ≥ 1 | A board must contain at least one square |
-| Piece cardinality | p ≤ n | Pieces cannot exceed the number of squares |
-| Piece type | `String` | Consistent with notation formats |
 
 ## Installation
 
@@ -80,130 +70,133 @@ gem install qi
 
 `Qi` requires **Ruby 3.2+** (tested against 3.2, 3.3, 3.4, and 4.0) and has **zero runtime dependencies**.
 
-## Usage
+## API Reference
 
-### Creating a Position
+### Construction
 
-A position is constructed from the board shape (dimension sizes) and player styles. The board starts empty, both hands start empty, and the turn defaults to `:first`:
+#### `Qi.new(*shape, first_player_style:, second_player_style:)` → `Qi`
 
-```ruby
-# 2D chess board (8×8)
-pos = Qi.new(8, 8, first_player_style: "C", second_player_style: "c")
+Creates an immutable position with an empty board.
 
-# 1D board
-pos = Qi.new(8, first_player_style: "G", second_player_style: "g")
+**Parameters:**
 
-# 3D board (5×5×5)
-pos = Qi.new(5, 5, 5, first_player_style: "R", second_player_style: "r")
-```
+- `*shape` — one to three `Integer` dimension sizes (each 1–255).
+- `first_player_style:` — style for the first player (any non-nil value).
+- `second_player_style:` — style for the second player (any non-nil value).
 
-To set up a specific position, chain transformation methods:
+The board starts with all squares empty (`nil`), both hands start empty, and the turn defaults to `:first`. Styles are duplicated and frozen at construction.
 
 ```ruby
-# Chess starting position
-pos = Qi.new(8, 8, first_player_style: "C", second_player_style: "c")
-  .board_diff(
-    0 => "r", 1 => "n", 2 => "b", 3 => "q", 4 => "k", 5 => "b", 6 => "n", 7 => "r",
-    8 => "p", 9 => "p", 10 => "p", 11 => "p", 12 => "p", 13 => "p", 14 => "p", 15 => "p",
-    48 => "P", 49 => "P", 50 => "P", 51 => "P", 52 => "P", 53 => "P", 54 => "P", 55 => "P",
-    56 => "R", 57 => "N", 58 => "B", 59 => "Q", 60 => "K", 61 => "B", 62 => "N", 63 => "R"
-  )
+Qi.new(8, 8, first_player_style: "C", second_player_style: "c")   # 2D (8×8)
+Qi.new(8, first_player_style: "G", second_player_style: "g")      # 1D
+Qi.new(5, 5, 5, first_player_style: "R", second_player_style: "r") # 3D
 ```
+
+**Raises** `ArgumentError` if constraints are violated (see [Validation Errors](#validation-errors)).
+
+### Constants
+
+| Constant | Value | Description |
+|----------|-------|-------------|
+| `Qi::MAX_DIMENSIONS` | `3` | Maximum number of board dimensions |
+| `Qi::MAX_DIMENSION_SIZE` | `255` | Maximum size of any single dimension |
 
 ### Accessors
 
-Accessors for mutable structures (`board`, `first_player_hand`, `second_player_hand`, `shape`) return **independent copies**. Mutating the returned value has no effect on the position. Styles are returned **frozen** (no allocation on access). `turn` returns an immutable Symbol.
+All accessors are safe to call from any thread. Collections return independent copies; styles and turn return immutable values.
+
+| Method | Returns | Copy behavior |
+|--------|---------|---------------|
+| `board` | `Array` | Nested array (independent copy). Each leaf is `nil` or `String`. |
+| `first_player_hand` | `Array<String>` | Independent copy. |
+| `second_player_hand` | `Array<String>` | Independent copy. |
+| `turn` | `Symbol` | `:first` or `:second` (immutable). |
+| `first_player_style` | `Object` | Frozen value (returned directly, no allocation). |
+| `second_player_style` | `Object` | Frozen value (returned directly, no allocation). |
+| `shape` | `Array<Integer>` | Independent copy (e.g., `[8, 8]`). |
+| `inspect` | `String` | Developer-friendly, unstable format. Do not parse. |
 
 ```ruby
 pos.board                #=> [["r", "n", "b", ...], ...]
 pos.first_player_hand    #=> []
 pos.second_player_hand   #=> []
 pos.turn                 #=> :first
-pos.first_player_style   #=> "C" (frozen)
-pos.second_player_style  #=> "c" (frozen)
+pos.first_player_style   #=> "C"
+pos.second_player_style  #=> "c"
 pos.shape                #=> [8, 8]
+pos.inspect              #=> "#<Qi shape=[8, 8] turn=:first>"
 ```
 
-### Transforming Positions
+**Note:** Styles are frozen. Attempting to mutate a returned style raises `FrozenError`. If you need a mutable copy, call `.dup` on the returned value.
 
-Positions are immutable. Transformation methods return a **new frozen `Qi` instance**, leaving the original unchanged.
+### Transformations
 
-#### Modifying the Board
+All transformation methods return a **new frozen `Qi` instance**. The original is never modified.
 
-`board_diff(**squares)` accepts flat indices (0-based, row-major order) mapped to piece values (`nil` to empty a square):
+#### `board_diff(**squares)` → `Qi`
+
+Returns a new position with modified squares.
+
+Keys are flat indices (`Integer`, 0-based, row-major order). Values are `String` (piece) or `nil` (empty square).
 
 ```ruby
-# Move a piece from index 12 to index 28
 pos2 = pos.board_diff(12 => nil, 28 => "P")
 ```
 
-See [Flat Indexing](#flat-indexing) for computing flat indices from dimensional coordinates.
+**Raises** `ArgumentError` if an index is out of range, a value is not `String` or `nil`, or the resulting total piece count exceeds the board size.
 
-#### Modifying Hands
+See [Flat Indexing](#flat-indexing) for computing flat indices from coordinates.
 
-`first_player_hand_diff(**pieces)` and `second_player_hand_diff(**pieces)` accept piece identifiers mapped to integer deltas — positive to add, negative to remove. A delta of zero is a no-op for that piece.
+#### `first_player_hand_diff(**pieces)` → `Qi`
+#### `second_player_hand_diff(**pieces)` → `Qi`
 
-Piece matching for removal uses **value equality** (Ruby's `==` operator).
+Returns a new position with a modified hand.
+
+Keys are piece identifiers; values are integer deltas (positive to add, negative to remove, zero is a no-op). Removal uses **value equality** (`==`).
 
 ```ruby
-# Add a pawn to first player's hand
-pos2 = pos.first_player_hand_diff("P": 1)
-
-# Remove a bishop and add a pawn
-pos3 = pos.first_player_hand_diff("B": -1, "P": 1)
-
-# Add a captured pawn to second player's hand
-pos4 = pos.second_player_hand_diff("p": 1)
+pos2 = pos.first_player_hand_diff("P": 1)           # Add one "P"
+pos3 = pos.first_player_hand_diff("B": -1, "P": 1)  # Remove one "B", add one "P"
+pos4 = pos.second_player_hand_diff("p": 1)           # Add one "p" to second hand
 ```
 
-#### Toggling the Active Player
+**Symbol-to-String conversion:** Ruby keyword arguments produce Symbol keys. The hand diff methods convert these to Strings internally (`"P": 1` becomes key `:P`, stored as `"P"`). This is transparent in normal usage — the example above stores `"P"`, `"B"`, and `"p"` as Strings in the hand.
 
-`toggle` swaps the active player while preserving everything else:
+**Raises** `ArgumentError` if a delta is not an `Integer`, if removing a piece not present, or if the resulting total piece count exceeds the board size.
+
+#### `toggle` → `Qi`
+
+Returns a new position with the active player swapped. All other fields are preserved.
 
 ```ruby
-pos2 = pos.toggle
-pos2.turn  #=> :second
+pos.turn           #=> :first
+pos.toggle.turn    #=> :second
 ```
 
 #### Chaining
 
-Transformations compose naturally:
+Transformations compose naturally. A typical move involves modifying the board, optionally updating a hand, and toggling the turn:
 
 ```ruby
-# A complete move: clear source, fill destination, capture to hand, toggle turn
+# Simple move: slide a piece from index 12 to index 28
 pos2 = pos
   .board_diff(12 => nil, 28 => "P")
-  .first_player_hand_diff("p": 1)
+  .toggle
+
+# Capture: overwrite defender, add captured piece to hand, toggle
+pos3 = pos
+  .board_diff(12 => nil, 28 => "P")        # Attacker replaces defender
+  .first_player_hand_diff("p": 1)          # Captured piece goes to hand
   .toggle
 ```
 
-### Error Handling
-
-`Qi.new` raises `ArgumentError` on invalid input:
-
-```ruby
-Qi.new(0, 8, first_player_style: "C", second_player_style: "c")
-# => ArgumentError: dimension size must be at least 1, got 0
-```
-
-Transformation methods also raise `ArgumentError` for invalid operations:
-
-```ruby
-pos.board_diff(99 => "a")
-# => ArgumentError: invalid flat index: 99 (board has 64 squares)
-
-pos.board_diff(0 => :symbol)
-# => ArgumentError: piece must be a String, got Symbol
-
-pos.first_player_hand_diff("P": -1)
-# => ArgumentError: cannot remove "P": not found in hand
-```
+The Protocol does not prescribe how captures are modeled. In the example above, `board_diff(12 => nil, 28 => "P")` simultaneously vacates the source and overwrites the destination. The captured piece must be added to the hand separately — `board_diff` does not track what was previously on a square.
 
 ## Board Structure
 
 ### Shape and Dimensionality
 
-The board shape is defined by the dimension sizes passed to the constructor. The nesting depth of the array returned by `board` matches the number of dimensions:
+The nesting depth of the array returned by `board` matches the number of dimensions:
 
 | Dimensionality | Constructor | `board` returns |
 |----------------|-------------|-----------------|
@@ -217,7 +210,7 @@ For a shape `[D1, D2, ..., DN]`, the total number of squares is `D1 × D2 × ...
 
 ### Flat Indexing
 
-The `board_diff` method addresses squares by **flat index** — a single integer in **row-major order** (C order). The flat index is computed by traversing the nested structure depth-first, left-to-right, enumerating leaf elements from 0.
+`board_diff` addresses squares by **flat index** — a single integer in **row-major order** (C order).
 
 **1D board** with shape `[F]`:
 
@@ -253,6 +246,20 @@ Square `(rank=1, file=2)` → flat index `1 × 3 + 2 = 5`.
 flat_index = l × R × F + r × F + f
 ```
 
+### Piece Cardinality
+
+The total number of pieces across all locations (board squares + both hands) must never exceed the number of squares on the board. This invariant is enforced on every transformation.
+
+For a board with *n* squares and *p* total pieces: **0 ≤ p ≤ n**.
+
+```ruby
+pos = Qi.new(2, first_player_style: "C", second_player_style: "c")
+  .board_diff(0 => "a", 1 => "b")   # 2 pieces on 2 squares: OK
+
+pos.first_player_hand_diff("c": 1)
+# => ArgumentError: too many pieces for board size (3 pieces, 2 squares)
+```
+
 ## Validation Errors
 
 ### Validation Order
@@ -278,18 +285,13 @@ This order is part of the public API contract.
 
 ### Transformation Errors
 
-| Error message | Cause |
-|---------------|-------|
-| `"invalid flat index: I (board has N squares)"` | Board index out of range |
-| `"piece must be a String, got C"` | Non-string, non-nil value in board_diff |
-| `"hand piece must be a String, got C"` | Non-string piece in hand diff |
-| `"delta must be an Integer, got C for piece P"` | Non-integer delta in hand change |
-| `"cannot remove P: not found in hand"` | Removing a piece not present in hand |
-| `"too many pieces for board size (P pieces, N squares)"` | Transformation would exceed board capacity |
-
-### `inspect`
-
-Returns a developer-friendly string for debugging. The format is not stable and should not be parsed.
+| Error message | Method | Cause |
+|---------------|--------|-------|
+| `"invalid flat index: I (board has N squares)"` | `board_diff` | Index out of range or non-integer key |
+| `"piece must be a String, got C"` | `board_diff` | Non-string, non-nil value |
+| `"delta must be an Integer, got C for piece P"` | hand diffs | Non-integer delta |
+| `"cannot remove P: not found in hand"` | hand diffs | Removing more pieces than present |
+| `"too many pieces for board size (P pieces, N squares)"` | all | Total pieces would exceed board capacity |
 
 ## Design Principles
 
@@ -303,7 +305,7 @@ Returns a developer-friendly string for debugging. The format is not stable and 
 
 ## Thread Safety
 
-`Qi` instances are frozen at construction and all accessors return independent copies. This makes positions inherently thread-safe: they can be shared freely across threads without synchronization.
+`Qi` instances are frozen at construction. Accessors that return collections (`board`, hands, `shape`) produce independent copies on each call. Styles are frozen and returned directly. This makes positions inherently thread-safe: they can be shared freely across threads without synchronization.
 
 ## Ecosystem
 
@@ -315,23 +317,41 @@ Other libraries in the ecosystem build on `Qi` to provide those capabilities: [F
 
 This section provides guidance for porting `Qi` to other languages.
 
+### API Surface
+
+The complete public API consists of:
+
+- **1 constructor** — `Qi.new(*shape, first_player_style:, second_player_style:)`
+- **7 accessors** — `board`, `first_player_hand`, `second_player_hand`, `turn`, `first_player_style`, `second_player_style`, `shape`
+- **4 transformations** — `board_diff`, `first_player_hand_diff`, `second_player_hand_diff`, `toggle`
+- **1 debug** — `inspect`
+- **2 constants** — `MAX_DIMENSIONS`, `MAX_DIMENSION_SIZE`
+
 ### API Naming
 
 The Ruby API separates **accessors** (read) from **transformations** (diff) using a `_diff` suffix. In languages where this convention is unusual, alternatives include `with_board(...)` / `with_first_hand(...)` for a fluent style, or `update_board(...)` / `update_hand(side, ...)` for a more imperative style.
 
 ### Key Semantic Contracts
 
-**Pieces are strings.** Both board squares and hand contents must be `String` values (or `nil` / the language equivalent for empty squares). The string format is not constrained — any non-empty or empty string is valid. Reimplementations should enforce this type constraint at the boundary (construction and transformation methods).
+**Pieces are strings.** Both board squares and hand contents must be string values (or null/nil for empty squares). Any string is valid, including empty strings. Reimplementations should enforce this type constraint at the boundary (construction and transformation methods).
 
 **Piece equality is by value**, not by identity. Hand removal uses value-based matching (Ruby's `==`). Use the equivalent in your language (`Eq` in Rust, `__eq__` in Python, `equals()` in Java).
+
+**Piece cardinality is global.** The constraint `p ≤ n` counts pieces across all locations: board squares plus both hands. A transformation that adds a piece to a hand can exceed the limit even if the board has empty squares.
 
 **Validation order is guaranteed**: shape → styles. Tests assert which error is reported when multiple inputs are invalid simultaneously.
 
 **Positions are immutable**: all transformation methods return a new instance. The original is never modified.
 
-**Accessors copy or freeze**: mutable collections (`board`, hands, `shape`) return fresh copies. Styles are frozen at construction and returned directly (zero-cost access). `turn` returns an immutable Symbol.
+**Accessors protect internal state**: mutable collections (`board`, hands, `shape`) return fresh copies. Styles are frozen at construction and returned directly (zero-cost access). `turn` returns an immutable value.
 
-**The constructor creates an empty position**: board all `nil`, hands empty, turn `:first`. Pieces are added via `board_diff` and hand diff methods.
+**The constructor creates an empty position**: board all null, hands empty, turn is first player. Pieces are added via `board_diff` and hand diff methods.
+
+### Hand Diff and String Conversion
+
+In Ruby, keyword arguments produce Symbol keys, so `first_player_hand_diff("P": 1)` passes `{P: 1}` with key `:P` (a Symbol). The implementation converts this to the String `"P"` before storing.
+
+This is a Ruby-specific concern. In other languages, hand diff methods should accept string keys directly. The important contract is that the hand always contains strings, matching the board's piece type.
 
 ### Duplicate Key Policy
 
