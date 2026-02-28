@@ -367,55 +367,41 @@ run_test("empty string is a valid piece") do
 end
 
 puts
-puts "Invalid piece types:"
+puts "Non-string piece types (accepted — normalization is Qi's responsibility):"
 
-run_test("raises for symbol piece") do
-  Qi::Board.validate([:king, nil, :pawn])
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "piece must be a String, got Symbol"
+run_test("symbol pieces") do
+  sq, pc = Qi::Board.validate([:king, nil, :pawn])
+  raise "expected [3, 2]" unless sq == 3 && pc == 2
 end
 
-run_test("raises for integer piece") do
-  Qi::Board.validate([1, nil, 2])
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "piece must be a String, got Integer"
+run_test("integer pieces") do
+  sq, pc = Qi::Board.validate([1, nil, 2])
+  raise "expected [3, 2]" unless sq == 3 && pc == 2
 end
 
-run_test("raises for false piece") do
-  Qi::Board.validate([false, nil])
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "piece must be a String, got FalseClass"
+run_test("false is a valid piece (non-nil)") do
+  sq, pc = Qi::Board.validate([false, nil])
+  raise "expected [2, 1]" unless sq == 2 && pc == 1
 end
 
-run_test("raises for zero piece") do
-  Qi::Board.validate([0, nil])
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "piece must be a String, got Integer"
+run_test("zero is a valid piece (non-nil)") do
+  sq, pc = Qi::Board.validate([0, nil])
+  raise "expected [2, 1]" unless sq == 2 && pc == 1
 end
 
-run_test("raises for hash piece") do
-  Qi::Board.validate([{ name: "king" }, nil])
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "piece must be a String, got Hash"
+run_test("hash piece") do
+  sq, pc = Qi::Board.validate([{ name: "king" }, nil])
+  raise "expected [2, 1]" unless sq == 2 && pc == 1
 end
 
-run_test("raises for symbol piece on 2D board") do
-  Qi::Board.validate([[:a, nil], [nil, "b"]])
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "piece must be a String, got Symbol"
+run_test("mixed types on 2D board") do
+  sq, pc = Qi::Board.validate([[:a, nil], [nil, "b"]])
+  raise "expected [4, 2]" unless sq == 4 && pc == 2
 end
 
-run_test("raises for symbol piece on 3D board") do
-  Qi::Board.validate([[["a", nil], [nil, :b]]])
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "piece must be a String, got Symbol"
+run_test("mixed types on 3D board") do
+  sq, pc = Qi::Board.validate([[["a", nil], [nil, :b]]])
+  raise "expected [4, 2]" unless sq == 4 && pc == 2
 end
 
 puts

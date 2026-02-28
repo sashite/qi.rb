@@ -14,13 +14,13 @@ require_relative "qi/styles"
 #   where each square is either empty (+nil+) or occupied by a piece
 #   (+String+).
 # - *Hands* — collections of off-board pieces (+String+) held by each player.
-# - *Styles* — one style value per player side (format-free).
+# - *Styles* — one style +String+ per player side.
 # - *Turn* — which player is active (+:first+ or +:second+).
 #
-# Pieces are Strings, aligning naturally with the notation formats in the
-# Sashité ecosystem (FEEN, EPIN, PON). Style representations are
-# intentionally opaque: any non-nil Ruby object is a valid style value.
-# Qi validates piece types and structural integrity, not game semantics.
+# Pieces and styles are normalized to +String+ via interpolation
+# (<tt>"#{value}"</tt>), aligning naturally with the notation formats
+# in the Sashité ecosystem (FEEN, EPIN, PON, SIN). Qi validates
+# structural integrity, not game semantics.
 #
 # == Construction
 #
@@ -61,11 +61,14 @@ class Qi
   # Creates a validated, immutable position with an empty board.
   #
   # The board starts with all squares empty (+nil+), both hands empty,
-  # and the turn set to +:first+.
+  # and the turn set to +:first+. Styles are normalized to +String+
+  # and frozen.
   #
   # @param shape [Array<Integer>] dimension sizes (1 to 3 integers, each 1–255).
-  # @param first_player_style [Object] style for the first player (non-nil).
-  # @param second_player_style [Object] style for the second player (non-nil).
+  # @param first_player_style [#to_s] style for the first player (non-nil,
+  #   normalized to +String+).
+  # @param second_player_style [#to_s] style for the second player (non-nil,
+  #   normalized to +String+).
   # @return [Qi] an immutable, validated position.
   # @raise [ArgumentError] if any constraint is violated.
   #
@@ -76,8 +79,8 @@ class Qi
   #   Qi.new(5, 5, 5, first_player_style: "R", second_player_style: "r")
   def initialize(*shape, first_player_style:, second_player_style:)
     validate_shape(shape)
-    validate_style(:first, first_player_style)
-    validate_style(:second, second_player_style)
+    validate_not_nil(:first, first_player_style)
+    validate_not_nil(:second, second_player_style)
 
     @shape               = shape.freeze
     @chunk_sizes         = compute_chunk_sizes(shape).freeze
@@ -85,8 +88,8 @@ class Qi
     @board               = ::Array.new(@square_count)
     @first_hand          = []
     @second_hand         = []
-    @first_player_style  = first_player_style.dup.freeze
-    @second_player_style = second_player_style.dup.freeze
+    @first_player_style  = "#{first_player_style}".freeze
+    @second_player_style = "#{second_player_style}".freeze
     @turn                = :first
     @board_piece_count   = 0
 
@@ -133,14 +136,14 @@ class Qi
 
   # Returns the first player's style.
   #
-  # @return [Object] the style value (frozen). Safe to read but not to mutate.
+  # @return [String] frozen style value.
   def first_player_style
     @first_player_style
   end
 
   # Returns the second player's style.
   #
-  # @return [Object] the style value (frozen). Safe to read but not to mutate.
+  # @return [String] frozen style value.
   def second_player_style
     @second_player_style
   end
@@ -157,13 +160,12 @@ class Qi
   # Returns a new position with modified squares on the board.
   #
   # Accepts keyword arguments where each key is a flat index (Integer,
-  # 0-based, row-major order) and each value is a piece (+String+) or
-  # +nil+ (empty square).
+  # 0-based, row-major order) and each value is a piece (normalized to
+  # +String+) or +nil+ (empty square).
   #
-  # @param squares [Hash{Integer => String, nil}] flat index to piece mapping.
+  # @param squares [Hash{Integer => #to_s, nil}] flat index to piece mapping.
   # @return [Qi] a new immutable position with the updated board.
   # @raise [ArgumentError] if a key is not a valid flat index.
-  # @raise [ArgumentError] if a value is not a String or nil.
   # @raise [ArgumentError] if the resulting piece count exceeds the board size.
   #
   # @example Move a piece from index 12 to index 28
@@ -177,9 +179,7 @@ class Qi
         raise ::ArgumentError, "invalid flat index: #{flat_index} (board has #{@square_count} squares)"
       end
 
-      if !value.nil? && !value.is_a?(::String)
-        raise ::ArgumentError, "piece must be a String, got #{value.class}"
-      end
+      value = "#{value}" unless value.nil?
 
       old_value = new_board[flat_index]
       # Track net change in piece count: +1 if filling, -1 if emptying, 0 if replacing.
@@ -192,14 +192,12 @@ class Qi
 
   # Returns a new position with the first player's hand modified.
   #
-  # Accepts keyword arguments where each key is a piece identifier and
-  # each value is an integer delta: positive adds copies, negative removes
-  # matching pieces (by value equality). A delta of zero is a no-op.
+  # Accepts keyword arguments where each key is a piece identifier
+  # (normalized to +String+) and each value is an integer delta:
+  # positive adds copies, negative removes matching pieces (by value
+  # equality). A delta of zero is a no-op.
   #
-  # Keyword argument keys are Symbols; they are converted to Strings
-  # internally to match the String piece constraint.
-  #
-  # @param pieces [Hash{Symbol => Integer}] piece to delta mapping.
+  # @param pieces [Hash{#to_s => Integer}] piece to delta mapping.
   # @return [Qi] a new immutable position with the updated hand.
   # @raise [ArgumentError] if a delta is not an Integer.
   # @raise [ArgumentError] if removing more pieces than present.
@@ -214,14 +212,12 @@ class Qi
 
   # Returns a new position with the second player's hand modified.
   #
-  # Accepts keyword arguments where each key is a piece identifier and
-  # each value is an integer delta: positive adds copies, negative removes
-  # matching pieces (by value equality). A delta of zero is a no-op.
+  # Accepts keyword arguments where each key is a piece identifier
+  # (normalized to +String+) and each value is an integer delta:
+  # positive adds copies, negative removes matching pieces (by value
+  # equality). A delta of zero is a no-op.
   #
-  # Keyword argument keys are Symbols; they are converted to Strings
-  # internally to match the String piece constraint.
-  #
-  # @param pieces [Hash{Symbol => Integer}] piece to delta mapping.
+  # @param pieces [Hash{#to_s => Integer}] piece to delta mapping.
   # @return [Qi] a new immutable position with the updated hand.
   # @raise [ArgumentError] if a delta is not an Integer.
   # @raise [ArgumentError] if removing more pieces than present.
@@ -325,7 +321,7 @@ class Qi
     end
   end
 
-  def validate_style(side, style)
+  def validate_not_nil(side, style)
     raise ::ArgumentError, "#{side} player style must not be nil" if style.nil?
   end
 
@@ -339,8 +335,7 @@ class Qi
 
   # Applies delta changes to a hand array, returning a new array.
   #
-  # Piece keys (Symbols from kwargs) are converted to Strings via
-  # interpolation to satisfy the String piece constraint.
+  # Piece keys are normalized to String via interpolation.
   def apply_hand_changes(hand, changes)
     result = hand.dup
 

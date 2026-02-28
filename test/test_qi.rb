@@ -60,10 +60,10 @@ run_test("hands start empty") do
   raise "wrong second hand" unless pos.second_player_hand == []
 end
 
-run_test("symbol styles") do
+run_test("symbol styles are normalized to strings") do
   pos = Qi.new(8, 8, first_player_style: :chess, second_player_style: :shogi)
-  raise "wrong first style" unless pos.first_player_style == :chess
-  raise "wrong second style" unless pos.second_player_style == :shogi
+  raise "wrong first style" unless pos.first_player_style == "chess"
+  raise "wrong second style" unless pos.second_player_style == "shogi"
 end
 
 run_test("string styles") do
@@ -72,14 +72,14 @@ run_test("string styles") do
   raise "wrong second style" unless pos.second_player_style == "c"
 end
 
-run_test("false is a valid style (non-nil)") do
+run_test("false style is normalized to string") do
   pos = Qi.new(1, first_player_style: false, second_player_style: false)
-  raise "wrong style" unless pos.first_player_style == false
+  raise "wrong style" unless pos.first_player_style == "false"
 end
 
-run_test("zero is a valid style (non-nil)") do
+run_test("zero style is normalized to string") do
   pos = Qi.new(1, first_player_style: 0, second_player_style: 0)
-  raise "wrong style" unless pos.first_player_style == 0
+  raise "wrong style" unless pos.first_player_style == "0"
 end
 
 run_test("position is frozen") do
@@ -378,36 +378,28 @@ rescue ArgumentError => e
   raise "wrong message: #{e.message}" unless e.message.include?("invalid flat index")
 end
 
-run_test("raises for symbol piece") do
+run_test("symbol piece is normalized to string") do
   pos = Qi.new(2, first_player_style: "C", second_player_style: "c")
-  pos.board_diff(0 => :a)
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "piece must be a String, got Symbol"
+  pos2 = pos.board_diff(0 => :a)
+  raise "wrong board" unless pos2.board == ["a", nil]
 end
 
-run_test("raises for integer piece") do
+run_test("integer piece is normalized to string") do
   pos = Qi.new(2, first_player_style: "C", second_player_style: "c")
-  pos.board_diff(0 => 42)
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "piece must be a String, got Integer"
+  pos2 = pos.board_diff(0 => 42)
+  raise "wrong board" unless pos2.board == ["42", nil]
 end
 
-run_test("raises for array piece") do
+run_test("array piece is normalized to string") do
   pos = Qi.new(2, first_player_style: "C", second_player_style: "c")
-  pos.board_diff(0 => [:king])
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "piece must be a String, got Array"
+  pos2 = pos.board_diff(0 => [:king])
+  raise "wrong board" unless pos2.board == ["[:king]", nil]
 end
 
-run_test("raises for false piece") do
+run_test("false piece is normalized to string") do
   pos = Qi.new(2, first_player_style: "C", second_player_style: "c")
-  pos.board_diff(0 => false)
-  raise "should have raised"
-rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "piece must be a String, got FalseClass"
+  pos2 = pos.board_diff(0 => false)
+  raise "wrong board" unless pos2.board == ["false", nil]
 end
 
 run_test("raises when adding pieces beyond board capacity") do

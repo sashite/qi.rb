@@ -9,7 +9,9 @@ class Qi
   # - A *2D board* is an array of ranks: +[[nil, nil], ["K^", nil]]+
   # - A *3D board* is an array of layers, each an array of ranks.
   #
-  # Each leaf element (square) is either +nil+ (empty) or a +String+ (a piece).
+  # Each leaf element (square) is either +nil+ (empty) or any non-nil
+  # object (a piece). String normalization of pieces is the responsibility
+  # of the +Qi+ class, not of this module.
   #
   # == Constraints
   #
@@ -18,7 +20,6 @@ class Qi
   # - At least one square (non-empty board)
   # - Rectangular structure: all sub-arrays at the same depth must have
   #   identical length (enforced globally, not just per-sibling).
-  # - Pieces must be Strings.
   #
   # @example Validate a 2D board
   #   Qi::Board.validate([["a", nil], [nil, "b"]]) #=> [4, 2]
@@ -33,7 +34,7 @@ class Qi
     #
     # Validation is performed in a single recursive pass that simultaneously
     # infers the board shape, verifies structural regularity, checks dimension
-    # limits, validates piece types, and counts squares and pieces.
+    # limits, and counts squares and pieces.
     #
     # @param board [Object] the board structure to validate.
     # @return [Array(Integer, Integer)] +[square_count, piece_count]+.
@@ -51,10 +52,6 @@ class Qi
     # @example Non-rectangular boards are rejected
     #   Qi::Board.validate([["a", "b"], ["c"]])
     #   # => ArgumentError: non-rectangular board: expected 2 elements, got 1
-    #
-    # @example Non-string pieces are rejected
-    #   Qi::Board.validate([:a, nil])
-    #   # => ArgumentError: piece must be a String, got Symbol
     def self.validate(board)
       unless board.is_a?(::Array)
         raise ::ArgumentError, "board must be an Array"
@@ -114,24 +111,14 @@ class Qi
 
         [total_squares, total_pieces]
       else
-        # Leaf rank: validate structure and piece types, then count pieces.
-        piece_count = 0
-
+        # Leaf rank: validate structure, then count pieces.
         node.each do |square|
           if square.is_a?(::Array)
             raise ::ArgumentError, "inconsistent board structure: expected flat squares at this level"
           end
-
-          next if square.nil?
-
-          unless square.is_a?(::String)
-            raise ::ArgumentError, "piece must be a String, got #{square.class}"
-          end
-
-          piece_count += 1
         end
 
-        [node.size, piece_count]
+        [node.size, node.count { |sq| !sq.nil? }]
       end
     end
 

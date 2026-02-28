@@ -8,9 +8,10 @@ class Qi
   # - +:first+ — the style associated with the first player side.
   # - +:second+ — the style associated with the second player side.
   #
-  # Style values are format-free: any non-nil object is accepted.
-  # Semantic validation (e.g., SIN compliance) is the responsibility
-  # of the encoding layer (FEEN, PON, etc.), not of Qi.
+  # Style values can be any non-nil object. String normalization is the
+  # responsibility of the +Qi+ class, not of this module. Semantic
+  # validation (e.g., SIN compliance) is the responsibility of the
+  # encoding layer (FEEN, PON, etc.).
   #
   # @example Validate string styles
   #   Qi::Styles.validate({ first: "C", second: "c" }) #=> nil
