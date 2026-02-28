@@ -109,18 +109,14 @@ class Qi
 
         [total_squares, total_pieces]
       else
-        # Leaf rank: count pieces.
-        piece_count = 0
-
+        # Leaf rank: validate structure, then count pieces.
         node.each do |square|
           if square.is_a?(::Array)
             raise ::ArgumentError, "inconsistent board structure: expected flat squares at this level"
           end
-
-          piece_count += 1 unless square.nil?
         end
 
-        [node.size, piece_count]
+        [node.size, node.count { |sq| !sq.nil? }]
       end
     end
 
