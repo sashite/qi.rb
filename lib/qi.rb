@@ -131,14 +131,18 @@ class Qi
 
   # Returns the first player's style.
   #
-  # @return [Object] independent copy of the style value.
+  # @return [Object] a duplicate of the style value. For mutable objects
+  #   (e.g., String), this is an independent copy. For immutable objects
+  #   (e.g., Symbol, Integer), +dup+ returns the object itself.
   def first_player_style
     @first_player_style.dup
   end
 
   # Returns the second player's style.
   #
-  # @return [Object] independent copy of the style value.
+  # @return [Object] a duplicate of the style value. For mutable objects
+  #   (e.g., String), this is an independent copy. For immutable objects
+  #   (e.g., Symbol, Integer), +dup+ returns the object itself.
   def second_player_style
     @second_player_style.dup
   end
