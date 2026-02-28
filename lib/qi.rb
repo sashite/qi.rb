@@ -357,12 +357,13 @@ class Qi
 
   # Reconstructs a nested board structure from a flat Array and a shape.
   # Returns an independent copy (new Arrays at every level).
-  def unflatten(flat, shape)
-    return flat.dup if shape.size == 1
+  # Uses a depth index to avoid allocating intermediate shape sub-arrays.
+  def unflatten(flat, shape, dim = 0)
+    return flat.dup if dim == shape.size - 1
 
-    chunk_size = shape[1..].reduce(:*)
+    chunk_size = shape[(dim + 1)..].reduce(:*)
     flat.each_slice(chunk_size).map do |slice|
-      unflatten(slice, shape[1..])
+      unflatten(slice, shape, dim + 1)
     end
   end
 
