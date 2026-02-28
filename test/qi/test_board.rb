@@ -263,7 +263,7 @@ run_test("rejects 4D board") do
   Qi::Board.validate(board)
   raise "should have raised"
 rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "board exceeds 3 dimensions (got 4)"
+  raise "wrong message: #{e.message}" unless e.message == "board exceeds 3 dimensions"
 end
 
 run_test("rejects 5D board") do
@@ -271,7 +271,7 @@ run_test("rejects 5D board") do
   Qi::Board.validate(board)
   raise "should have raised"
 rescue ArgumentError => e
-  raise "wrong message: #{e.message}" unless e.message == "board exceeds 3 dimensions (got 5)"
+  raise "wrong message: #{e.message}" unless e.message == "board exceeds 3 dimensions"
 end
 
 # ============================================================================

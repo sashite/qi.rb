@@ -85,8 +85,7 @@ class Qi
       if node.first.is_a?(::Array)
         # Intermediate dimension: validate depth, then recurse.
         if depth >= MAX_DIMENSIONS - 1
-          actual = depth + 1 + probe_depth(node.first)
-          raise ::ArgumentError, "board exceeds #{MAX_DIMENSIONS} dimensions (got #{actual})"
+          raise ::ArgumentError, "board exceeds #{MAX_DIMENSIONS} dimensions"
         end
 
         inner_size = node.first.size
@@ -121,20 +120,5 @@ class Qi
     end
 
     private_class_method :validate_recursive
-
-    # Counts remaining nesting levels by following the first child.
-    def self.probe_depth(node)
-      depth = 1
-      current = node
-
-      while current.is_a?(::Array) && current.first.is_a?(::Array)
-        depth += 1
-        current = current.first
-      end
-
-      depth
-    end
-
-    private_class_method :probe_depth
   end
 end
