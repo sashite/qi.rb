@@ -112,15 +112,15 @@ pos = Qi.new(8, 8, first_player_style: "C", second_player_style: "c")
 
 ### Accessors
 
-All accessors return **independent copies** of the internal state. Mutating the returned value has no effect on the position.
+Accessors for mutable structures (`board`, `first_player_hand`, `second_player_hand`, `shape`) return **independent copies**. Mutating the returned value has no effect on the position. Styles are returned **frozen** (no allocation on access). `turn` returns an immutable Symbol.
 
 ```ruby
 pos.board                #=> [["r", "n", "b", ...], ...]
 pos.first_player_hand    #=> []
 pos.second_player_hand   #=> []
 pos.turn                 #=> :first
-pos.first_player_style   #=> "C"
-pos.second_player_style  #=> "c"
+pos.first_player_style   #=> "C" (frozen)
+pos.second_player_style  #=> "c" (frozen)
 pos.shape                #=> [8, 8]
 ```
 
@@ -329,7 +329,7 @@ The Ruby API separates **accessors** (read) from **transformations** (diff) usin
 
 **Positions are immutable**: all transformation methods return a new instance. The original is never modified.
 
-**Accessors always copy**: each call returns fresh, independent data structures that the caller owns.
+**Accessors copy or freeze**: mutable collections (`board`, hands, `shape`) return fresh copies. Styles are frozen at construction and returned directly (zero-cost access). `turn` returns an immutable Symbol.
 
 **The constructor creates an empty position**: board all `nil`, hands empty, turn `:first`. Pieces are added via `board_diff` and hand diff methods.
 

@@ -79,15 +79,16 @@ class Qi
     validate_style(:first, first_player_style)
     validate_style(:second, second_player_style)
 
-    @shape              = shape.freeze
-    @square_count       = shape.reduce(:*)
-    @board              = ::Array.new(@square_count)
-    @first_hand         = []
-    @second_hand        = []
-    @first_player_style = first_player_style.dup
-    @second_player_style = second_player_style.dup
-    @turn               = :first
-    @board_piece_count  = 0
+    @shape               = shape.freeze
+    @chunk_sizes         = compute_chunk_sizes(shape).freeze
+    @square_count        = shape.reduce(:*)
+    @board               = ::Array.new(@square_count)
+    @first_hand          = []
+    @second_hand         = []
+    @first_player_style  = first_player_style.dup.freeze
+    @second_player_style = second_player_style.dup.freeze
+    @turn                = :first
+    @board_piece_count   = 0
 
     freeze
   end
@@ -106,7 +107,7 @@ class Qi
   #     .board_diff(0 => "a", 5 => "b")
   #   pos.board #=> [["a", nil, nil], [nil, nil, "b"]]
   def board
-    unflatten(@board, @shape)
+    unflatten(@board, @chunk_sizes, 0)
   end
 
   # Returns the pieces held by the first player.
@@ -132,20 +133,16 @@ class Qi
 
   # Returns the first player's style.
   #
-  # @return [Object] a duplicate of the style value. For mutable objects
-  #   (e.g., String), this is an independent copy. For immutable objects
-  #   (e.g., Symbol, Integer), +dup+ returns the object itself.
+  # @return [Object] the style value (frozen). Safe to read but not to mutate.
   def first_player_style
-    @first_player_style.dup
+    @first_player_style
   end
 
   # Returns the second player's style.
   #
-  # @return [Object] a duplicate of the style value. For mutable objects
-  #   (e.g., String), this is an independent copy. For immutable objects
-  #   (e.g., Symbol, Integer), +dup+ returns the object itself.
+  # @return [Object] the style value (frozen). Safe to read but not to mutate.
   def second_player_style
-    @second_player_style.dup
+    @second_player_style
   end
 
   # Returns the board dimensions.
@@ -279,19 +276,21 @@ class Qi
 
     instance = self.class.allocate
     instance.send(:init_derived, board, first_hand, second_hand, turn,
-                  @shape, @square_count, board_piece_count,
+                  @shape, @chunk_sizes, @square_count, board_piece_count,
                   @first_player_style, @second_player_style)
     instance
   end
 
   # Assigns instance variables for a derived position and freezes it.
-  def init_derived(board, first_hand, second_hand, turn, shape, square_count,
-                   board_piece_count, first_player_style, second_player_style)
+  def init_derived(board, first_hand, second_hand, turn, shape, chunk_sizes,
+                   square_count, board_piece_count, first_player_style,
+                   second_player_style)
     @board               = board
     @first_hand          = first_hand
     @second_hand         = second_hand
     @turn                = turn
     @shape               = shape
+    @chunk_sizes         = chunk_sizes
     @square_count        = square_count
     @board_piece_count   = board_piece_count
     @first_player_style  = first_player_style
@@ -340,8 +339,8 @@ class Qi
 
   # Applies delta changes to a hand array, returning a new array.
   #
-  # Piece keys (Symbols from kwargs) are converted to Strings via +to_s+
-  # to satisfy the String piece constraint.
+  # Piece keys (Symbols from kwargs) are converted to Strings via
+  # interpolation to satisfy the String piece constraint.
   def apply_hand_changes(hand, changes)
     result = hand.dup
 
@@ -350,11 +349,13 @@ class Qi
         raise ::ArgumentError, "delta must be an Integer, got #{delta.class} for piece #{piece_key.inspect}"
       end
 
+      next if delta == 0
+
       piece = "#{piece_key}"
 
-      if delta.positive?
+      if delta > 0
         delta.times { result << piece }
-      elsif delta.negative?
+      else
         (-delta).times do
           idx = result.index(piece)
 
@@ -372,15 +373,29 @@ class Qi
 
   # --- Board helpers -----------------------------------------------------------
 
-  # Reconstructs a nested board structure from a flat Array and a shape.
-  # Returns an independent copy (new Arrays at every level).
-  # Uses a depth index to avoid allocating intermediate shape sub-arrays.
-  def unflatten(flat, shape, dim = 0)
-    return flat.dup if dim == shape.size - 1
+  # Pre-computes chunk sizes for each dimension level.
+  # For shape [8, 8], returns [8, 1].
+  # For shape [5, 5, 5], returns [25, 5, 1].
+  # For shape [8], returns [1].
+  def compute_chunk_sizes(shape)
+    sizes = ::Array.new(shape.size)
+    sizes[-1] = 1
+    (shape.size - 2).downto(0) do |i|
+      sizes[i] = sizes[i + 1] * shape[i + 1]
+    end
+    sizes
+  end
 
-    chunk_size = shape[(dim + 1)..].reduce(:*)
-    flat.each_slice(chunk_size).map do |slice|
-      unflatten(slice, shape, dim + 1)
+  # Reconstructs a nested board structure from a flat Array and
+  # pre-computed chunk sizes. Returns an independent copy.
+  def unflatten(flat, chunk_sizes, dim)
+    if dim == chunk_sizes.size - 1
+      return flat.dup
+    end
+
+    chunk = chunk_sizes[dim]
+    flat.each_slice(chunk).map do |slice|
+      unflatten(slice, chunk_sizes, dim + 1)
     end
   end
 

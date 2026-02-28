@@ -79,5 +79,7 @@ class Qi
     private_class_method :validate_shape,
                          :validate_arrays,
                          :validate_hand
+
+    freeze
   end
 end

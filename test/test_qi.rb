@@ -237,18 +237,14 @@ run_test("second_player_hand returns a copy") do
   raise "should be different objects" if h1.equal?(h2)
 end
 
-run_test("first_player_style returns a copy") do
+run_test("first_player_style is frozen") do
   pos = Qi.new(1, first_player_style: "C", second_player_style: "c")
-  s = pos.first_player_style
-  s << "X"
-  raise "position was affected" unless pos.first_player_style == "C"
+  raise "should be frozen" unless pos.first_player_style.frozen?
 end
 
-run_test("second_player_style returns a copy") do
+run_test("second_player_style is frozen") do
   pos = Qi.new(1, first_player_style: "C", second_player_style: "c")
-  s = pos.second_player_style
-  s << "X"
-  raise "position was affected" unless pos.second_player_style == "c"
+  raise "should be frozen" unless pos.second_player_style.frozen?
 end
 
 run_test("shape returns a copy") do

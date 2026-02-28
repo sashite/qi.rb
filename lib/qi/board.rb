@@ -136,5 +136,7 @@ class Qi
     end
 
     private_class_method :validate_recursive
+
+    freeze
   end
 end

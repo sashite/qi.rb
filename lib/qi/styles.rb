@@ -67,5 +67,7 @@ class Qi
 
     private_class_method :validate_shape,
                          :validate_non_nil
+
+    freeze
   end
 end
