@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "qi/board"
+
 # A minimal, format-agnostic library for representing positions in
 # two-player, turn-based board games.
 #
@@ -50,8 +52,8 @@
 #   pos.turn               #=> :first
 #   pos.first_player_hand  #=> []
 class Qi
-  MAX_DIMENSIONS     = 3
-  MAX_DIMENSION_SIZE = 255
+  MAX_DIMENSIONS     = Board::MAX_DIMENSIONS
+  MAX_DIMENSION_SIZE = Board::MAX_DIMENSION_SIZE
 
   # Creates a validated, immutable position with an empty board.
   #
