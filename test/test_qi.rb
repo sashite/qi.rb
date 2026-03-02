@@ -121,6 +121,13 @@ rescue ArgumentError => e
   raise "wrong message: #{e.message}" unless e.message == "dimension size 256 exceeds maximum of 255"
 end
 
+Test("raises for square count exceeding limit") do
+  Qi.new([255, 255, 2], first_player_style: "C", second_player_style: "c")
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message: #{e.message}" unless e.message == "board exceeds 65025 squares (got 130050)"
+end
+
 # ============================================================================
 # CONSTRUCTION ERRORS — STYLES
 # ============================================================================
@@ -168,6 +175,155 @@ Test("raises for false style") do
   raise "should have raised"
 rescue ArgumentError => e
   raise "wrong message: #{e.message}" unless e.message == "first player style must be a String"
+end
+
+Test("raises for oversized first style") do
+  Qi.new([1], first_player_style: "A" * 256, second_player_style: "c")
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message: #{e.message}" unless e.message == "first player style exceeds 255 bytes"
+end
+
+Test("raises for oversized second style") do
+  Qi.new([1], first_player_style: "C", second_player_style: "A" * 256)
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message: #{e.message}" unless e.message == "second player style exceeds 255 bytes"
+end
+
+# ============================================================================
+# FROZEN STATE — CONSTRUCTION
+# ============================================================================
+
+puts
+puts "Frozen state (construction):"
+
+Test("board is frozen after construction") do
+  pos = Qi.new([4], first_player_style: "C", second_player_style: "c")
+  raise "board not frozen" unless pos.board.frozen?
+end
+
+Test("first_player_hand is frozen after construction") do
+  pos = Qi.new([4], first_player_style: "C", second_player_style: "c")
+  raise "first hand not frozen" unless pos.first_player_hand.frozen?
+end
+
+Test("second_player_hand is frozen after construction") do
+  pos = Qi.new([4], first_player_style: "C", second_player_style: "c")
+  raise "second hand not frozen" unless pos.second_player_hand.frozen?
+end
+
+Test("shape is frozen after construction") do
+  pos = Qi.new([8, 8], first_player_style: "C", second_player_style: "c")
+  raise "shape not frozen" unless pos.shape.frozen?
+end
+
+Test("board mutation raises FrozenError") do
+  pos = Qi.new([4], first_player_style: "C", second_player_style: "c")
+  pos.board[0] = "X"
+  raise "should have raised"
+rescue FrozenError
+  # expected
+end
+
+Test("first hand mutation raises FrozenError") do
+  pos = Qi.new([4], first_player_style: "C", second_player_style: "c")
+  pos.first_player_hand["X"] = 1
+  raise "should have raised"
+rescue FrozenError
+  # expected
+end
+
+Test("second hand mutation raises FrozenError") do
+  pos = Qi.new([4], first_player_style: "C", second_player_style: "c")
+  pos.second_player_hand["X"] = 1
+  raise "should have raised"
+rescue FrozenError
+  # expected
+end
+
+Test("shape mutation raises FrozenError") do
+  pos = Qi.new([8, 8], first_player_style: "C", second_player_style: "c")
+  pos.shape[0] = 999
+  raise "should have raised"
+rescue FrozenError
+  # expected
+end
+
+# ============================================================================
+# FROZEN STATE — AFTER TRANSFORMATIONS
+# ============================================================================
+
+puts
+puts "Frozen state (after transformations):"
+
+Test("board is frozen after board_diff") do
+  pos = Qi.new([4], first_player_style: "C", second_player_style: "c")
+    .board_diff(0 => "K")
+  raise "board not frozen" unless pos.board.frozen?
+end
+
+Test("first hand is frozen after first_player_hand_diff") do
+  pos = Qi.new([4], first_player_style: "C", second_player_style: "c")
+    .first_player_hand_diff(P: 1)
+  raise "first hand not frozen" unless pos.first_player_hand.frozen?
+end
+
+Test("second hand is frozen after second_player_hand_diff") do
+  pos = Qi.new([4], first_player_style: "C", second_player_style: "c")
+    .second_player_hand_diff(p: 1)
+  raise "second hand not frozen" unless pos.second_player_hand.frozen?
+end
+
+Test("board is frozen after toggle") do
+  pos = Qi.new([4], first_player_style: "C", second_player_style: "c")
+    .board_diff(0 => "K")
+    .toggle
+  raise "board not frozen" unless pos.board.frozen?
+end
+
+Test("hands are frozen after chained transformations") do
+  pos = Qi.new([4], first_player_style: "C", second_player_style: "c")
+    .board_diff(0 => "a")
+    .first_player_hand_diff(P: 1)
+    .second_player_hand_diff(p: 1)
+    .toggle
+  raise "board not frozen" unless pos.board.frozen?
+  raise "first hand not frozen" unless pos.first_player_hand.frozen?
+  raise "second hand not frozen" unless pos.second_player_hand.frozen?
+  raise "shape not frozen" unless pos.shape.frozen?
+end
+
+Test("board mutation raises FrozenError after board_diff") do
+  pos = Qi.new([4], first_player_style: "C", second_player_style: "c")
+    .board_diff(0 => "K")
+  pos.board[0] = "X"
+  raise "should have raised"
+rescue FrozenError
+  # expected
+end
+
+Test("hand mutation raises FrozenError after hand_diff") do
+  pos = Qi.new([4], first_player_style: "C", second_player_style: "c")
+    .first_player_hand_diff(P: 1)
+  pos.first_player_hand["X"] = 1
+  raise "should have raised"
+rescue FrozenError
+  # expected
+end
+
+# ============================================================================
+# FROZEN STATE — INPUT ARRAY ISOLATION
+# ============================================================================
+
+puts
+puts "Frozen state (input isolation):"
+
+Test("freezing shape does not affect caller's array") do
+  original_shape = [8, 8]
+  Qi.new(original_shape, first_player_style: "C", second_player_style: "c")
+  original_shape[0] = 999
+  raise "caller's array should be mutable" unless original_shape == [999, 8]
 end
 
 # ============================================================================
@@ -411,6 +567,14 @@ rescue ArgumentError => e
   raise "wrong message" unless e.message == "piece must be a String, got Symbol"
 end
 
+Test("raises for oversized piece") do
+  pos = Qi.new([2], first_player_style: "C", second_player_style: "c")
+  pos.board_diff(0 => "A" * 256)
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message" unless e.message.include?("piece exceeds 255 bytes")
+end
+
 Test("raises when adding pieces beyond board capacity") do
   pos = Qi.new([1], first_player_style: "C", second_player_style: "c")
     .first_player_hand_diff(P: 1)
@@ -556,6 +720,14 @@ Test("raises for cardinality violation") do
   raise "should have raised"
 rescue ArgumentError => e
   raise "wrong message: #{e.message}" unless e.message == "too many pieces for board size (2 pieces, 1 squares)"
+end
+
+Test("raises for oversized piece in hand") do
+  pos = Qi.new([2], first_player_style: "C", second_player_style: "c")
+  pos.first_player_hand_diff("#{("A" * 256)}": 1)
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message" unless e.message.include?("piece exceeds 255 bytes")
 end
 
 # ============================================================================
@@ -826,6 +998,18 @@ end
 
 Test("MAX_DIMENSION_SIZE is 255") do
   raise "wrong" unless Qi::MAX_DIMENSION_SIZE == 255
+end
+
+Test("MAX_SQUARE_COUNT is 65025") do
+  raise "wrong" unless Qi::MAX_SQUARE_COUNT == 65_025
+end
+
+Test("MAX_PIECE_BYTESIZE is 255") do
+  raise "wrong" unless Qi::MAX_PIECE_BYTESIZE == 255
+end
+
+Test("MAX_STYLE_BYTESIZE is 255") do
+  raise "wrong" unless Qi::MAX_STYLE_BYTESIZE == 255
 end
 
 puts

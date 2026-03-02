@@ -170,6 +170,37 @@ rescue ArgumentError => e
 end
 
 # ============================================================================
+# VALIDATE_SHAPE — SQUARE COUNT LIMIT
+# ============================================================================
+
+puts
+puts "validate_shape — square count limit:"
+
+Test("3D within limit (5x5x5 = 125)") do
+  result = Qi::Board.validate_shape([5, 5, 5])
+  raise "expected 125, got #{result}" unless result == 125
+end
+
+Test("2D at limit (255x255 = 65025)") do
+  result = Qi::Board.validate_shape([255, 255])
+  raise "expected 65025, got #{result}" unless result == 65_025
+end
+
+Test("raises for 3D exceeding limit (255x255x2)") do
+  Qi::Board.validate_shape([255, 255, 2])
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message: #{e.message}" unless e.message == "board exceeds 65025 squares (got 130050)"
+end
+
+Test("raises for cubic max (255x255x255)") do
+  Qi::Board.validate_shape([255, 255, 255])
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message: #{e.message}" unless e.message == "board exceeds 65025 squares (got 16581375)"
+end
+
+# ============================================================================
 # APPLY_DIFF — PLACING PIECES
 # ============================================================================
 
@@ -342,6 +373,43 @@ Test("rejects hash piece") do
   raise "should have raised"
 rescue ArgumentError => e
   raise "wrong message: #{e.message}" unless e.message == "piece must be a String, got Hash"
+end
+
+# ============================================================================
+# APPLY_DIFF — PIECE BYTESIZE LIMIT
+# ============================================================================
+
+puts
+puts "apply_diff — piece bytesize limit:"
+
+Test("piece at 255 bytes is accepted") do
+  piece = "A" * 255
+  new_board, count = Qi::Board.apply_diff(Array.new(2), 2, 0, { 0 => piece })
+  raise "wrong board" unless new_board[0] == piece
+  raise "wrong count" unless count == 1
+end
+
+Test("rejects piece exceeding 255 bytes") do
+  piece = "A" * 256
+  Qi::Board.apply_diff(Array.new(2), 2, 0, { 0 => piece })
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message: #{e.message}" unless e.message == "piece exceeds 255 bytes (got 256)"
+end
+
+Test("rejects multi-byte piece exceeding limit") do
+  piece = "\u00e9" * 128
+  Qi::Board.apply_diff(Array.new(2), 2, 0, { 0 => piece })
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message" unless e.message.include?("piece exceeds 255 bytes")
+end
+
+Test("nil piece bypasses bytesize check") do
+  board = ["K", nil]
+  new_board, count = Qi::Board.apply_diff(board, 2, 1, { 0 => nil })
+  raise "wrong board" unless new_board == [nil, nil]
+  raise "wrong count" unless count == 0
 end
 
 # ============================================================================
@@ -538,6 +606,14 @@ end
 
 Test("MAX_DIMENSION_SIZE is 255") do
   raise "wrong" unless Qi::Board::MAX_DIMENSION_SIZE == 255
+end
+
+Test("MAX_SQUARE_COUNT is 65025") do
+  raise "wrong" unless Qi::Board::MAX_SQUARE_COUNT == 65_025
+end
+
+Test("MAX_PIECE_BYTESIZE is 255") do
+  raise "wrong" unless Qi::Board::MAX_PIECE_BYTESIZE == 255
 end
 
 puts

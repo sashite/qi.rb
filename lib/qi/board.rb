@@ -30,12 +30,15 @@ class Qi
   module Board
     MAX_DIMENSIONS     = 3
     MAX_DIMENSION_SIZE = 255
+    MAX_SQUARE_COUNT   = 65_025
+    MAX_PIECE_BYTESIZE = 255
 
     # Validates board dimensions and returns the total square count.
     #
     # @param shape [Array<Integer>] dimension sizes (1 to 3 integers, each 1–255).
     # @return [Integer] the total number of squares.
     # @raise [ArgumentError] if the shape is invalid.
+    # @raise [ArgumentError] if the total square count exceeds {MAX_SQUARE_COUNT}.
     #
     # @example
     #   Qi::Board.validate_shape([8, 8])    #=> 64
@@ -64,7 +67,13 @@ class Qi
         end
       end
 
-      shape.reduce(:*)
+      total = shape.reduce(:*)
+
+      if total > MAX_SQUARE_COUNT
+        raise ::ArgumentError, "board exceeds #{MAX_SQUARE_COUNT} squares (got #{total})"
+      end
+
+      total
     end
 
     # Applies changes to a flat board, returning a new array and updated piece count.
@@ -78,6 +87,7 @@ class Qi
     # @param changes [Hash{Integer => String, nil}] flat index to piece mapping.
     # @return [Array(Array, Integer)] +[new_board, new_board_piece_count]+.
     # @raise [ArgumentError] if an index is invalid or a piece is not a String.
+    # @raise [ArgumentError] if a piece exceeds {MAX_PIECE_BYTESIZE} bytes.
     #
     # @example Place two pieces
     #   Qi::Board.apply_diff(Array.new(4), 4, 0, { 0 => "K", 3 => "k" })
@@ -97,6 +107,10 @@ class Qi
 
         unless piece.nil? || piece.is_a?(::String)
           raise ::ArgumentError, "piece must be a String, got #{piece.class}"
+        end
+
+        if piece.is_a?(::String) && piece.bytesize > MAX_PIECE_BYTESIZE
+          raise ::ArgumentError, "piece exceeds #{MAX_PIECE_BYTESIZE} bytes (got #{piece.bytesize})"
         end
 
         old = new_board[index]

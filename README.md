@@ -27,7 +27,7 @@ pos2.board[4]   #=> "K"
 pos2.board[60]  #=> "k"
 ```
 
-Every transformation returns a **new instance**. The original is never modified.
+Every transformation returns a **new instance**. The original is never modified. All returned internal state is frozen — callers cannot corrupt positions through accessors.
 
 ## Overview
 
@@ -54,7 +54,7 @@ pos.board_diff(0 => "+P")              # Promoted — stored as "+P"
 
 ```ruby
 # In your Gemfile
-gem "qi", "~> 13.0"
+gem "qi", "~> 14.0"
 ```
 
 Or install manually:
@@ -77,9 +77,9 @@ Creates a position with an empty board.
 
 **Parameters:**
 
-- `shape` — an `Array` of one to three `Integer` dimension sizes (each 1–255).
-- `first_player_style:` — style for the first player (non-nil string).
-- `second_player_style:` — style for the second player (non-nil string).
+- `shape` — an `Array` of one to three `Integer` dimension sizes (each 1–255). The total number of squares (product of dimensions) must not exceed 65,025.
+- `first_player_style:` — style for the first player (non-nil string, at most 255 bytes).
+- `second_player_style:` — style for the second player (non-nil string, at most 255 bytes).
 
 The board starts with all squares empty (`nil`), both hands start empty, and the turn defaults to `:first`.
 
@@ -89,7 +89,7 @@ Qi.new([8], first_player_style: "G", second_player_style: "g")         # 1D
 Qi.new([5, 5, 5], first_player_style: "R", second_player_style: "r")   # 3D
 ```
 
-**Raises** `ArgumentError` if shape constraints are violated or if a style is `nil` (see [Validation Errors](#validation-errors)).
+**Raises** `ArgumentError` if shape constraints are violated, if total squares exceed the limit, or if a style is `nil` or oversized (see [Validation Errors](#validation-errors)).
 
 ### Constants
 
@@ -97,20 +97,23 @@ Qi.new([5, 5, 5], first_player_style: "R", second_player_style: "r")   # 3D
 |----------|-------|-------------|
 | `Qi::MAX_DIMENSIONS` | `3` | Maximum number of board dimensions |
 | `Qi::MAX_DIMENSION_SIZE` | `255` | Maximum size of any single dimension |
+| `Qi::MAX_SQUARE_COUNT` | `65025` | Maximum total number of squares on a board |
+| `Qi::MAX_PIECE_BYTESIZE` | `255` | Maximum bytesize of a piece string |
+| `Qi::MAX_STYLE_BYTESIZE` | `255` | Maximum bytesize of a style string |
 
 ### Accessors
 
-All accessors return internal state directly — no copies, no allocations.
+All accessors return frozen internal state — no copies, no allocations. Attempting to mutate a returned object raises `FrozenError`.
 
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `board` | `Array` | Flat array of `nil` or `String`. Indexed in row-major order. |
-| `first_player_hand` | `Hash{String => Integer}` | First player's held pieces as piece → count map. |
-| `second_player_hand` | `Hash{String => Integer}` | Second player's held pieces as piece → count map. |
+| `board` | `Array` | Flat array of `nil` or `String` (frozen). Indexed in row-major order. |
+| `first_player_hand` | `Hash{String => Integer}` | First player's held pieces as piece → count map (frozen). |
+| `second_player_hand` | `Hash{String => Integer}` | Second player's held pieces as piece → count map (frozen). |
 | `turn` | `Symbol` | `:first` or `:second`. |
 | `first_player_style` | `String` | First player's style. |
 | `second_player_style` | `String` | Second player's style. |
-| `shape` | `Array<Integer>` | Board dimensions (e.g., `[8, 8]`). |
+| `shape` | `Array<Integer>` | Board dimensions (e.g., `[8, 8]`) (frozen). |
 | `inspect` | `String` | Developer-friendly, unstable format. Do not parse. |
 
 ```ruby
@@ -144,13 +147,13 @@ All transformation methods return a **new `Qi` instance**. The original is never
 
 Returns a new position with modified squares.
 
-Keys are flat indices (`Integer`, 0-based, row-major order). Values are pieces (`String`) or `nil` (empty square).
+Keys are flat indices (`Integer`, 0-based, row-major order). Values are pieces (`String`, at most 255 bytes) or `nil` (empty square).
 
 ```ruby
 pos2 = pos.board_diff(12 => nil, 28 => "P")
 ```
 
-**Raises** `ArgumentError` if an index is out of range, if a piece is not a `String`, or if the resulting total piece count exceeds the board size.
+**Raises** `ArgumentError` if an index is out of range, if a piece is not a `String`, if a piece exceeds 255 bytes, or if the resulting total piece count exceeds the board size.
 
 See [Flat Indexing](#flat-indexing) for computing flat indices from coordinates.
 
@@ -159,7 +162,7 @@ See [Flat Indexing](#flat-indexing) for computing flat indices from coordinates.
 
 Returns a new position with a modified hand.
 
-Keys are piece identifiers; values are integer deltas (positive to add, negative to remove, zero is a no-op).
+Keys are piece identifiers (at most 255 bytes after string normalization); values are integer deltas (positive to add, negative to remove, zero is a no-op).
 
 ```ruby
 pos2 = pos.first_player_hand_diff("P": 1)           # Add one "P"
@@ -171,7 +174,7 @@ Internally, hands are stored as `{piece => count}` hashes. Adding and removing p
 
 **String normalization of keys:** Ruby keyword arguments produce Symbol keys, so `first_player_hand_diff("P": 1)` passes `{P: 1}` with key `:P` (a Symbol). The implementation normalizes this to the String `"P"` before storing. This is a Ruby-specific concern — the important contract is that the hand always contains strings, matching the board's piece type.
 
-**Raises** `ArgumentError` if a delta is not an `Integer`, if removing a piece not present, or if the resulting total piece count exceeds the board size.
+**Raises** `ArgumentError` if a delta is not an `Integer`, if a piece exceeds 255 bytes, if removing a piece not present, or if the resulting total piece count exceeds the board size.
 
 #### `toggle` → `Qi`
 
@@ -215,7 +218,7 @@ The `board` accessor always returns a flat array. Use `to_nested` when a nested 
 
 Each `square` is either `nil` (empty) or a `String` (a piece).
 
-For a shape `[D1, D2, ..., DN]`, the total number of squares is `D1 × D2 × ... × DN`.
+For a shape `[D1, D2, ..., DN]`, the total number of squares is `D1 × D2 × ... × DN`. This total must not exceed 65,025 (`MAX_SQUARE_COUNT`).
 
 ### Flat Indexing
 
@@ -275,8 +278,8 @@ pos.first_player_hand_diff("c": 1)
 
 Construction validates fields in a guaranteed order. When multiple errors exist, the **first** failing check determines the error message:
 
-1. **Shape** — dimension count, types, and bounds
-2. **Styles** — nil checks (first, then second), then type checks
+1. **Shape** — dimension count, types, bounds, then total square count
+2. **Styles** — nil checks (first, then second), then type checks, then bytesize checks
 
 This order is part of the public API contract.
 
@@ -289,10 +292,13 @@ This order is part of the public API contract.
 | `"dimension size must be an Integer, got C"` | Non-integer dimension size |
 | `"dimension size must be at least 1, got N"` | Dimension size is zero or negative |
 | `"dimension size N exceeds maximum of 255"` | Dimension size exceeds 255 |
+| `"board exceeds 65025 squares (got N)"` | Total square count exceeds limit |
 | `"first player style must not be nil"` | First style is `nil` |
 | `"second player style must not be nil"` | Second style is `nil` |
 | `"first player style must be a String"` | First style is not a String |
 | `"second player style must be a String"` | Second style is not a String |
+| `"first player style exceeds 255 bytes"` | First style is too large |
+| `"second player style exceeds 255 bytes"` | Second style is too large |
 
 ### Transformation Errors
 
@@ -300,6 +306,7 @@ This order is part of the public API contract.
 |---------------|--------|-------|
 | `"invalid flat index: I (board has N squares)"` | `board_diff` | Index out of range or non-integer key |
 | `"piece must be a String, got C"` | `board_diff` | Non-string piece value |
+| `"piece exceeds 255 bytes (got N)"` | `board_diff`, hand diffs | Piece string too large |
 | `"delta must be an Integer, got C for piece P"` | hand diffs | Non-integer delta |
 | `"cannot remove P: not found in hand"` | hand diffs | Removing more pieces than present |
 | `"too many pieces for board size (P pieces, N squares)"` | all | Total pieces would exceed board capacity |
@@ -308,7 +315,11 @@ This order is part of the public API contract.
 
 **Purely functional.** Every transformation method returns a new `Qi` instance. The original is never modified. This eliminates an entire class of bugs around shared mutable state and makes positions safe to use as hash keys, cache entries, or history snapshots.
 
-**Performance-oriented internals.** The board is stored as a flat array for O(1) random access via `board[index]`. Hands are stored as `{piece => count}` hashes for O(1) additions and removals. Accessors return internal state directly — no defensive copies, no freezing, no allocation overhead. String validation replaces coercion to avoid per-operation interpolation.
+**Frozen by default.** All mutable containers (board arrays, hand hashes, shape arrays) are frozen after construction. Accessors return these frozen objects directly — no defensive copies, no allocation overhead. Attempting to mutate a returned object raises `FrozenError`, making invariant violations impossible rather than merely documented.
+
+**Performance-oriented internals.** The board is stored as a flat array for O(1) random access via `board[index]`. Hands are stored as `{piece => count}` hashes for O(1) additions and removals. Freezing is O(1) per object (a bit flag in Ruby) and happens only in constructors, never on the hot path. String validation replaces coercion to avoid per-operation interpolation.
+
+**Bounded resource consumption.** All inputs are bounded: board dimensions (1–255 per axis, 65,025 total squares), piece strings (255 bytes), style strings (255 bytes). No input can trigger unbounded memory allocation. The library is safe to use in an internet-facing service with zero additional sanitization by the caller.
 
 **Diff-based transformations.** Rather than rebuilding a full position from scratch, `board_diff` and hand diff methods express changes as deltas against the current state. This keeps the API surface small (four transformation methods cover all possible state transitions) while making the intent of each operation explicit.
 
@@ -316,9 +327,7 @@ This order is part of the public API contract.
 
 ## Concurrency
 
-`Qi` instances are never mutated after creation. Transformation methods allocate new instances and share unchanged internal structures by reference. This makes positions safe to share across threads and Ractors without synchronization.
-
-Callers should treat returned accessors as read-only. Mutating the array returned by `board` or the hash returned by a hand accessor corrupts the position. If you need a mutable working copy, call `.dup` on the returned value.
+`Qi` instances are never mutated after creation. All internal containers are frozen at construction time. Transformation methods allocate new instances and share unchanged frozen structures by reference. This makes positions safe to share across threads and Ractors without synchronization.
 
 ## Ecosystem
 
@@ -338,11 +347,13 @@ The complete public API consists of:
 - **7 accessors** — `board`, `first_player_hand`, `second_player_hand`, `turn`, `first_player_style`, `second_player_style`, `shape`
 - **5 methods** — `board_diff`, `first_player_hand_diff`, `second_player_hand_diff`, `toggle`, `to_nested`
 - **1 debug** — `inspect`
-- **2 constants** — `MAX_DIMENSIONS`, `MAX_DIMENSION_SIZE`
+- **5 constants** — `MAX_DIMENSIONS`, `MAX_DIMENSION_SIZE`, `MAX_SQUARE_COUNT`, `MAX_PIECE_BYTESIZE`, `MAX_STYLE_BYTESIZE`
 
 ### Key Semantic Contracts
 
 **Pieces and styles are strings.** Board squares, hand contents, and style values are all stored as strings. Non-string inputs are rejected at the boundary.
+
+**All inputs are bounded.** Dimensions are capped at 255, total squares at 65,025, piece strings at 255 bytes, style strings at 255 bytes. No input can trigger unbounded memory allocation. Reimplementations must enforce these same limits to maintain the security properties.
 
 **Piece equality is by value**, not by identity. Hand operations use standard Ruby `==` for piece matching. Use the equivalent in your language (`Eq` in Rust, `__eq__` in Python, `equals()` in Java).
 
@@ -350,13 +361,13 @@ The complete public API consists of:
 
 **Nil means empty.** On the board, `nil` (or the language equivalent) represents an empty square. It is never coerced to a string. Styles must not be nil — this is the only nil-related error at construction.
 
-**Validation order is guaranteed**: shape → styles. Tests assert which error is reported when multiple inputs are invalid simultaneously.
+**Validation order is guaranteed**: shape (dimensions → total square count) → styles (nil → type → bytesize). Tests assert which error is reported when multiple inputs are invalid simultaneously.
 
 **Hands are piece → count maps.** Internally, hands use `{"P" => 2, "B" => 1}` rather than flat lists. This gives O(1) add/remove and makes count queries trivial. Empty entries (count reaching zero) are removed from the map.
 
 **The constructor creates an empty position**: board all nil, hands empty, turn is first player. Pieces are added via `board_diff` and hand diff methods.
 
-**Accessors return shared state**: callers must not mutate returned arrays or hashes. Languages with immutable data structures (Elixir, Haskell, Clojure) get this for free. In Ruby, this is a documented contract.
+**Accessors return frozen shared state.** In Ruby, all returned arrays and hashes are frozen, making mutation impossible. Languages with immutable data structures (Elixir, Haskell, Clojure) get this for free. In languages with mutable defaults (Python, Java, JavaScript), reimplementations should either freeze/lock returned structures or return defensive copies.
 
 ### Hand Diff and String Normalization
 

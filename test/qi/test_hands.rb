@@ -201,6 +201,59 @@ Test("empty string is a valid piece") do
 end
 
 # ============================================================================
+# APPLY_DIFF — PIECE BYTESIZE LIMIT
+# ============================================================================
+
+puts
+puts "apply_diff — piece bytesize limit:"
+
+Test("piece at 255 bytes is accepted") do
+  piece = "A" * 255
+  hand, count = Qi::Hands.apply_diff({}, 0, { piece => 1 })
+  raise "wrong hand" unless hand == { piece => 1 }
+  raise "wrong count" unless count == 1
+end
+
+Test("rejects string piece exceeding 255 bytes") do
+  piece = "A" * 256
+  Qi::Hands.apply_diff({}, 0, { piece => 1 })
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message: #{e.message}" unless e.message == "piece exceeds 255 bytes (got 256)"
+end
+
+Test("rejects symbol piece exceeding 255 bytes after normalization") do
+  piece = ("A" * 256).to_sym
+  Qi::Hands.apply_diff({}, 0, { piece => 1 })
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message: #{e.message}" unless e.message == "piece exceeds 255 bytes (got 256)"
+end
+
+Test("rejects multi-byte piece exceeding limit") do
+  piece = "\u00e9" * 128
+  Qi::Hands.apply_diff({}, 0, { piece => 1 })
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message" unless e.message.include?("piece exceeds 255 bytes")
+end
+
+Test("zero delta bypasses bytesize check") do
+  piece = "A" * 256
+  hand, count = Qi::Hands.apply_diff({}, 0, { piece => 0 })
+  raise "wrong hand" unless hand == {}
+  raise "wrong count" unless count == 0
+end
+
+Test("removal also validates bytesize") do
+  piece = "A" * 256
+  Qi::Hands.apply_diff({ piece => 1 }, 1, { piece => -1 })
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong message" unless e.message.include?("piece exceeds 255 bytes")
+end
+
+# ============================================================================
 # APPLY_DIFF — IMMUTABILITY
 # ============================================================================
 
@@ -311,6 +364,17 @@ Test("count correct after mixed add/remove") do
   hand, count = Qi::Hands.apply_diff({ "P" => 3 }, 3, { "P" => -2, "B" => 4 })
   raise "wrong count: #{count}" unless count == 5
   raise "count mismatch" unless count == hand.each_value.sum
+end
+
+# ============================================================================
+# CONSTANTS
+# ============================================================================
+
+puts
+puts "Constants:"
+
+Test("MAX_PIECE_BYTESIZE is 255") do
+  raise "wrong" unless Qi::Hands::MAX_PIECE_BYTESIZE == 255
 end
 
 puts

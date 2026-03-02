@@ -24,6 +24,8 @@ class Qi
   #   new_hand #=> { "P" => 1 }
   #   count    #=> 1
   module Hands
+    MAX_PIECE_BYTESIZE = 255
+
     # Applies delta changes to a hand, returning the new hash and its
     # piece count.
     #
@@ -44,6 +46,7 @@ class Qi
     # @return [Array(Hash{String => Integer}, Integer)]
     #   +[new_hand, new_piece_count]+.
     # @raise [ArgumentError] if a delta is not an Integer.
+    # @raise [ArgumentError] if a piece exceeds {MAX_PIECE_BYTESIZE} bytes.
     # @raise [ArgumentError] if removing more pieces than present.
     #
     # @example Add pieces
@@ -69,6 +72,10 @@ class Qi
         next if delta == 0
 
         piece = piece_key.is_a?(::Symbol) ? piece_key.name : piece_key
+
+        if piece.bytesize > MAX_PIECE_BYTESIZE
+          raise ::ArgumentError, "piece exceeds #{MAX_PIECE_BYTESIZE} bytes (got #{piece.bytesize})"
+        end
 
         current = result[piece] || 0
         new_count = current + delta

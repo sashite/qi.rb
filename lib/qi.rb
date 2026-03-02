@@ -20,6 +20,9 @@ require_relative "qi/styles"
 # Pieces and styles must be +String+ values. Non-string inputs are
 # rejected at the boundary to avoid per-operation coercion overhead.
 #
+# All returned internal state is frozen. Callers cannot mutate
+# positions through accessors.
+#
 # == Construction
 #
 # A position is constructed from the board shape and player styles.
@@ -32,8 +35,7 @@ require_relative "qi/styles"
 #
 # Use +board+, +first_player_hand+, +second_player_hand+, +turn+,
 # +first_player_style+, +second_player_style+, and +shape+ to read
-# field values. Accessors return internal state directly — callers
-# must not mutate the returned objects.
+# field values. Accessors return frozen internal state.
 #
 # == Transformations
 #
@@ -56,6 +58,9 @@ require_relative "qi/styles"
 class Qi
   MAX_DIMENSIONS     = Board::MAX_DIMENSIONS
   MAX_DIMENSION_SIZE = Board::MAX_DIMENSION_SIZE
+  MAX_SQUARE_COUNT   = Board::MAX_SQUARE_COUNT
+  MAX_PIECE_BYTESIZE = Board::MAX_PIECE_BYTESIZE
+  MAX_STYLE_BYTESIZE = Styles::MAX_STYLE_BYTESIZE
 
   # Creates a validated position with an empty board.
   #
@@ -77,10 +82,10 @@ class Qi
     @square_count        = Board.validate_shape(shape)
     @first_player_style  = Styles.validate(:first, first_player_style)
     @second_player_style = Styles.validate(:second, second_player_style)
-    @shape               = shape
-    @board               = ::Array.new(@square_count)
-    @first_hand          = {}
-    @second_hand         = {}
+    @shape               = shape.dup.freeze
+    @board               = ::Array.new(@square_count).freeze
+    @first_hand          = {}.freeze
+    @second_hand         = {}.freeze
     @turn                = :first
     @board_piece_count   = 0
     @first_hand_count    = 0
@@ -92,10 +97,10 @@ class Qi
   # Returns the board as a flat array in row-major order.
   #
   # Each element is +nil+ (empty square) or a +String+ (a piece).
-  # The returned array is the internal structure — do not mutate it.
-  # Use +to_nested+ when a nested structure is needed.
+  # The returned array is frozen. Use +to_nested+ when a nested
+  # structure is needed.
   #
-  # @return [Array<String, nil>] the flat board.
+  # @return [Array<String, nil>] the flat board (frozen).
   #
   # @example
   #   pos = Qi.new([4], first_player_style: "C", second_player_style: "c")
@@ -107,14 +112,14 @@ class Qi
 
   # Returns the pieces held by the first player.
   #
-  # @return [Hash{String => Integer}] piece to count map. Do not mutate.
+  # @return [Hash{String => Integer}] piece to count map (frozen).
   def first_player_hand
     @first_hand
   end
 
   # Returns the pieces held by the second player.
   #
-  # @return [Hash{String => Integer}] piece to count map. Do not mutate.
+  # @return [Hash{String => Integer}] piece to count map (frozen).
   def second_player_hand
     @second_hand
   end
@@ -142,7 +147,7 @@ class Qi
 
   # Returns the board dimensions.
   #
-  # @return [Array<Integer>] the shape (e.g., +[8, 8]+). Do not mutate.
+  # @return [Array<Integer>] the shape (e.g., +[8, 8]+) (frozen).
   def shape
     @shape
   end
@@ -272,8 +277,8 @@ class Qi
   # Skips shape and style validation since the source position already
   # guarantees these invariants. Only checks cardinality (done by caller).
   #
-  # Unchanged fields are shared by reference — safe because transformation
-  # methods never mutate existing state.
+  # Unchanged fields are shared by reference — safe because all internal
+  # state is frozen.
   def derive(board, first_hand, second_hand, turn,
              board_piece_count, first_hand_count, second_hand_count)
     instance = self.class.allocate
@@ -285,13 +290,16 @@ class Qi
   end
 
   # Assigns instance variables for a derived position.
+  #
+  # Freezes mutable containers (board, hands) to guarantee immutability.
+  # Shape and styles are already frozen (shared from the source position).
   def init_derived(board, first_hand, second_hand, turn, shape,
                    square_count, board_piece_count,
                    first_hand_count, second_hand_count,
                    first_player_style, second_player_style)
-    @board               = board
-    @first_hand          = first_hand
-    @second_hand         = second_hand
+    @board               = board.frozen? ? board : board.freeze
+    @first_hand          = first_hand.frozen? ? first_hand : first_hand.freeze
+    @second_hand         = second_hand.frozen? ? second_hand : second_hand.freeze
     @turn                = turn
     @shape               = shape
     @square_count        = square_count

@@ -130,7 +130,48 @@ rescue ArgumentError => e
 end
 
 # ============================================================================
-# VALIDATION ORDER — NIL BEFORE TYPE
+# BYTESIZE LIMIT
+# ============================================================================
+
+puts
+puts "validate — bytesize limit:"
+
+Test("style at 255 bytes is accepted") do
+  style = "A" * 255
+  result = Qi::Styles.validate(:first, style)
+  raise "wrong" unless result == style
+end
+
+Test("style at 255 bytes returns same object") do
+  style = "A" * 255
+  result = Qi::Styles.validate(:first, style)
+  raise "different object" unless result.equal?(style)
+end
+
+Test("raises for first style exceeding 255 bytes") do
+  Qi::Styles.validate(:first, "A" * 256)
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong: #{e.message}" unless e.message == "first player style exceeds 255 bytes"
+end
+
+Test("raises for second style exceeding 255 bytes") do
+  Qi::Styles.validate(:second, "A" * 256)
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong: #{e.message}" unless e.message == "second player style exceeds 255 bytes"
+end
+
+Test("rejects multi-byte style exceeding limit") do
+  style = "\u00e9" * 128
+  Qi::Styles.validate(:first, style)
+  raise "should have raised"
+rescue ArgumentError => e
+  raise "wrong" unless e.message.include?("exceeds 255 bytes")
+end
+
+# ============================================================================
+# VALIDATION ORDER — NIL BEFORE TYPE BEFORE BYTESIZE
 # ============================================================================
 
 puts
@@ -172,6 +213,29 @@ Test("second side in type error") do
   Qi::Styles.validate(:second, :shogi)
 rescue ArgumentError => e
   raise "wrong" unless e.message.start_with?("second ")
+end
+
+Test("first side in bytesize error") do
+  Qi::Styles.validate(:first, "A" * 256)
+rescue ArgumentError => e
+  raise "wrong" unless e.message.start_with?("first ")
+end
+
+Test("second side in bytesize error") do
+  Qi::Styles.validate(:second, "A" * 256)
+rescue ArgumentError => e
+  raise "wrong" unless e.message.start_with?("second ")
+end
+
+# ============================================================================
+# CONSTANTS
+# ============================================================================
+
+puts
+puts "Constants:"
+
+Test("MAX_STYLE_BYTESIZE is 255") do
+  raise "wrong" unless Qi::Styles::MAX_STYLE_BYTESIZE == 255
 end
 
 puts
